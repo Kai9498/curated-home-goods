@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LiviSpace 舒適家居 | 質感家具與居家生活</title>
+<style>
+  :root {
+    --primary: #8C7A6B; --primary-light: #D5CBBB; --bg-color: #F9F8F6;
+    --text-main: #333333; --text-muted: #777777; --danger: #D9534F;
+    --white: #FFFFFF; --border: #E0DCD3; --radius: 8px;
+    --shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'PingFang TC', sans-serif; }
+  body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-top: 70px; }
+  a { text-decoration: none; color: inherit; cursor: pointer; }
+  ul { list-style: none; }
+  button { cursor: pointer; border: none; background: none; font-family: inherit; }
+  input, select { border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-family: inherit; outline: none;}
+  
+  /* Header */
+  header { position: fixed; top: 0; width: 100%; height: 70px; background: var(--white); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1000; }
+  .logo { font-size: 24px; font-weight: bold; color: var(--primary); }
+  .search-bar { flex: 1; max-width: 500px; margin: 0 20px; }
+  .search-bar input { width: 100%; padding: 10px 15px; border-radius: 20px; }
+  .header-actions { display: flex; gap: 15px; align-items: center; }
+  .icon-btn { position: relative; padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--radius); }
+  .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
+
+  /* Navigation & Chips */
+  .chips-container { padding: 10px 5%; background: var(--white); border-bottom: 1px solid var(--border); display: flex; gap: 10px; overflow-x: auto; white-space: nowrap; }
+  .chip { padding: 5px 12px; background: var(--bg-color); border-radius: 15px; font-size: 14px; cursor: pointer; }
+  .chip:hover, .chip.active { background: var(--primary); color: white; }
+
+  /* Views & Layouts */
+  .view { display: none; padding: 20px 5%; min-height: calc(100vh - 150px); }
+  .view.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .grid-4 { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+  .flex-layout { display: flex; gap: 20px; }
+  .sidebar { width: 250px; flex-shrink: 0; background: var(--white); padding: 20px; border-radius: var(--radius); height: fit-content; }
+  .main-content { flex: 1; overflow-x: auto; }
+
+  /* Cards & Buttons */
+  .card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: transform 0.2s; display: flex; flex-direction: column; }
+  .card:hover { transform: translateY(-5px); }
+  .card-img { height: 200px; background: #EFEBE4; position: relative; cursor: pointer; }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
+  .card-title { font-weight: bold; margin-bottom: 5px; font-size: 16px; cursor: pointer; }
+  .card-bullets { font-size: 13px; color: var(--text-muted); flex: 1; margin-bottom: 10px; }
+  .card-price { color: var(--danger); font-size: 18px; font-weight: bold; }
+  .card-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  .btn { padding: 8px 15px; border-radius: var(--radius); cursor: pointer; font-size: 14px; text-align: center; display: inline-block; transition: 0.2s; }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-outline { border: 1px solid var(--primary); color: var(--primary); }
+
+  /* Compare & Toast & Tables */
+  #compare-bar { position: fixed; bottom: -100px; right: 20px; background: white; padding: 15px; border-radius: var(--radius); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); transition: bottom 0.3s; z-index: 1000; border: 1px solid var(--primary); }
+  #compare-bar.show { bottom: 20px; }
+  #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius); box-shadow: var(--shadow); animation: slideIn 0.3s ease; }
+  @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: var(--radius); overflow: hidden; }
+  th, td { border: 1px solid var(--border); padding: 12px 10px; text-align: left; }
+  th { background: var(--primary-light); white-space: nowrap; font-weight: bold; }
+  .highlight-diff { background-color: #FFF3CD; }
+
+  @media (max-width: 768px) {
+    .flex-layout { flex-direction: column; } .sidebar { width: 100%; }
+    .search-bar { display: none; } 
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><a href="#" onclick="app.navigate('home')">LiviSpace</a></div>
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="輸入家具類型或風格..." aria-label="搜尋家具">
+  </div>
+  <div class="header-actions">
+    <!-- 這裡修改了！點擊會另開新分頁開啟 backstage.html -->
+    <button class="icon-btn" style="background:#f1f1f1;" onclick="window.open('backstage.html', '_blank')" aria-label="後台管理">⚙️ 後台</button>
+    <button class="icon-btn" onclick="app.navigate('member')" aria-label="會員中心">會員</button>
+    <button class="icon-btn" onclick="app.navigate('compare')" aria-label="比較清單">比較 <span class="badge" id="compare-badge">0</span></button>
+    <button class="icon-btn" onclick="app.navigate('cart')" aria-label="購物車">購物車 <span class="badge" id="cart-badge">0</span></button>
+  </div>
+</header>
+
+<div class="chips-container" id="hot-keywords">
+  <span class="chip" onclick="app.search('L型沙發')">L型沙發</span>
+  <span class="chip" onclick="app.search('獨立筒床墊')">獨立筒床墊</span>
+  <span class="chip" onclick="app.search('北歐風')">北歐風</span>
+</div>
+
+<main id="app">
+  <!-- 首頁 -->
+  <div id="view-home" class="view">
+    <div style="background: var(--primary-light) url('https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; height: 250px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
+      <div style="background: rgba(255,255,255,0.85); padding: 20px 40px; border-radius: var(--radius);">
+        <h2 style="color: var(--primary); font-size: 28px; margin:0;">新居落成 成家專案</h2>
+      </div>
+    </div>
+    <h3>依空間選購</h3>
+    <div class="grid-4" style="margin: 15px 0 30px 0;">
+      <div class="card" onclick="app.filterByRoom('客廳')"><div class="card-img"><img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=400&q=80" alt="客廳"></div></div>
+      <div class="card" onclick="app.filterByRoom('臥室')"><div class="card-img"><img src="https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=400&q=80" alt="臥室"></div></div>
+      <div class="card" onclick="app.filterByRoom('餐廳')"><div class="card-img"><img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=400&q=80" alt="餐廳"></div></div>
+      <div class="card" onclick="app.filterByRoom('書房')"><div class="card-img"><img src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=400&q=80" alt="書房"></div></div>
+    <img src="image/1.png" alt="網站商標">
+    </div>
+    <h3>熱銷單品榜</h3>
+    <div class="grid-4" id="home-bestsellers" style="margin-top: 15px;"></div>
+  </div>
+
+  <!-- 商品列表 -->
+  <div id="view-list" class="view">
+    <div class="flex-layout">
+      <aside class="sidebar">
+        <h3>篩選條件</h3>
+        <div style="margin-top:15px;"><label>空間</label><select id="filter-room" onchange="app.renderList()" style="width:100%;"><option value="">全部</option><option value="客廳">客廳</option><option value="臥室">臥室</option><option value="餐廳">餐廳</option></select></div>
+      </aside>
+      <div class="main-content">
+        <div id="active-filters" class="chips-container" style="background:transparent; border:none; padding:0 0 15px 0;"></div>
+        <div class="grid-4" id="product-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 商品詳情 -->
+  <div id="view-detail" class="view"><div id="detail-content"></div></div>
+
+  <!-- 比較清單 -->
+  <div id="view-compare" class="view"><h2>商品比較</h2><div id="compare-content" style="margin-top: 20px; overflow-x: auto;"></div></div>
+
+  <!-- 購物車 -->
+  <div id="view-cart" class="view">
+    <h2>購物車</h2>
+    <div class="flex-layout" style="margin-top: 20px;">
+      <div class="main-content" id="cart-items"></div>
+      <aside class="sidebar">
+        <h3>訂單摘要</h3>
+        <div id="cart-summary" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"></div>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="app.navigate('checkout')">前往結帳</button>
+      </aside>
+    </div>
+  </div>
+
+  <!-- 結帳 -->
+  <div id="view-checkout" class="view">
+    <h2>結帳</h2>
+    <form onsubmit="app.submitOrder(event)" style="background: white; padding: 20px; border-radius: var(--radius); margin-top: 20px; max-width: 600px;">
+      <div style="margin-bottom:15px;"><label>姓名</label><input type="text" required style="width:100%; margin-top:5px;"></div>
+      <button type="submit" class="btn btn-primary" style="width: 100%;">確認下單</button>
+    </form>
+  </div>
+
+  <!-- 會員中心 -->
+  <div id="view-member" class="view">
+    <h2>會員中心</h2>
+    <div id="member-login" style="margin-top: 20px; background: white; padding: 20px; border-radius: var(--radius); max-width: 400px;">
+      <p>請輸入 Email 登入</p>
+      <input type="email" id="login-email" placeholder="example@mail.com" style="width: 100%; padding: 8px; margin: 10px 0;">
+      <button class="btn btn-primary" onclick="app.login()">登入</button>
+    </div>
+    <div id="member-dashboard" style="display: none; margin-top: 20px;">
+      <p>歡迎, <span id="user-email-display"></span> <button class="btn btn-outline" style="padding: 2px 8px;" onclick="app.logout()">登出</button></p>
+      <div class="flex-layout" style="margin-top: 20px;">
+        <div class="main-content"><h3>我的訂單</h3><div id="order-history"></div></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div id="compare-bar">
+  <span>已選擇 <strong id="compare-count">0</strong>/4 件商品進行比較</span>
+  <button class="btn btn-primary" style="margin-left: 15px;" onclick="app.navigate('compare')">查看</button>
+  <button class="btn btn-outline" style="margin-left: 5px;" onclick="app.clearCompare()">清空</button>
+</div>
+<div id="toast-container"></div>
+
+<script>
+const DB = { products: [] };
+function initializeProducts() {
+  const savedDb = localStorage.getItem('liviSpaceProducts');
+  if (savedDb) { DB.products = JSON.parse(savedDb); } 
+  else {
+    for (let i = 1; i <= 10; i++) {
+      DB.products.push({
+        id: `P00${i}`, name: `北歐實木家具${i}`, image: `https://picsum.photos/seed/${i * 123}/400/300`,
+        category: '沙發 Sofa', room: '客廳', style: '北歐風', price: 5000 + i*1000, originalPrice: 6000 + i*1000,
+        stock: 10, soldCount: 10, rating: "5.0", reviewCount: 5,
+        specs: { width: '150cm', depth: '60cm', height: '80cm', material: '實木', assemblyRequired: '否', warranty: '1年' },
+        serviceOptions: { assemblyFee: 500, recycleFee: 800 }, deliveryNotes: '一般配送'
+      });
+    }
+    localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
+  }
+}
+
+const app = {
+  state: { view: 'home', cart: [], favorites: [], compare: [], orders: [], user: null, currentProductId: null, searchQuery: '' },
+  init() {
+    initializeProducts();
+    this.loadState();
+    document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.search(e.target.value); });
+    this.navigate(this.state.view || 'home');
+    this.updateBadges();
+  },
+  loadState() {
+    const saved = localStorage.getItem('liviSpaceState');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      this.state.cart = parsed.cart || []; this.state.favorites = parsed.favorites || [];
+      this.state.compare = parsed.compare || []; this.state.orders = parsed.orders || [];
+      this.state.user = parsed.user || null;
+    }
+  },
+  saveState() {
+    const saved = localStorage.getItem('liviSpaceState');
+    let fullState = saved ? JSON.parse(saved) : {};
+    fullState.cart = this.state.cart; fullState.favorites = this.state.favorites;
+    fullState.compare = this.state.compare; fullState.orders = this.state.orders;
+    fullState.user = this.state.user;
+    localStorage.setItem('liviSpaceState', JSON.stringify(fullState));
+    this.updateBadges();
+  },
+  navigate(view, params = {}) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById(`view-${view}`).classList.add('active');
+    this.state.view = view; this.saveState(); window.scrollTo(0, 0);
+    if (view === 'home') this.renderHome();
+    if (view === 'list') this.renderList();
+    if (view === 'detail') { this.state.currentProductId = params.id; this.renderDetail(); }
+    if (view === 'cart') this.renderCart();
+    if (view === 'compare') this.renderCompare();
+    if (view === 'member') this.renderMember();
+    if (view === 'checkout') this.renderCheckout();
+  },
+  showToast(msg) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div'); toast.className = 'toast'; toast.innerText = msg;
+    container.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+  },
+  updateBadges() {
+    document.getElementById('cart-badge').innerText = this.state.cart.length;
+    document.getElementById('compare-badge').innerText = this.state.compare.length;
+    document.getElementById('compare-count').innerText = this.state.compare.length;
+    document.getElementById('compare-bar').classList.toggle('show', this.state.compare.length > 0 && this.state.view !== 'compare');
+  },
+  createProductCard(p) {
+    return `<div class="card"><div class="card-img" onclick="app.navigate('detail', {id:'${p.id}'})"><img src="${p.image}"></div>
+      <div class="card-body"><div class="card-title" onclick="app.navigate('detail', {id:'${p.id}'})">${p.name}</div>
+      <div class="card-price">$${p.price.toLocaleString()}</div>
+      <div class="card-actions"><button class="btn btn-primary" onclick="app.addToCart('${p.id}')">🛒 加入</button></div></div></div>`;
+  },
+  renderHome() { document.getElementById('home-bestsellers').innerHTML = DB.products.slice(0, 4).map(p => this.createProductCard(p)).join(''); },
+  search(q) { this.state.searchQuery = q; document.getElementById('searchInput').value = q; this.navigate('list'); },
+  filterByRoom(room) { document.getElementById('filter-room').value = room; this.state.searchQuery = ''; this.navigate('list'); },
+  renderList() {
+    setTimeout(() => {
+      let filtered = DB.products;
+      const room = document.getElementById('filter-room').value;
+      if (room) filtered = filtered.filter(p => p.room === room);
+      document.getElementById('product-list').innerHTML = filtered.map(p => this.createProductCard(p)).join('');
+    }, 100);
+  },
+  renderDetail() {
+    const p = DB.products.find(x => x.id === this.state.currentProductId);
+    if(!p) return;
+    document.getElementById('detail-content').innerHTML = `
+      <div class="flex-layout">
+        <div style="flex:1; height:450px;"><img src="${p.image}" style="width:100%; height:100%; object-fit:cover;"></div>
+        <div style="flex:1;"><h2>${p.name}</h2><h3 style="color:var(--danger)">$${p.price.toLocaleString()}</h3>
+        <p>庫存: ${p.stock}</p>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="app.addToCart('${p.id}')">加入購物車</button></div>
+      </div>
+    `;
+  },
+  addToCart(id) {
+    const p = DB.products.find(x => x.id === id);
+    const existing = this.state.cart.find(x => x.id === id);
+    if(existing) existing.qty += 1; else this.state.cart.push({ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 });
+    this.saveState(); this.showToast('已加入購物車');
+  },
+  renderCart() {
+    const list = document.getElementById('cart-items');
+    if(this.state.cart.length === 0) { list.innerHTML = '<p>購物車是空的</p>'; document.getElementById('cart-summary').innerHTML=''; return; }
+    let subtotal = 0;
+    list.innerHTML = this.state.cart.map((item, idx) => {
+      subtotal += item.price * item.qty;
+      return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border);">
+        <img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover;">
+        <div style="flex:1;"><strong>${item.name}</strong></div>
+        <div style="width:100px;">$${item.price.toLocaleString()} x ${item.qty}</div>
+        <button class="btn btn-outline" onclick="app.state.cart.splice(${idx},1); app.saveState(); app.renderCart();">刪除</button></div>`;
+    }).join('');
+    document.getElementById('cart-summary').innerHTML = `<h3>總計: $${subtotal.toLocaleString()}</h3>`;
+  },
+  renderCheckout() { if(this.state.cart.length === 0) { this.showToast('購物車為空'); this.navigate('home'); } },
+  submitOrder(e) {
+    e.preventDefault();
+    const orderId = 'ORD' + new Date().getTime().toString().slice(-6);
+    let orderTotal = this.state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    this.state.orders.unshift({ id: orderId, date: new Date().toLocaleDateString(), items: [...this.state.cart], status: '備貨中', total: orderTotal });
+    this.state.cart = []; this.saveState(); this.showToast(`訂單建立成功！編號：${orderId}`); this.navigate('member');
+  },
+  renderMember() {
+    if(this.state.user) {
+      document.getElementById('member-login').style.display = 'none'; document.getElementById('member-dashboard').style.display = 'block';
+      document.getElementById('user-email-display').innerText = this.state.user;
+      document.getElementById('order-history').innerHTML = this.state.orders.map(o => `
+        <div style="border:1px solid var(--border); padding:10px; margin-bottom:10px;">
+          <strong>${o.id}</strong> | 總計: $${o.total.toLocaleString()} | 狀態: ${o.status}
+        </div>`).join('');
+    } else {
+      document.getElementById('member-login').style.display = 'block'; document.getElementById('member-dashboard').style.display = 'none';
+    }
+  },
+  login() {
+    const email = document.getElementById('login-email').value;
+    if(email) { this.state.user = email; this.saveState(); this.renderMember(); this.showToast('登入成功'); }
+  },
+  logout() { this.state.user = null; this.saveState(); this.renderMember(); }
+};
+window.onload = () => app.init();
+</script>
+</body>
+</html>
