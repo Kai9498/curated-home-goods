@@ -80,6 +80,7 @@
         <div class="stat-card"><p style="color:var(--text-muted);">歷史總營業額</p><h2 id="stat-rev" style="color:var(--primary);">$0</h2></div>
         <div class="stat-card"><p style="color:var(--text-muted);">累積訂單數</p><h2 id="stat-orders">0</h2></div>
         <div class="stat-card danger"><p style="color:var(--text-muted);">待出貨訂單</p><h2 id="stat-pending" style="color:var(--danger);">0</h2></div>
+        <div class="stat-card info"><p style="color:var(--text-muted);">今日訪客人數</p><h2 id="stat-visitors" style="color:var(--info);">0</h2></div>
       </div>
       <div style="display:flex; gap:20px;">
         <div class="table-wrapper" style="flex:1;">
@@ -272,6 +273,11 @@ const adminApp = {
     document.getElementById('stat-rev').innerText = '$' + rev.toLocaleString();
     document.getElementById('stat-orders').innerText = this.fullState.orders.length;
     document.getElementById('stat-pending').innerText = this.fullState.orders.filter(o => o.status === '備貨中').length;
+    
+    // 顯示今日訪客人數
+    let today = new Date().toLocaleDateString();
+    let visitCount = (this.fullState.visitors && this.fullState.visitors.date === today) ? this.fullState.visitors.count : 0;
+    document.getElementById('stat-visitors').innerText = visitCount;
 
     const recentOrders = this.fullState.orders.slice(0, 5);
     document.getElementById('recent-orders-table').innerHTML = recentOrders.length ? 
@@ -337,18 +343,16 @@ const adminApp = {
     document.getElementById('orders-table').innerHTML = this.fullState.orders.length ? this.fullState.orders.map((o, idx) => {
       const itemsHtml = o.items.map(i => `<div>- ${i.name} (x${i.qty})</div>`).join('');
       
-      // 顯示地址
       const addrHtml = o.address ? `<div style="margin-top:5px; padding:5px; background:#e8f4f8; border-radius:4px; font-size:12px; color:#0277bd;">🏠 配送地址: ${o.address}</div>` : '';
       const extraHtml = o.extraInfo ? `<div style="margin-top:5px; padding:5px; background:#f1f1f1; border-radius:4px; font-size:12px; color:#555;">ℹ️ ${o.extraInfo}</div>` : '';
       
-      // 顯示退換貨細節
       let rtnHtml = '';
       if(o.returnInfo) {
         rtnHtml = `<div style="margin-top:5px; padding:8px; background:#fdf2e9; border-radius:4px; font-size:12px; color:#d35400; border-left: 3px solid #e67e22;">
           <strong>📦 退換貨申請 (${o.returnInfo.date})</strong><br>
           ➤ <strong>原因:</strong> ${o.returnInfo.reason}<br>
           ➤ <strong>說明:</strong> ${o.returnInfo.detail || '無'}<br>
-          ${o.returnInfo.img ? `➤ <a href="${o.returnInfo.img}" target="_blank" style="color:#d35400; text-decoration:underline;">點擊查看上傳之照片</a>` : ''}
+          ${o.returnInfo.img ? `➤ <strong>買家上傳附圖:</strong><br><a href="${o.returnInfo.img}" target="_blank"><img src="${o.returnInfo.img}" style="max-width:150px; max-height:100px; border-radius:4px; margin-top:5px; border:1px solid #ccc;"></a>` : ''}
         </div>`;
       }
 
@@ -431,7 +435,6 @@ const adminApp = {
       <td style="${p.stock < 3 ? 'color:red; font-weight:bold;' : ''}">${p.stock}</td>
       <td style="color:var(--success); font-weight:bold;">$${(p.price * p.stock).toLocaleString()}</td></tr>`).join('');
 
-    // 退換貨原因分析彙整表
     const returnCounts = {};
     this.fullState.orders.forEach(o => {
       if(o.returnInfo && o.returnInfo.reason) {

@@ -8,8 +8,7 @@
   :root {
     --primary: #8C7A6B; --primary-light: #D5CBBB; --bg-color: #F9F8F6;
     --text-main: #333333; --text-muted: #777777; --danger: #D9534F; --success: #5CB85C;
-    --white: #FFFFFF; --border: #E0DCD3; --radius: 8px;
-    --shadow: 0 4px 12px rgba(0,0,0,0.05);
+    --white: #FFFFFF; --border: #E0DCD3; --radius: 8px; --shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'PingFang TC', sans-serif; }
   body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.6; padding-top: 70px; }
@@ -18,7 +17,6 @@
   button { cursor: pointer; border: none; background: none; font-family: inherit; }
   input, select, textarea { border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-family: inherit; outline: none; width:100%;}
   
-  /* Header */
   header { position: fixed; top: 0; width: 100%; height: 70px; background: var(--white); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1000; }
   .logo { font-size: 24px; font-weight: bold; color: var(--primary); }
   .search-bar { flex: 1; max-width: 400px; margin: 0 20px; }
@@ -27,12 +25,10 @@
   .icon-btn { position: relative; padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size:14px; white-space:nowrap;}
   .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
 
-  /* Navigation & Chips */
   .chips-container { padding: 10px 5%; background: var(--white); border-bottom: 1px solid var(--border); display: flex; gap: 10px; overflow-x: auto; white-space: nowrap; }
   .chip { padding: 5px 12px; background: var(--bg-color); border-radius: 15px; font-size: 14px; cursor: pointer; }
   .chip:hover, .chip.active { background: var(--primary); color: white; }
 
-  /* Views & Layouts */
   .view { display: none; padding: 20px 5%; min-height: calc(100vh - 150px); }
   .view.active { display: block; animation: fadeIn 0.3s ease; }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -41,7 +37,6 @@
   .sidebar { width: 250px; flex-shrink: 0; background: var(--white); padding: 20px; border-radius: var(--radius); height: fit-content; }
   .main-content { flex: 1; overflow-x: auto; }
 
-  /* Cards & Buttons */
   .card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); transition: transform 0.2s; display: flex; flex-direction: column; }
   .card:hover { transform: translateY(-5px); }
   .card-img { height: 200px; background: #EFEBE4; position: relative; cursor: pointer; }
@@ -57,7 +52,6 @@
   .btn-danger { background: var(--danger); color: white; }
   .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
 
-  /* Forms & Modals */
   .form-group { margin-bottom: 15px; }
   .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size:14px;}
   .ticket { background: #fff5e6; border: 2px dashed #f39c12; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -71,7 +65,6 @@
   #compare-bar { position: fixed; bottom: -100px; right: 20px; background: white; padding: 15px; border-radius: var(--radius); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); transition: bottom 0.3s; z-index: 1000; border: 1px solid var(--primary); }
   #compare-bar.show { bottom: 20px; }
 
-  /* 彈出視窗 */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index:9999; }
   .modal-content { background: white; padding: 30px; border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 90vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
 
@@ -82,9 +75,7 @@
 
 <header>
   <div class="logo"><a href="#" onclick="app.navigate('home')">LiviSpace</a></div>
-  <div class="search-bar">
-    <input type="text" id="searchInput" placeholder="輸入家具類型或風格..." aria-label="搜尋家具">
-  </div>
+  <div class="search-bar"><input type="text" id="searchInput" placeholder="輸入家具類型或風格..." aria-label="搜尋家具"></div>
   <div class="header-actions">
     <button class="icon-btn" style="background:#f1f1f1;" onclick="window.open('backstage.html', '_blank')">⚙️ 後台</button>
     <button class="icon-btn" onclick="app.navigate('policy')">📖 購物說明</button>
@@ -116,11 +107,7 @@
     <div class="flex-layout">
       <aside class="sidebar">
         <h3>篩選條件</h3>
-        <div style="margin-top:15px;"><label>空間</label>
-          <select id="filter-room" onchange="app.renderList()">
-            <option value="">全部</option><option value="客廳">客廳</option><option value="臥室">臥室</option><option value="餐廳">餐廳</option>
-          </select>
-        </div>
+        <div style="margin-top:15px;"><label>空間</label><select id="filter-room" onchange="app.renderList()"><option value="">全部</option><option value="客廳">客廳</option><option value="臥室">臥室</option><option value="餐廳">餐廳</option></select></div>
       </aside>
       <div class="main-content"><div class="grid-4" id="product-list"></div></div>
     </div>
@@ -135,7 +122,7 @@
       <aside class="sidebar">
         <h3>訂單摘要</h3>
         <div id="cart-summary" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"></div>
-        <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="app.navigate('checkout')">前往結帳 (使用優惠)</button>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="app.navigate('checkout')">前往結帳</button>
       </aside>
     </div>
   </div>
@@ -148,76 +135,36 @@
   <div id="view-policy" class="view">
     <h2>📖 購物須知與服務說明</h2>
     <div style="margin-top:20px;">
-      <div class="policy-section">
-        <h3>🚚 配送與跨境購物</h3>
-        <p><strong>台灣本島：</strong>滿 $15,000 享免運。大型家具提供專人配送與組裝服務，若無電梯需酌收樓層搬運費。<br>
-        <strong>跨境購物：</strong>目前支援香港、澳門、新加坡、馬來西亞配送。跨境商品運費依材積另計，不適用本島免運活動，出貨後約 7-14 個工作天送達，過海關產生之稅費由買家負擔。</p>
-      </div>
-      <div class="policy-section">
-        <h3>💳 促銷機制與分期付款</h3>
-        <p><strong>促銷機制：</strong>會員消費滿額可享現金折抵或點數回饋（每滿 $100 贈 1 點）。多重優惠券請於結帳時擇一使用，點數可疊加使用。<br>
-        <strong>分期付款：</strong>提供信用卡 3 期、6 期、12 期零利率分期（支援國內20家主要銀行）。</p>
-      </div>
-      <div class="policy-section">
-        <h3>🔄 退換貨與保固維修</h3>
-        <p><strong>退換貨：</strong>享有 7 天猶豫期（非試用期）。收到商品後若欲退換貨，請於七日內至「我的訂單」點擊「申請退換貨」。商品退換需保持包裝完整，若有組裝痕跡或人為污損恕不接受退貨。<br>
-        <strong>保固/維修：</strong>全站家具皆享 1 年結構保固。非人為因素損壞提供免費維修；過保固期提供付費維修服務（需先傳遞照片評估報價）。</p>
-      </div>
-      <div class="policy-section">
-        <h3>🧾 發票處理</h3>
-        <p>響應環保，本站全面開立「電子發票」。結帳時可選填：個人載具（手機條碼）、自然人憑證，或公司戶三聯式發票（需填寫統編與抬頭）。中獎發票將主動寄發 Email 通知。</p>
-      </div>
+      <div class="policy-section"><h3>🚚 配送與跨境購物</h3><p>台灣本島滿 $15,000 享免運。提供跨境配送至港澳星馬地區，運費依材積另計，約7-14天送達。</p></div>
+      <div class="policy-section"><h3>💳 促銷機制與分期付款</h3><p>消費每滿 $100 贈 1 點。提供信用卡 3/6/12 期零利率分期服務。</p></div>
+      <div class="policy-section"><h3>🔄 退換貨與保固維修</h3><p>全站家具皆享 1 年保固。收到商品七日內可至「我的訂單」申請退換貨，需保持包裝完整無損。</p></div>
+      <div class="policy-section"><h3>🧾 發票處理</h3><p>全面開立電子發票。支援手機條碼載具與公司戶三聯式統編發票。</p></div>
     </div>
   </div>
 
   <div id="view-checkout" class="view">
-    <h2>填寫資料與使用優惠</h2>
+    <h2>填寫資料與結帳</h2>
     <div class="flex-layout" style="margin-top: 20px;">
       <div class="main-content">
         <form id="checkout-form" onsubmit="app.submitOrder(event)" style="background: white; padding: 20px; border-radius: var(--radius);">
-          
           <h3>1. 收件資訊</h3>
-          <div class="form-group" style="margin-top:15px;"><label>配送區域</label>
-            <select id="chk-region">
-              <option value="台灣本島">台灣本島</option><option value="台灣離島">台灣離島</option><option value="跨境-港澳">海外跨境 (香港 / 澳門)</option><option value="跨境-新馬">海外跨境 (新加坡 / 馬來西亞)</option>
-            </select>
-          </div>
+          <div class="form-group" style="margin-top:15px;"><label>配送區域</label><select id="chk-region"><option value="台灣本島">台灣本島</option><option value="台灣離島">台灣離島</option><option value="跨境-海外">海外跨境配送</option></select></div>
           <div class="form-group"><label>收件人姓名</label><input type="text" id="chk-name" required></div>
           <div class="form-group"><label>詳細地址</label><input type="text" id="chk-address" required placeholder="請填寫完整地址"></div>
           
           <h3 style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">2. 付款與發票</h3>
-          <div class="form-group" style="margin-top:15px;"><label>付款方式 (支援分期)</label>
-            <select id="chk-payment">
-              <option value="信用卡一次付清">信用卡一次付清</option><option value="信用卡 3 期 0 利率">信用卡 3 期 0 利率</option><option value="信用卡 6 期 0 利率">信用卡 6 期 0 利率</option><option value="ATM 轉帳">ATM 虛擬帳號轉帳</option>
-            </select>
-          </div>
-          <div class="form-group"><label>發票開立</label>
-            <select id="chk-invoice" onchange="app.toggleInvoiceInput()">
-              <option value="會員載具">會員載具 (雲端發票)</option><option value="手機條碼載具">手機條碼載具</option><option value="公司三聯式發票">公司三聯式發票 (需填統編)</option>
-            </select>
-          </div>
-          <div class="form-group" id="invoice-detail-group" style="display:none;">
-            <label id="invoice-detail-label">手機條碼</label>
-            <input type="text" id="chk-invoice-detail" placeholder="請輸入對應的條碼或統編">
-          </div>
+          <div class="form-group" style="margin-top:15px;"><label>付款方式</label><select id="chk-payment"><option value="信用卡一次付清">信用卡一次付清</option><option value="信用卡 3 期 0 利率">信用卡 3 期 0 利率</option><option value="ATM 轉帳">ATM 虛擬帳號轉帳</option></select></div>
+          <div class="form-group"><label>發票開立</label><select id="chk-invoice" onchange="app.toggleInvoiceInput()"><option value="會員載具">會員載具 (雲端發票)</option><option value="手機條碼載具">手機條碼載具</option><option value="公司三聯式發票">公司三聯式發票 (需填統編)</option></select></div>
+          <div class="form-group" id="invoice-detail-group" style="display:none;"><label id="invoice-detail-label">手機條碼</label><input type="text" id="chk-invoice-detail" placeholder="請填寫條碼或統編"></div>
 
           <h3 style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">3. 會員專屬優惠</h3>
           <div class="form-group" style="margin-top:15px;"><label>選擇折價券</label><select id="chk-coupon" onchange="app.updateCheckoutSummary()"></select></div>
-          <div class="form-group">
-            <label>使用點數折抵 (您目前有 <span id="chk-max-points" style="color:var(--danger); font-weight:bold;">0</span> 點)</label>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <input type="number" id="chk-points" min="0" value="0" oninput="app.updateCheckoutSummary()" style="width:120px;">
-              <span style="color:var(--text-muted); font-size:14px;">1點 = 折抵 $1</span>
-            </div>
-          </div>
+          <div class="form-group"><label>使用點數折抵 (目前 <span id="chk-max-points" style="color:var(--danger); font-weight:bold;">0</span> 點)</label><input type="number" id="chk-points" min="0" value="0" oninput="app.updateCheckoutSummary()"></div>
           
           <button type="submit" class="btn btn-danger" style="width: 100%; margin-top:20px; font-size:18px; padding:12px;">確認結帳</button>
         </form>
       </div>
-      <aside class="sidebar">
-        <h3>結帳明細</h3>
-        <div id="chk-summary-text" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; line-height:2;"></div>
-      </aside>
+      <aside class="sidebar"><h3>結帳明細</h3><div id="chk-summary-text" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; line-height:2;"></div></aside>
     </div>
   </div>
 
@@ -225,11 +172,8 @@
     <h2>會員中心</h2>
     <div id="member-login" style="margin-top: 20px; background: white; padding: 30px; border-radius: var(--radius); max-width: 450px; box-shadow:var(--shadow);">
       <h3 style="margin-bottom:15px; color:var(--primary); text-align:center;">帳號登入 / 免費註冊</h3>
-      <p style="text-align:center; color:#666; font-size:13px; margin-bottom:20px;">若無帳號，系統將自動為您建立並設定密碼</p>
-      
-      <div class="form-group"><label>Email (會員帳號)</label><input type="email" id="login-email" placeholder="example@mail.com" required></div>
-      <div class="form-group"><label>登入密碼</label><input type="password" id="login-pw" placeholder="請輸入密碼 (新用戶請自訂密碼)" required></div>
-      
+      <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="example@mail.com" required></div>
+      <div class="form-group"><label>登入密碼</label><input type="password" id="login-pw" placeholder="請輸入密碼" required></div>
       <button class="btn btn-primary" onclick="app.login()" style="width:100%; padding:10px; font-size:16px;">登入 / 註冊</button>
     </div>
     
@@ -238,17 +182,13 @@
         <div class="sidebar" style="width: 300px; background:var(--primary-light);">
           <h3 style="color:var(--primary);"><span id="user-email-display"></span></h3>
           <p style="margin-top:10px;">目前點數：<strong style="font-size:24px; color:var(--danger);" id="mem-points">0</strong> 點</p>
-          <p style="font-size:12px; color:#555;">💡 每滿 $100 累積 1 點，無上限折抵</p>
-          <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="app.claimDailyPoint()">🎁 每日簽到領 10 點</button>
+          <div id="mem-checkin-btn-area"></div>
           <button class="btn btn-outline" style="width:100%; margin-top:10px; background:white;" onclick="app.logout()">登出帳號</button>
         </div>
 
         <div class="main-content">
           <h3 style="margin-bottom:15px;">🎟️ 領券專區</h3>
-          <div class="ticket">
-            <div><strong style="font-size:18px; color:#d35400;">新居落成 滿萬折千</strong><br><span style="font-size:14px; color:#777;">單筆訂單滿 $10,000 折抵 $1,000</span></div>
-            <button class="btn btn-primary" onclick="app.claimCoupon('CP1000', '滿萬折千', 10000, 1000)">立即領取</button>
-          </div>
+          <div id="mem-claim-coupons"></div>
           
           <h3 style="margin:25px 0 15px 0;">我的折價券</h3>
           <div id="mem-coupons" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
@@ -261,7 +201,7 @@
   </div>
 </main>
 
-<!-- 退換貨申請 Modal -->
+<!-- 退換貨申請 Modal (修改為真實檔案上傳) -->
 <div id="return-modal" class="modal-overlay">
   <div class="modal-content">
     <h3 style="margin-bottom: 20px; color:var(--danger);">📦 申請退換貨</h3>
@@ -270,20 +210,17 @@
       <div class="form-group">
         <label>退換貨原因</label>
         <select id="rtn-reason" required>
-          <option value="商品瑕疵或損壞">商品瑕疵或損壞</option>
-          <option value="尺寸不合">尺寸不合</option>
-          <option value="送錯商品">送錯商品</option>
-          <option value="實品與照片落差大">實品與照片落差大</option>
-          <option value="其他原因">其他原因</option>
+          <option value="商品瑕疵或損壞">商品瑕疵或損壞</option><option value="尺寸不合">尺寸不合</option><option value="送錯商品">送錯商品</option><option value="實品與照片落差大">實品與照片落差大</option><option value="其他原因">其他原因</option>
         </select>
       </div>
       <div class="form-group">
         <label>詳細說明 (選填)</label>
-        <textarea id="rtn-detail" rows="3" placeholder="請簡述您的情況，幫助客服更快為您處理..."></textarea>
+        <textarea id="rtn-detail" rows="3" placeholder="請簡述您的情況..."></textarea>
       </div>
       <div class="form-group">
-        <label>上傳商品照片 (請貼上圖片網址)</label>
-        <input type="text" id="rtn-img" placeholder="https://...">
+        <label>上傳商品照片</label>
+        <!-- 這裡改為檔案上傳元件，手機點擊可啟動相機或選擇照片庫 -->
+        <input type="file" id="rtn-img" accept="image/*" capture="environment">
       </div>
       <div style="text-align:right; margin-top:20px;">
         <button type="button" class="btn btn-outline" onclick="document.getElementById('return-modal').style.display='none'">取消</button>
@@ -302,7 +239,6 @@
 
 <script>
 const DB = { products: [] };
-
 function initializeProducts() {
   const savedDb = localStorage.getItem('liviSpaceProducts');
   if (savedDb) { DB.products = JSON.parse(savedDb); } 
@@ -323,20 +259,24 @@ const app = {
   init() {
     initializeProducts();
     this.loadState();
-    document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.search(e.target.value); });
     
+    // 【新增】自動累積今日訪客人數 (前台追蹤)
+    let fullState = localStorage.getItem('liviSpaceState') ? JSON.parse(localStorage.getItem('liviSpaceState')) : {};
+    let today = new Date().toLocaleDateString();
+    if(!fullState.visitors || fullState.visitors.date !== today) { fullState.visitors = { date: today, count: 0 }; }
+    // SessionStorage 用來判斷該使用者今天是否已經被算進訪客過 (重整頁面不重複計算)
+    if(!sessionStorage.getItem('liviSpaceVisited')) {
+       fullState.visitors.count += 1;
+       sessionStorage.setItem('liviSpaceVisited', 'true');
+       localStorage.setItem('liviSpaceState', JSON.stringify(fullState));
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.search(e.target.value); });
     window.addEventListener('storage', (e) => {
-      if (e.key === 'liviSpaceProducts') {
-        DB.products = JSON.parse(e.newValue);
-        if (this.state.view === 'list') this.renderList();
-        if (this.state.view === 'home') this.renderHome();
-        if (this.state.view === 'detail') this.renderDetail();
-      }
-      if (e.key === 'liviSpaceState') {
-        this.loadState();
-        if (this.state.view === 'member') this.renderMember();
-      }
+      if (e.key === 'liviSpaceProducts') { DB.products = JSON.parse(e.newValue); if (this.state.view === 'list') this.renderList(); if (this.state.view === 'home') this.renderHome(); if (this.state.view === 'detail') this.renderDetail(); }
+      if (e.key === 'liviSpaceState') { this.loadState(); if (this.state.view === 'member') this.renderMember(); }
     });
+
     this.navigate(this.state.view || 'home');
     this.updateBadges();
   },
@@ -363,6 +303,7 @@ const app = {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${view}`).classList.add('active');
     this.state.view = view; this.saveState(); window.scrollTo(0, 0);
+    
     if (view === 'home') this.renderHome(); if (view === 'list') this.renderList();
     if (view === 'detail') { this.state.currentProductId = params.id; this.renderDetail(); }
     if (view === 'cart') this.renderCart(); if (view === 'compare') this.renderCompare();
@@ -415,10 +356,7 @@ const app = {
   },
 
   toggleCompare(id, isChecked) {
-    if(isChecked) {
-      if(this.state.compare.length >= 4) { this.showToast('最多只能比較 4 件商品'); return this.renderList(); }
-      this.state.compare.push(id);
-    } else { this.state.compare = this.state.compare.filter(x => x !== id); }
+    if(isChecked) { if(this.state.compare.length >= 4) { this.showToast('最多只能比較 4 件商品'); return this.renderList(); } this.state.compare.push(id); } else { this.state.compare = this.state.compare.filter(x => x !== id); }
     this.saveState();
   },
   clearCompare() { this.state.compare = []; this.saveState(); if(this.state.view==='compare') this.navigate('home'); else this.renderList(); },
@@ -426,25 +364,15 @@ const app = {
     if(this.state.compare.length === 0) return document.getElementById('compare-content').innerHTML = '<p>尚未加入比較商品</p>';
     const items = this.state.compare.map(id => DB.products.find(p => p.id === id));
     let html = `<table style="width:100%; text-align:center;"><tr>`;
-    items.forEach(p => {
-      html += `<td style="min-width:200px; padding:10px; border:1px solid var(--border);">
-        <img src="${p.image}" style="height:120px; object-fit:cover; border-radius:4px;"><br>
-        <strong>${p.name}</strong><br><span style="color:var(--danger)">$${p.price.toLocaleString()}</span><br>
-        <button class="btn btn-primary" style="margin-top:10px;" onclick="app.addToCart('${p.id}')">加入購物車</button>
-        <button class="btn btn-outline" style="margin-top:10px;" onclick="app.toggleCompare('${p.id}', false); app.renderCompare();">移除</button></td>`;
-    });
+    items.forEach(p => { html += `<td style="min-width:200px; padding:10px; border:1px solid var(--border);"><img src="${p.image}" style="height:120px; object-fit:cover; border-radius:4px;"><br><strong>${p.name}</strong><br><span style="color:var(--danger)">$${p.price.toLocaleString()}</span><br><button class="btn btn-primary" style="margin-top:10px;" onclick="app.addToCart('${p.id}')">加入購物車</button><button class="btn btn-outline" style="margin-top:10px;" onclick="app.toggleCompare('${p.id}', false); app.renderCompare();">移除</button></td>`; });
     html += `</tr></table>`; document.getElementById('compare-content').innerHTML = html;
   },
 
   addToCart(id) {
     if(!this.state.user) { this.showToast('⚠️ 請先登入會員才能開始購物喔！'); this.navigate('member'); return; }
-    const p = DB.products.find(x => x.id === id);
-    if(p.stock <= 0) return this.showToast('該商品已售完');
+    const p = DB.products.find(x => x.id === id); if(p.stock <= 0) return this.showToast('該商品已售完');
     const existing = this.state.cart.find(x => x.id === id);
-    if(existing) {
-      if (existing.qty >= p.stock) return this.showToast('庫存不足，無法加入更多');
-      existing.qty += 1; 
-    } else { this.state.cart.push({ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 }); }
+    if(existing) { if (existing.qty >= p.stock) return this.showToast('庫存不足，無法加入更多'); existing.qty += 1; } else { this.state.cart.push({ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 }); }
     this.saveState(); this.showToast('已加入購物車');
   },
 
@@ -454,18 +382,13 @@ const app = {
     let subtotal = 0;
     list.innerHTML = this.state.cart.map((item, idx) => {
       subtotal += item.price * item.qty;
-      return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px;">
-        <img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover; border-radius:4px;">
-        <div style="flex:1;"><strong>${item.name}</strong></div><div style="width:100px;">$${item.price.toLocaleString()} x ${item.qty}</div>
-        <button class="btn btn-outline" onclick="app.state.cart.splice(${idx},1); app.saveState(); app.renderCart();">刪除</button></div>`;
+      return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px;"><img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover; border-radius:4px;"><div style="flex:1;"><strong>${item.name}</strong></div><div style="width:100px;">$${item.price.toLocaleString()} x ${item.qty}</div><button class="btn btn-outline" onclick="app.state.cart.splice(${idx},1); app.saveState(); app.renderCart();">刪除</button></div>`;
     }).join('');
     document.getElementById('cart-summary').innerHTML = `<h3 style="color:var(--danger)">總計: $${subtotal.toLocaleString()}</h3>`;
   },
 
   toggleInvoiceInput() {
-    const inv = document.getElementById('chk-invoice').value;
-    const grp = document.getElementById('invoice-detail-group');
-    const lbl = document.getElementById('invoice-detail-label');
+    const inv = document.getElementById('chk-invoice').value; const grp = document.getElementById('invoice-detail-group'); const lbl = document.getElementById('invoice-detail-label');
     if (inv === '手機條碼載具') { grp.style.display = 'block'; lbl.innerText = '手機條碼 (例如：/AB12345)'; document.getElementById('chk-invoice-detail').required = true; } 
     else if (inv === '公司三聯式發票') { grp.style.display = 'block'; lbl.innerText = '統一編號 (8碼數字)'; document.getElementById('chk-invoice-detail').required = true; } 
     else { grp.style.display = 'none'; document.getElementById('chk-invoice-detail').required = false; document.getElementById('chk-invoice-detail').value = ''; }
@@ -473,13 +396,11 @@ const app = {
 
   renderCheckout() { 
     if(this.state.cart.length === 0) { this.showToast('購物車為空'); this.navigate('home'); return; }
-    let u = this.state.usersDB[this.state.user];
-    let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
+    let u = this.state.usersDB[this.state.user]; let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
     let availableCoupons = u.coupons.filter(c => !c.used && subtotal >= c.min);
     let cSelect = document.getElementById('chk-coupon');
     cSelect.innerHTML = `<option value="">不使用折價券</option>` + availableCoupons.map(c => `<option value="${c.id}" data-discount="${c.discount}">${c.name} (折 $${c.discount})</option>`).join('');
-    document.getElementById('chk-max-points').innerText = u.points;
-    document.getElementById('chk-points').max = u.points; document.getElementById('chk-points').value = 0;
+    document.getElementById('chk-max-points').innerText = u.points; document.getElementById('chk-points').max = u.points; document.getElementById('chk-points').value = 0;
     this.toggleInvoiceInput(); this.updateCheckoutSummary();
   },
 
@@ -487,9 +408,7 @@ const app = {
     let u = this.state.usersDB[this.state.user]; let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
     let cSelect = document.getElementById('chk-coupon'); let cDiscount = cSelect.value ? parseInt(cSelect.options[cSelect.selectedIndex].dataset.discount) : 0;
     let pInput = document.getElementById('chk-points'); let usePoints = parseInt(pInput.value) || 0;
-    
-    if (usePoints > u.points) usePoints = u.points;
-    if (usePoints > subtotal - cDiscount) usePoints = subtotal - cDiscount; pInput.value = usePoints;
+    if (usePoints > u.points) usePoints = u.points; if (usePoints > subtotal - cDiscount) usePoints = subtotal - cDiscount; pInput.value = usePoints;
     let finalTotal = subtotal - cDiscount - usePoints; let earnPoints = Math.floor(finalTotal / 100);
 
     document.getElementById('chk-summary-text').innerHTML = `
@@ -501,11 +420,9 @@ const app = {
   },
 
   submitOrder(e) {
-    e.preventDefault();
-    let u = this.state.usersDB[this.state.user]; let orderId = 'ORD' + new Date().getTime().toString().slice(-6);
+    e.preventDefault(); let u = this.state.usersDB[this.state.user]; let orderId = 'ORD' + new Date().getTime().toString().slice(-6);
     let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
-    let canProceed = true;
-    this.state.cart.forEach(item => { const p = DB.products.find(x => x.id === item.id); if(!p || p.stock < item.qty) canProceed = false; });
+    let canProceed = true; this.state.cart.forEach(item => { const p = DB.products.find(x => x.id === item.id); if(!p || p.stock < item.qty) canProceed = false; });
     if(!canProceed) return this.showToast(`部分商品庫存不足，請調整購物車！`);
 
     let cSelect = document.getElementById('chk-coupon'); let cDiscount = cSelect.value ? parseInt(cSelect.options[cSelect.selectedIndex].dataset.discount) : 0;
@@ -514,16 +431,12 @@ const app = {
 
     if(cSelect.value) u.coupons.find(x => x.id === cSelect.value).used = true;
     u.points = u.points - usePoints + earnPoints;
-
     this.state.cart.forEach(item => { const p = DB.products.find(x => x.id === item.id); p.stock -= item.qty; p.soldCount += item.qty; });
     localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
 
-    let invVal = document.getElementById('chk-invoice').value;
-    let invDetail = document.getElementById('chk-invoice-detail') ? document.getElementById('chk-invoice-detail').value : '';
+    let invVal = document.getElementById('chk-invoice').value; let invDetail = document.getElementById('chk-invoice-detail') ? document.getElementById('chk-invoice-detail').value : '';
     let invString = invVal + (invDetail && invVal !== '會員載具' ? ` (${invDetail})` : '');
-    let exInfo = `配送: ${document.getElementById('chk-region').value} | 付款: ${document.getElementById('chk-payment').value} | 發票: ${invString}`;
-
-    // 紀錄完整詳細地址
+    let exInfo = `付款: ${document.getElementById('chk-payment').value} | 發票: ${invString}`;
     let fullAddress = `[${document.getElementById('chk-region').value}] ` + document.getElementById('chk-address').value;
 
     this.state.orders.unshift({ 
@@ -531,7 +444,6 @@ const app = {
       items: [...this.state.cart], status: '備貨中', total: finalTotal, 
       discountInfo: `已折抵 $${cDiscount+usePoints}`, extraInfo: exInfo, address: fullAddress
     });
-    
     this.state.cart = []; this.saveState(); this.showToast(`✅ 訂單結帳成功！獲得 ${earnPoints} 點`); this.navigate('member');
   },
 
@@ -552,8 +464,7 @@ const app = {
   logout() { this.state.user = null; this.saveState(); this.renderMember(); },
 
   claimDailyPoint() {
-    let u = this.state.usersDB[this.state.user];
-    let today = new Date().toLocaleDateString();
+    let u = this.state.usersDB[this.state.user]; let today = new Date().toLocaleDateString();
     if(u.lastCheckInDate === today) return this.showToast('⚠️ 您今天已經簽到過囉！明天再來吧！');
     u.points += 10; u.lastCheckInDate = today; this.saveState(); this.renderMember();
     this.showToast('🎁 簽到成功！獲得 10 點');
@@ -566,28 +477,39 @@ const app = {
     this.saveState(); this.renderMember(); this.showToast('🎟️ 成功領取折價券！');
   },
 
-  // 開啟退換貨表單
   openReturnModal(orderId) {
     document.getElementById('rtn-order-id').value = orderId;
     document.getElementById('rtn-reason').value = '商品瑕疵或損壞';
     document.getElementById('rtn-detail').value = '';
-    document.getElementById('rtn-img').value = '';
+    document.getElementById('rtn-img').value = ''; // clear file input
     document.getElementById('return-modal').style.display = 'flex';
   },
 
-  // 送出退換貨
+  // 【新增】將檔案讀取並存入Base64
   submitReturn(e) {
     e.preventDefault();
     const orderId = document.getElementById('rtn-order-id').value;
+    const reason = document.getElementById('rtn-reason').value;
+    const detail = document.getElementById('rtn-detail').value;
+    const fileInput = document.getElementById('rtn-img');
+    
+    if(fileInput.files && fileInput.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+         this.processReturnSave(orderId, reason, detail, evt.target.result);
+      };
+      // 把使用者上傳的圖片轉成 Base64 存在 LocalStorage 裡
+      reader.readAsDataURL(fileInput.files[0]);
+    } else {
+      this.processReturnSave(orderId, reason, detail, ''); // 沒有上傳圖片
+    }
+  },
+
+  processReturnSave(orderId, reason, detail, imgBase64) {
     let order = this.state.orders.find(o => o.id === orderId);
     if(order) {
       order.status = '退換貨處理中';
-      order.returnInfo = {
-        date: new Date().toLocaleDateString(),
-        reason: document.getElementById('rtn-reason').value,
-        detail: document.getElementById('rtn-detail').value,
-        img: document.getElementById('rtn-img').value
-      };
+      order.returnInfo = { date: new Date().toLocaleDateString(), reason: reason, detail: detail, img: imgBase64 };
       this.saveState();
       this.renderMember();
       document.getElementById('return-modal').style.display = 'none';
@@ -600,6 +522,22 @@ const app = {
       document.getElementById('member-login').style.display = 'none'; document.getElementById('member-dashboard').style.display = 'block';
       document.getElementById('user-email-display').innerText = this.state.user;
       let u = this.state.usersDB[this.state.user]; document.getElementById('mem-points').innerText = u.points;
+      
+      // 【防呆】每日簽到按鈕邏輯
+      let today = new Date().toLocaleDateString();
+      if(u.lastCheckInDate === today) {
+         document.getElementById('mem-checkin-btn-area').innerHTML = `<button class="btn btn-primary" style="width:100%; margin-top:15px; opacity:0.5; cursor:not-allowed;" disabled>🎁 今日已簽到</button>`;
+      } else {
+         document.getElementById('mem-checkin-btn-area').innerHTML = `<button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="app.claimDailyPoint()">🎁 每日簽到領 10 點</button>`;
+      }
+
+      // 【隱藏】若領取過折價券，該領券區塊會消失
+      let hasClaimed = u.coupons.find(c => c.id === 'CP1000');
+      document.getElementById('mem-claim-coupons').innerHTML = hasClaimed ? '<p style="color:#777; font-size:14px;">目前暫無其他可領取的折價券</p>' : `
+        <div class="ticket">
+          <div><strong style="font-size:18px; color:#d35400;">新居落成 滿萬折千</strong><br><span style="font-size:14px; color:#777;">單筆訂單滿 $10,000 折抵 $1,000</span></div>
+          <button class="btn btn-primary" onclick="app.claimCoupon('CP1000', '滿萬折千', 10000, 1000)">立即領取</button>
+        </div>`;
 
       let unusedCoupons = u.coupons.filter(c => !c.used);
       document.getElementById('mem-coupons').innerHTML = unusedCoupons.length ? unusedCoupons.map(c => `
@@ -613,15 +551,10 @@ const app = {
         if(o.status === '已完成' && !o.returnInfo) {
           let orderTime = o.timestamp || new Date(o.date).getTime();
           let diffDays = (new Date().getTime() - orderTime) / (1000 * 60 * 60 * 24);
-          if(diffDays <= 7) {
-            returnBtnHtml = `<button class="btn btn-outline" style="margin-top:10px; padding:4px 8px; font-size:12px; color:var(--danger); border-color:var(--danger);" onclick="app.openReturnModal('${o.id}')">申請退換貨</button>`;
-          }
+          if(diffDays <= 7) returnBtnHtml = `<button class="btn btn-outline" style="margin-top:10px; padding:4px 8px; font-size:12px; color:var(--danger); border-color:var(--danger);" onclick="app.openReturnModal('${o.id}')">申請退換貨</button>`;
         }
-        
         let rtnTagHtml = '';
-        if(o.returnInfo) {
-          rtnTagHtml = `<div style="margin-top:10px; padding:8px; background:#fdf2e9; border-radius:4px; font-size:12px; color:#d35400;">📦 已申請退貨 (原因: ${o.returnInfo.reason})</div>`;
-        }
+        if(o.returnInfo) rtnTagHtml = `<div style="margin-top:10px; padding:8px; background:#fdf2e9; border-radius:4px; font-size:12px; color:#d35400;">📦 已申請退貨 (原因: ${o.returnInfo.reason})</div>`;
 
         return `
         <div style="border:1px solid var(--border); padding:15px; margin-bottom:10px; border-radius:8px; background:white;">
