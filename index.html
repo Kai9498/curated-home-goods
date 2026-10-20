@@ -7,7 +7,7 @@
 <style>
   :root {
     --primary: #8C7A6B; --primary-light: #D5CBBB; --bg-color: #F9F8F6;
-    --text-main: #333333; --text-muted: #777777; --danger: #D9534F;
+    --text-main: #333333; --text-muted: #777777; --danger: #D9534F; --success: #5CB85C;
     --white: #FFFFFF; --border: #E0DCD3; --radius: 8px;
     --shadow: 0 4px 12px rgba(0,0,0,0.05);
   }
@@ -16,15 +16,15 @@
   a { text-decoration: none; color: inherit; cursor: pointer; }
   ul { list-style: none; }
   button { cursor: pointer; border: none; background: none; font-family: inherit; }
-  input, select { border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-family: inherit; outline: none;}
+  input, select, textarea { border: 1px solid var(--border); border-radius: 4px; padding: 8px; font-family: inherit; outline: none; width:100%;}
   
   /* Header */
   header { position: fixed; top: 0; width: 100%; height: 70px; background: var(--white); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1000; }
   .logo { font-size: 24px; font-weight: bold; color: var(--primary); }
-  .search-bar { flex: 1; max-width: 500px; margin: 0 20px; }
+  .search-bar { flex: 1; max-width: 400px; margin: 0 20px; }
   .search-bar input { width: 100%; padding: 10px 15px; border-radius: 20px; }
-  .header-actions { display: flex; gap: 15px; align-items: center; }
-  .icon-btn { position: relative; padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--radius); }
+  .header-actions { display: flex; gap: 10px; align-items: center; }
+  .icon-btn { position: relative; padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size:14px; white-space:nowrap;}
   .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
 
   /* Navigation & Chips */
@@ -48,28 +48,34 @@
   .card-img img { width: 100%; height: 100%; object-fit: cover; }
   .card-body { padding: 15px; flex: 1; display: flex; flex-direction: column; }
   .card-title { font-weight: bold; margin-bottom: 5px; font-size: 16px; cursor: pointer; }
-  .card-bullets { font-size: 13px; color: var(--text-muted); flex: 1; margin-bottom: 10px; }
   .card-price { color: var(--danger); font-size: 18px; font-weight: bold; }
   .card-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  
   .btn { padding: 8px 15px; border-radius: var(--radius); cursor: pointer; font-size: 14px; text-align: center; display: inline-block; transition: 0.2s; }
   .btn-primary { background: var(--primary); color: white; }
   .btn-outline { border: 1px solid var(--primary); color: var(--primary); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
 
-  /* Compare & Toast & Tables */
-  #compare-bar { position: fixed; bottom: -100px; right: 20px; background: white; padding: 15px; border-radius: var(--radius); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); transition: bottom 0.3s; z-index: 1000; border: 1px solid var(--primary); }
-  #compare-bar.show { bottom: 20px; }
+  /* Forms & Modals */
+  .form-group { margin-bottom: 15px; }
+  .form-group label { display: block; font-weight: bold; margin-bottom: 5px; font-size:14px;}
+  .ticket { background: #fff5e6; border: 2px dashed #f39c12; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .policy-section { background:white; padding:20px; border-radius:var(--radius); margin-bottom:15px; border-left:4px solid var(--primary);}
+  .policy-section h3 { color:var(--primary); margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:5px;}
+  
   #toast-container { position: fixed; top: 80px; right: 20px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
   .toast { background: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius); box-shadow: var(--shadow); animation: slideIn 0.3s ease; }
   @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: var(--radius); overflow: hidden; }
-  th, td { border: 1px solid var(--border); padding: 12px 10px; text-align: left; }
-  th { background: var(--primary-light); white-space: nowrap; font-weight: bold; }
-  .highlight-diff { background-color: #FFF3CD; }
 
-  @media (max-width: 768px) {
-    .flex-layout { flex-direction: column; } .sidebar { width: 100%; }
-    .search-bar { display: none; } 
-  }
+  #compare-bar { position: fixed; bottom: -100px; right: 20px; background: white; padding: 15px; border-radius: var(--radius); box-shadow: 0 -2px 10px rgba(0,0,0,0.1); transition: bottom 0.3s; z-index: 1000; border: 1px solid var(--primary); }
+  #compare-bar.show { bottom: 20px; }
+
+  /* 彈出視窗 */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index:9999; }
+  .modal-content { background: white; padding: 30px; border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 90vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+
+  @media (max-width: 768px) { .flex-layout { flex-direction: column; } .sidebar { width: 100%; } .search-bar { display: none; } }
 </style>
 </head>
 <body>
@@ -80,11 +86,11 @@
     <input type="text" id="searchInput" placeholder="輸入家具類型或風格..." aria-label="搜尋家具">
   </div>
   <div class="header-actions">
-    <!-- 這裡修改了！點擊會另開新分頁開啟 backstage.html -->
-    <button class="icon-btn" style="background:#f1f1f1;" onclick="window.open('backstage.html', '_blank')" aria-label="後台管理">⚙️ 後台</button>
-    <button class="icon-btn" onclick="app.navigate('member')" aria-label="會員中心">會員</button>
-    <button class="icon-btn" onclick="app.navigate('compare')" aria-label="比較清單">比較 <span class="badge" id="compare-badge">0</span></button>
-    <button class="icon-btn" onclick="app.navigate('cart')" aria-label="購物車">購物車 <span class="badge" id="cart-badge">0</span></button>
+    <button class="icon-btn" style="background:#f1f1f1;" onclick="window.open('backstage.html', '_blank')">⚙️ 後台</button>
+    <button class="icon-btn" onclick="app.navigate('policy')">📖 購物說明</button>
+    <button class="icon-btn" onclick="app.navigate('member')">👤 會員</button>
+    <button class="icon-btn" onclick="app.navigate('compare')">⚖️ 比較 <span class="badge" id="compare-badge">0</span></button>
+    <button class="icon-btn" onclick="app.navigate('cart')">🛒 購物車 <span class="badge" id="cart-badge">0</span></button>
   </div>
 </header>
 
@@ -95,46 +101,33 @@
 </div>
 
 <main id="app">
-  <!-- 首頁 -->
   <div id="view-home" class="view">
     <div style="background: var(--primary-light) url('https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat; height: 250px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; margin-bottom: 30px;">
-      <div style="background: rgba(255,255,255,0.85); padding: 20px 40px; border-radius: var(--radius);">
+      <div style="background: rgba(255,255,255,0.85); padding: 20px 40px; border-radius: var(--radius); text-align:center;">
         <h2 style="color: var(--primary); font-size: 28px; margin:0;">新居落成 成家專案</h2>
+        <p style="margin-top:5px; color:var(--text-muted);">註冊會員即送 50 點購物金，再享專屬折價券！</p>
       </div>
-    </div>
-    <h3>依空間選購</h3>
-    <div class="grid-4" style="margin: 15px 0 30px 0;">
-      <div class="card" onclick="app.filterByRoom('客廳')"><div class="card-img"><img src="https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=400&q=80" alt="客廳"></div></div>
-      <div class="card" onclick="app.filterByRoom('臥室')"><div class="card-img"><img src="https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=400&q=80" alt="臥室"></div></div>
-      <div class="card" onclick="app.filterByRoom('餐廳')"><div class="card-img"><img src="https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=400&q=80" alt="餐廳"></div></div>
-      <div class="card" onclick="app.filterByRoom('書房')"><div class="card-img"><img src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=400&q=80" alt="書房"></div></div>
-    <img src="image/91.jpg" alt="網站商標">
     </div>
     <h3>熱銷單品榜</h3>
     <div class="grid-4" id="home-bestsellers" style="margin-top: 15px;"></div>
   </div>
 
-  <!-- 商品列表 -->
   <div id="view-list" class="view">
     <div class="flex-layout">
       <aside class="sidebar">
         <h3>篩選條件</h3>
-        <div style="margin-top:15px;"><label>空間</label><select id="filter-room" onchange="app.renderList()" style="width:100%;"><option value="">全部</option><option value="客廳">客廳</option><option value="臥室">臥室</option><option value="餐廳">餐廳</option></select></div>
+        <div style="margin-top:15px;"><label>空間</label>
+          <select id="filter-room" onchange="app.renderList()">
+            <option value="">全部</option><option value="客廳">客廳</option><option value="臥室">臥室</option><option value="餐廳">餐廳</option>
+          </select>
+        </div>
       </aside>
-      <div class="main-content">
-        <div id="active-filters" class="chips-container" style="background:transparent; border:none; padding:0 0 15px 0;"></div>
-        <div class="grid-4" id="product-list"></div>
-      </div>
+      <div class="main-content"><div class="grid-4" id="product-list"></div></div>
     </div>
   </div>
 
-  <!-- 商品詳情 -->
   <div id="view-detail" class="view"><div id="detail-content"></div></div>
 
-  <!-- 比較清單 -->
-  <div id="view-compare" class="view"><h2>商品比較</h2><div id="compare-content" style="margin-top: 20px; overflow-x: auto;"></div></div>
-
-  <!-- 購物車 -->
   <div id="view-cart" class="view">
     <h2>購物車</h2>
     <div class="flex-layout" style="margin-top: 20px;">
@@ -142,57 +135,182 @@
       <aside class="sidebar">
         <h3>訂單摘要</h3>
         <div id="cart-summary" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"></div>
-        <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="app.navigate('checkout')">前往結帳</button>
+        <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="app.navigate('checkout')">前往結帳 (使用優惠)</button>
       </aside>
     </div>
   </div>
 
-  <!-- 結帳 -->
-  <div id="view-checkout" class="view">
-    <h2>結帳</h2>
-    <form onsubmit="app.submitOrder(event)" style="background: white; padding: 20px; border-radius: var(--radius); margin-top: 20px; max-width: 600px;">
-      <div style="margin-bottom:15px;"><label>姓名</label><input type="text" required style="width:100%; margin-top:5px;"></div>
-      <button type="submit" class="btn btn-primary" style="width: 100%;">確認下單</button>
-    </form>
+  <div id="view-compare" class="view">
+    <h2>商品比較</h2>
+    <div id="compare-content" style="margin-top: 20px; overflow-x: auto; background:white; border-radius:var(--radius); padding:15px;"></div>
   </div>
 
-  <!-- 會員中心 -->
+  <div id="view-policy" class="view">
+    <h2>📖 購物須知與服務說明</h2>
+    <div style="margin-top:20px;">
+      <div class="policy-section">
+        <h3>🚚 配送與跨境購物</h3>
+        <p><strong>台灣本島：</strong>滿 $15,000 享免運。大型家具提供專人配送與組裝服務，若無電梯需酌收樓層搬運費。<br>
+        <strong>跨境購物：</strong>目前支援香港、澳門、新加坡、馬來西亞配送。跨境商品運費依材積另計，不適用本島免運活動，出貨後約 7-14 個工作天送達，過海關產生之稅費由買家負擔。</p>
+      </div>
+      <div class="policy-section">
+        <h3>💳 促銷機制與分期付款</h3>
+        <p><strong>促銷機制：</strong>會員消費滿額可享現金折抵或點數回饋（每滿 $100 贈 1 點）。多重優惠券請於結帳時擇一使用，點數可疊加使用。<br>
+        <strong>分期付款：</strong>提供信用卡 3 期、6 期、12 期零利率分期（支援國內20家主要銀行）。</p>
+      </div>
+      <div class="policy-section">
+        <h3>🔄 退換貨與保固維修</h3>
+        <p><strong>退換貨：</strong>享有 7 天猶豫期（非試用期）。收到商品後若欲退換貨，請於七日內至「我的訂單」點擊「申請退換貨」。商品退換需保持包裝完整，若有組裝痕跡或人為污損恕不接受退貨。<br>
+        <strong>保固/維修：</strong>全站家具皆享 1 年結構保固。非人為因素損壞提供免費維修；過保固期提供付費維修服務（需先傳遞照片評估報價）。</p>
+      </div>
+      <div class="policy-section">
+        <h3>🧾 發票處理</h3>
+        <p>響應環保，本站全面開立「電子發票」。結帳時可選填：個人載具（手機條碼）、自然人憑證，或公司戶三聯式發票（需填寫統編與抬頭）。中獎發票將主動寄發 Email 通知。</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="view-checkout" class="view">
+    <h2>填寫資料與使用優惠</h2>
+    <div class="flex-layout" style="margin-top: 20px;">
+      <div class="main-content">
+        <form id="checkout-form" onsubmit="app.submitOrder(event)" style="background: white; padding: 20px; border-radius: var(--radius);">
+          
+          <h3>1. 收件資訊</h3>
+          <div class="form-group" style="margin-top:15px;"><label>配送區域</label>
+            <select id="chk-region">
+              <option value="台灣本島">台灣本島</option><option value="台灣離島">台灣離島</option><option value="跨境-港澳">海外跨境 (香港 / 澳門)</option><option value="跨境-新馬">海外跨境 (新加坡 / 馬來西亞)</option>
+            </select>
+          </div>
+          <div class="form-group"><label>收件人姓名</label><input type="text" id="chk-name" required></div>
+          <div class="form-group"><label>詳細地址</label><input type="text" id="chk-address" required placeholder="請填寫完整地址"></div>
+          
+          <h3 style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">2. 付款與發票</h3>
+          <div class="form-group" style="margin-top:15px;"><label>付款方式 (支援分期)</label>
+            <select id="chk-payment">
+              <option value="信用卡一次付清">信用卡一次付清</option><option value="信用卡 3 期 0 利率">信用卡 3 期 0 利率</option><option value="信用卡 6 期 0 利率">信用卡 6 期 0 利率</option><option value="ATM 轉帳">ATM 虛擬帳號轉帳</option>
+            </select>
+          </div>
+          <div class="form-group"><label>發票開立</label>
+            <select id="chk-invoice" onchange="app.toggleInvoiceInput()">
+              <option value="會員載具">會員載具 (雲端發票)</option><option value="手機條碼載具">手機條碼載具</option><option value="公司三聯式發票">公司三聯式發票 (需填統編)</option>
+            </select>
+          </div>
+          <div class="form-group" id="invoice-detail-group" style="display:none;">
+            <label id="invoice-detail-label">手機條碼</label>
+            <input type="text" id="chk-invoice-detail" placeholder="請輸入對應的條碼或統編">
+          </div>
+
+          <h3 style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">3. 會員專屬優惠</h3>
+          <div class="form-group" style="margin-top:15px;"><label>選擇折價券</label><select id="chk-coupon" onchange="app.updateCheckoutSummary()"></select></div>
+          <div class="form-group">
+            <label>使用點數折抵 (您目前有 <span id="chk-max-points" style="color:var(--danger); font-weight:bold;">0</span> 點)</label>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <input type="number" id="chk-points" min="0" value="0" oninput="app.updateCheckoutSummary()" style="width:120px;">
+              <span style="color:var(--text-muted); font-size:14px;">1點 = 折抵 $1</span>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-danger" style="width: 100%; margin-top:20px; font-size:18px; padding:12px;">確認結帳</button>
+        </form>
+      </div>
+      <aside class="sidebar">
+        <h3>結帳明細</h3>
+        <div id="chk-summary-text" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; line-height:2;"></div>
+      </aside>
+    </div>
+  </div>
+
   <div id="view-member" class="view">
     <h2>會員中心</h2>
-    <div id="member-login" style="margin-top: 20px; background: white; padding: 20px; border-radius: var(--radius); max-width: 400px;">
-      <p>請輸入 Email 登入</p>
-      <input type="email" id="login-email" placeholder="example@mail.com" style="width: 100%; padding: 8px; margin: 10px 0;">
-      <button class="btn btn-primary" onclick="app.login()">登入</button>
+    <div id="member-login" style="margin-top: 20px; background: white; padding: 30px; border-radius: var(--radius); max-width: 450px; box-shadow:var(--shadow);">
+      <h3 style="margin-bottom:15px; color:var(--primary); text-align:center;">帳號登入 / 免費註冊</h3>
+      <p style="text-align:center; color:#666; font-size:13px; margin-bottom:20px;">若無帳號，系統將自動為您建立並設定密碼</p>
+      
+      <div class="form-group"><label>Email (會員帳號)</label><input type="email" id="login-email" placeholder="example@mail.com" required></div>
+      <div class="form-group"><label>登入密碼</label><input type="password" id="login-pw" placeholder="請輸入密碼 (新用戶請自訂密碼)" required></div>
+      
+      <button class="btn btn-primary" onclick="app.login()" style="width:100%; padding:10px; font-size:16px;">登入 / 註冊</button>
     </div>
+    
     <div id="member-dashboard" style="display: none; margin-top: 20px;">
-      <p>歡迎, <span id="user-email-display"></span> <button class="btn btn-outline" style="padding: 2px 8px;" onclick="app.logout()">登出</button></p>
-      <div class="flex-layout" style="margin-top: 20px;">
-        <div class="main-content"><h3>我的訂單</h3><div id="order-history"></div></div>
+      <div class="flex-layout">
+        <div class="sidebar" style="width: 300px; background:var(--primary-light);">
+          <h3 style="color:var(--primary);"><span id="user-email-display"></span></h3>
+          <p style="margin-top:10px;">目前點數：<strong style="font-size:24px; color:var(--danger);" id="mem-points">0</strong> 點</p>
+          <p style="font-size:12px; color:#555;">💡 每滿 $100 累積 1 點，無上限折抵</p>
+          <button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="app.claimDailyPoint()">🎁 每日簽到領 10 點</button>
+          <button class="btn btn-outline" style="width:100%; margin-top:10px; background:white;" onclick="app.logout()">登出帳號</button>
+        </div>
+
+        <div class="main-content">
+          <h3 style="margin-bottom:15px;">🎟️ 領券專區</h3>
+          <div class="ticket">
+            <div><strong style="font-size:18px; color:#d35400;">新居落成 滿萬折千</strong><br><span style="font-size:14px; color:#777;">單筆訂單滿 $10,000 折抵 $1,000</span></div>
+            <button class="btn btn-primary" onclick="app.claimCoupon('CP1000', '滿萬折千', 10000, 1000)">立即領取</button>
+          </div>
+          
+          <h3 style="margin:25px 0 15px 0;">我的折價券</h3>
+          <div id="mem-coupons" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
+
+          <h3 style="margin:30px 0 15px 0;">我的訂單</h3>
+          <div id="order-history"></div>
+        </div>
       </div>
     </div>
   </div>
 </main>
 
+<!-- 退換貨申請 Modal -->
+<div id="return-modal" class="modal-overlay">
+  <div class="modal-content">
+    <h3 style="margin-bottom: 20px; color:var(--danger);">📦 申請退換貨</h3>
+    <form onsubmit="app.submitReturn(event)">
+      <input type="hidden" id="rtn-order-id">
+      <div class="form-group">
+        <label>退換貨原因</label>
+        <select id="rtn-reason" required>
+          <option value="商品瑕疵或損壞">商品瑕疵或損壞</option>
+          <option value="尺寸不合">尺寸不合</option>
+          <option value="送錯商品">送錯商品</option>
+          <option value="實品與照片落差大">實品與照片落差大</option>
+          <option value="其他原因">其他原因</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>詳細說明 (選填)</label>
+        <textarea id="rtn-detail" rows="3" placeholder="請簡述您的情況，幫助客服更快為您處理..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>上傳商品照片 (請貼上圖片網址)</label>
+        <input type="text" id="rtn-img" placeholder="https://...">
+      </div>
+      <div style="text-align:right; margin-top:20px;">
+        <button type="button" class="btn btn-outline" onclick="document.getElementById('return-modal').style.display='none'">取消</button>
+        <button type="submit" class="btn btn-danger" style="margin-left:10px;">送出申請</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="compare-bar">
   <span>已選擇 <strong id="compare-count">0</strong>/4 件商品進行比較</span>
-  <button class="btn btn-primary" style="margin-left: 15px;" onclick="app.navigate('compare')">查看</button>
+  <button class="btn btn-primary" style="margin-left: 15px;" onclick="app.navigate('compare')">查看比較</button>
   <button class="btn btn-outline" style="margin-left: 5px;" onclick="app.clearCompare()">清空</button>
 </div>
 <div id="toast-container"></div>
 
 <script>
 const DB = { products: [] };
+
 function initializeProducts() {
   const savedDb = localStorage.getItem('liviSpaceProducts');
   if (savedDb) { DB.products = JSON.parse(savedDb); } 
   else {
-    for (let i = 1; i <= 10; i++) {
+    for (let i = 1; i <= 8; i++) {
       DB.products.push({
-        id: `P00${i}`, name: `北歐實木家具${i}`, image: `https://picsum.photos/seed/${i * 123}/400/300`,
-        category: '沙發 Sofa', room: '客廳', style: '北歐風', price: 5000 + i*1000, originalPrice: 6000 + i*1000,
-        stock: 10, soldCount: 10, rating: "5.0", reviewCount: 5,
-        specs: { width: '150cm', depth: '60cm', height: '80cm', material: '實木', assemblyRequired: '否', warranty: '1年' },
-        serviceOptions: { assemblyFee: 500, recycleFee: 800 }, deliveryNotes: '一般配送'
+        id: `P00${i}`, name: `北歐質感家具 ${i}`, image: `https://picsum.photos/seed/${i * 100}/400/300`,
+        category: '沙發', room: '客廳', style: '北歐風', price: 5000 + i*1000, stock: 5, soldCount: 0
       });
     }
     localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
@@ -200,129 +318,333 @@ function initializeProducts() {
 }
 
 const app = {
-  state: { view: 'home', cart: [], favorites: [], compare: [], orders: [], user: null, currentProductId: null, searchQuery: '' },
+  state: { view: 'home', cart: [], orders: [], compare: [], user: null, usersDB: {}, currentProductId: null, searchQuery: '' },
+  
   init() {
     initializeProducts();
     this.loadState();
     document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') this.search(e.target.value); });
+    
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'liviSpaceProducts') {
+        DB.products = JSON.parse(e.newValue);
+        if (this.state.view === 'list') this.renderList();
+        if (this.state.view === 'home') this.renderHome();
+        if (this.state.view === 'detail') this.renderDetail();
+      }
+      if (e.key === 'liviSpaceState') {
+        this.loadState();
+        if (this.state.view === 'member') this.renderMember();
+      }
+    });
     this.navigate(this.state.view || 'home');
     this.updateBadges();
   },
+
   loadState() {
     const saved = localStorage.getItem('liviSpaceState');
     if (saved) {
       const parsed = JSON.parse(saved);
-      this.state.cart = parsed.cart || []; this.state.favorites = parsed.favorites || [];
-      this.state.compare = parsed.compare || []; this.state.orders = parsed.orders || [];
-      this.state.user = parsed.user || null;
+      this.state.cart = parsed.cart || []; this.state.orders = parsed.orders || [];
+      this.state.compare = parsed.compare || []; this.state.user = parsed.user || null;
+      this.state.usersDB = parsed.usersDB || {};
     }
   },
+
   saveState() {
-    const saved = localStorage.getItem('liviSpaceState');
-    let fullState = saved ? JSON.parse(saved) : {};
-    fullState.cart = this.state.cart; fullState.favorites = this.state.favorites;
-    fullState.compare = this.state.compare; fullState.orders = this.state.orders;
-    fullState.user = this.state.user;
+    let fullState = localStorage.getItem('liviSpaceState') ? JSON.parse(localStorage.getItem('liviSpaceState')) : {};
+    fullState.cart = this.state.cart; fullState.orders = this.state.orders;
+    fullState.compare = this.state.compare; fullState.user = this.state.user; fullState.usersDB = this.state.usersDB;
     localStorage.setItem('liviSpaceState', JSON.stringify(fullState));
     this.updateBadges();
   },
+
   navigate(view, params = {}) {
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById(`view-${view}`).classList.add('active');
     this.state.view = view; this.saveState(); window.scrollTo(0, 0);
-    if (view === 'home') this.renderHome();
-    if (view === 'list') this.renderList();
+    if (view === 'home') this.renderHome(); if (view === 'list') this.renderList();
     if (view === 'detail') { this.state.currentProductId = params.id; this.renderDetail(); }
-    if (view === 'cart') this.renderCart();
-    if (view === 'compare') this.renderCompare();
-    if (view === 'member') this.renderMember();
-    if (view === 'checkout') this.renderCheckout();
+    if (view === 'cart') this.renderCart(); if (view === 'compare') this.renderCompare();
+    if (view === 'member') this.renderMember(); if (view === 'checkout') this.renderCheckout();
   },
+
   showToast(msg) {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div'); toast.className = 'toast'; toast.innerText = msg;
     container.appendChild(toast); setTimeout(() => toast.remove(), 3000);
   },
-  updateBadges() {
-    document.getElementById('cart-badge').innerText = this.state.cart.length;
+
+  updateBadges() { 
+    document.getElementById('cart-badge').innerText = this.state.cart.length; 
     document.getElementById('compare-badge').innerText = this.state.compare.length;
     document.getElementById('compare-count').innerText = this.state.compare.length;
     document.getElementById('compare-bar').classList.toggle('show', this.state.compare.length > 0 && this.state.view !== 'compare');
   },
+
   createProductCard(p) {
-    return `<div class="card"><div class="card-img" onclick="app.navigate('detail', {id:'${p.id}'})"><img src="${p.image}"></div>
+    const isComp = this.state.compare.includes(p.id);
+    const btnHtml = p.stock > 0 ? `<button class="btn btn-primary" style="padding:4px 8px;" onclick="app.addToCart('${p.id}')">🛒 加入</button>` : `<button class="btn btn-primary" style="padding:4px 8px;" disabled>售完</button>`;
+    return `<div class="card"><div class="card-img" onclick="app.navigate('detail', {id:'${p.id}'})"><img src="${p.image}">${p.stock === 0 ? '<span class="badge" style="top:10px; left:10px; background:#777;">已售完</span>' : ''}</div>
       <div class="card-body"><div class="card-title" onclick="app.navigate('detail', {id:'${p.id}'})">${p.name}</div>
-      <div class="card-price">$${p.price.toLocaleString()}</div>
-      <div class="card-actions"><button class="btn btn-primary" onclick="app.addToCart('${p.id}')">🛒 加入</button></div></div></div>`;
+      <div style="font-size:12px; color:#999; margin-bottom:5px;">剩餘庫存: ${p.stock}</div>
+      <div class="card-price">$${p.price.toLocaleString()}</div><div class="card-actions">
+        <label style="font-size:12px; cursor:pointer;"><input type="checkbox" ${isComp?'checked':''} onchange="app.toggleCompare('${p.id}', this.checked)"> 加入比較</label>${btnHtml}
+      </div></div></div>`;
   },
-  renderHome() { document.getElementById('home-bestsellers').innerHTML = DB.products.slice(0, 4).map(p => this.createProductCard(p)).join(''); },
+
+  renderHome() { document.getElementById('home-bestsellers').innerHTML = [...DB.products].sort((a,b)=>b.soldCount - a.soldCount).slice(0, 4).map(p => this.createProductCard(p)).join(''); },
   search(q) { this.state.searchQuery = q; document.getElementById('searchInput').value = q; this.navigate('list'); },
   filterByRoom(room) { document.getElementById('filter-room').value = room; this.state.searchQuery = ''; this.navigate('list'); },
   renderList() {
-    setTimeout(() => {
-      let filtered = DB.products;
-      const room = document.getElementById('filter-room').value;
-      if (room) filtered = filtered.filter(p => p.room === room);
-      document.getElementById('product-list').innerHTML = filtered.map(p => this.createProductCard(p)).join('');
-    }, 100);
+    let filtered = DB.products; const room = document.getElementById('filter-room').value;
+    if (room) filtered = filtered.filter(p => p.room === room);
+    if (this.state.searchQuery) filtered = filtered.filter(p => p.name.includes(this.state.searchQuery));
+    document.getElementById('product-list').innerHTML = filtered.length ? filtered.map(p => this.createProductCard(p)).join('') : '<p>無符合商品</p>';
   },
+
   renderDetail() {
-    const p = DB.products.find(x => x.id === this.state.currentProductId);
-    if(!p) return;
+    const p = DB.products.find(x => x.id === this.state.currentProductId); if(!p) return;
     document.getElementById('detail-content').innerHTML = `
       <div class="flex-layout">
-        <div style="flex:1; height:450px;"><img src="${p.image}" style="width:100%; height:100%; object-fit:cover;"></div>
-        <div style="flex:1;"><h2>${p.name}</h2><h3 style="color:var(--danger)">$${p.price.toLocaleString()}</h3>
-        <p>庫存: ${p.stock}</p>
-        <button class="btn btn-primary" style="margin-top:20px;" onclick="app.addToCart('${p.id}')">加入購物車</button></div>
-      </div>
-    `;
+        <div style="flex:1; height:450px; background:#EFEBE4; border-radius:8px; overflow:hidden;"><img src="${p.image}" style="width:100%; height:100%; object-fit:cover;"></div>
+        <div style="flex:1;"><h2>${p.name}</h2><h3 style="color:var(--danger); margin:10px 0;">$${p.price.toLocaleString()}</h3>
+        <p style="color:${p.stock>0 ? 'var(--text-main)' : 'red'}; font-weight:bold;">目前庫存: ${p.stock}</p>
+        <button class="btn btn-primary" style="margin-top:20px;" onclick="app.addToCart('${p.id}')" ${p.stock===0?'disabled':''}>${p.stock>0?'🛒 加入購物車':'已售完'}</button></div>
+      </div>`;
   },
+
+  toggleCompare(id, isChecked) {
+    if(isChecked) {
+      if(this.state.compare.length >= 4) { this.showToast('最多只能比較 4 件商品'); return this.renderList(); }
+      this.state.compare.push(id);
+    } else { this.state.compare = this.state.compare.filter(x => x !== id); }
+    this.saveState();
+  },
+  clearCompare() { this.state.compare = []; this.saveState(); if(this.state.view==='compare') this.navigate('home'); else this.renderList(); },
+  renderCompare() {
+    if(this.state.compare.length === 0) return document.getElementById('compare-content').innerHTML = '<p>尚未加入比較商品</p>';
+    const items = this.state.compare.map(id => DB.products.find(p => p.id === id));
+    let html = `<table style="width:100%; text-align:center;"><tr>`;
+    items.forEach(p => {
+      html += `<td style="min-width:200px; padding:10px; border:1px solid var(--border);">
+        <img src="${p.image}" style="height:120px; object-fit:cover; border-radius:4px;"><br>
+        <strong>${p.name}</strong><br><span style="color:var(--danger)">$${p.price.toLocaleString()}</span><br>
+        <button class="btn btn-primary" style="margin-top:10px;" onclick="app.addToCart('${p.id}')">加入購物車</button>
+        <button class="btn btn-outline" style="margin-top:10px;" onclick="app.toggleCompare('${p.id}', false); app.renderCompare();">移除</button></td>`;
+    });
+    html += `</tr></table>`; document.getElementById('compare-content').innerHTML = html;
+  },
+
   addToCart(id) {
+    if(!this.state.user) { this.showToast('⚠️ 請先登入會員才能開始購物喔！'); this.navigate('member'); return; }
     const p = DB.products.find(x => x.id === id);
+    if(p.stock <= 0) return this.showToast('該商品已售完');
     const existing = this.state.cart.find(x => x.id === id);
-    if(existing) existing.qty += 1; else this.state.cart.push({ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 });
+    if(existing) {
+      if (existing.qty >= p.stock) return this.showToast('庫存不足，無法加入更多');
+      existing.qty += 1; 
+    } else { this.state.cart.push({ id: p.id, name: p.name, price: p.price, image: p.image, qty: 1 }); }
     this.saveState(); this.showToast('已加入購物車');
   },
+
   renderCart() {
     const list = document.getElementById('cart-items');
     if(this.state.cart.length === 0) { list.innerHTML = '<p>購物車是空的</p>'; document.getElementById('cart-summary').innerHTML=''; return; }
     let subtotal = 0;
     list.innerHTML = this.state.cart.map((item, idx) => {
       subtotal += item.price * item.qty;
-      return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border);">
-        <img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover;">
-        <div style="flex:1;"><strong>${item.name}</strong></div>
-        <div style="width:100px;">$${item.price.toLocaleString()} x ${item.qty}</div>
+      return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px;">
+        <img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover; border-radius:4px;">
+        <div style="flex:1;"><strong>${item.name}</strong></div><div style="width:100px;">$${item.price.toLocaleString()} x ${item.qty}</div>
         <button class="btn btn-outline" onclick="app.state.cart.splice(${idx},1); app.saveState(); app.renderCart();">刪除</button></div>`;
     }).join('');
-    document.getElementById('cart-summary').innerHTML = `<h3>總計: $${subtotal.toLocaleString()}</h3>`;
+    document.getElementById('cart-summary').innerHTML = `<h3 style="color:var(--danger)">總計: $${subtotal.toLocaleString()}</h3>`;
   },
-  renderCheckout() { if(this.state.cart.length === 0) { this.showToast('購物車為空'); this.navigate('home'); } },
+
+  toggleInvoiceInput() {
+    const inv = document.getElementById('chk-invoice').value;
+    const grp = document.getElementById('invoice-detail-group');
+    const lbl = document.getElementById('invoice-detail-label');
+    if (inv === '手機條碼載具') { grp.style.display = 'block'; lbl.innerText = '手機條碼 (例如：/AB12345)'; document.getElementById('chk-invoice-detail').required = true; } 
+    else if (inv === '公司三聯式發票') { grp.style.display = 'block'; lbl.innerText = '統一編號 (8碼數字)'; document.getElementById('chk-invoice-detail').required = true; } 
+    else { grp.style.display = 'none'; document.getElementById('chk-invoice-detail').required = false; document.getElementById('chk-invoice-detail').value = ''; }
+  },
+
+  renderCheckout() { 
+    if(this.state.cart.length === 0) { this.showToast('購物車為空'); this.navigate('home'); return; }
+    let u = this.state.usersDB[this.state.user];
+    let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
+    let availableCoupons = u.coupons.filter(c => !c.used && subtotal >= c.min);
+    let cSelect = document.getElementById('chk-coupon');
+    cSelect.innerHTML = `<option value="">不使用折價券</option>` + availableCoupons.map(c => `<option value="${c.id}" data-discount="${c.discount}">${c.name} (折 $${c.discount})</option>`).join('');
+    document.getElementById('chk-max-points').innerText = u.points;
+    document.getElementById('chk-points').max = u.points; document.getElementById('chk-points').value = 0;
+    this.toggleInvoiceInput(); this.updateCheckoutSummary();
+  },
+
+  updateCheckoutSummary() {
+    let u = this.state.usersDB[this.state.user]; let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
+    let cSelect = document.getElementById('chk-coupon'); let cDiscount = cSelect.value ? parseInt(cSelect.options[cSelect.selectedIndex].dataset.discount) : 0;
+    let pInput = document.getElementById('chk-points'); let usePoints = parseInt(pInput.value) || 0;
+    
+    if (usePoints > u.points) usePoints = u.points;
+    if (usePoints > subtotal - cDiscount) usePoints = subtotal - cDiscount; pInput.value = usePoints;
+    let finalTotal = subtotal - cDiscount - usePoints; let earnPoints = Math.floor(finalTotal / 100);
+
+    document.getElementById('chk-summary-text').innerHTML = `
+      <div style="display:flex; justify-content:space-between;"><span>商品小計:</span> <span>$${subtotal.toLocaleString()}</span></div>
+      <div style="display:flex; justify-content:space-between; color:var(--success);"><span>優惠折抵:</span> <span>-$${(cDiscount+usePoints).toLocaleString()}</span></div>
+      <hr style="margin:10px 0; border-top:1px solid var(--border);">
+      <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; color:var(--danger);"><span>應付總額:</span> <span>$${finalTotal.toLocaleString()}</span></div>
+      <div style="margin-top:10px; font-size:13px; color:var(--primary); text-align:right;">💡 完成訂單可獲得 ${earnPoints} 點</div>`;
+  },
+
   submitOrder(e) {
     e.preventDefault();
-    const orderId = 'ORD' + new Date().getTime().toString().slice(-6);
-    let orderTotal = this.state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    this.state.orders.unshift({ id: orderId, date: new Date().toLocaleDateString(), items: [...this.state.cart], status: '備貨中', total: orderTotal });
-    this.state.cart = []; this.saveState(); this.showToast(`訂單建立成功！編號：${orderId}`); this.navigate('member');
+    let u = this.state.usersDB[this.state.user]; let orderId = 'ORD' + new Date().getTime().toString().slice(-6);
+    let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
+    let canProceed = true;
+    this.state.cart.forEach(item => { const p = DB.products.find(x => x.id === item.id); if(!p || p.stock < item.qty) canProceed = false; });
+    if(!canProceed) return this.showToast(`部分商品庫存不足，請調整購物車！`);
+
+    let cSelect = document.getElementById('chk-coupon'); let cDiscount = cSelect.value ? parseInt(cSelect.options[cSelect.selectedIndex].dataset.discount) : 0;
+    let usePoints = parseInt(document.getElementById('chk-points').value) || 0;
+    let finalTotal = subtotal - cDiscount - usePoints; let earnPoints = Math.floor(finalTotal / 100);
+
+    if(cSelect.value) u.coupons.find(x => x.id === cSelect.value).used = true;
+    u.points = u.points - usePoints + earnPoints;
+
+    this.state.cart.forEach(item => { const p = DB.products.find(x => x.id === item.id); p.stock -= item.qty; p.soldCount += item.qty; });
+    localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
+
+    let invVal = document.getElementById('chk-invoice').value;
+    let invDetail = document.getElementById('chk-invoice-detail') ? document.getElementById('chk-invoice-detail').value : '';
+    let invString = invVal + (invDetail && invVal !== '會員載具' ? ` (${invDetail})` : '');
+    let exInfo = `配送: ${document.getElementById('chk-region').value} | 付款: ${document.getElementById('chk-payment').value} | 發票: ${invString}`;
+
+    // 紀錄完整詳細地址
+    let fullAddress = `[${document.getElementById('chk-region').value}] ` + document.getElementById('chk-address').value;
+
+    this.state.orders.unshift({ 
+      id: orderId, user: this.state.user, date: new Date().toLocaleDateString(), timestamp: new Date().getTime(),
+      items: [...this.state.cart], status: '備貨中', total: finalTotal, 
+      discountInfo: `已折抵 $${cDiscount+usePoints}`, extraInfo: exInfo, address: fullAddress
+    });
+    
+    this.state.cart = []; this.saveState(); this.showToast(`✅ 訂單結帳成功！獲得 ${earnPoints} 點`); this.navigate('member');
   },
+
+  login() {
+    const email = document.getElementById('login-email').value; const pw = document.getElementById('login-pw').value;
+    if(!email || !pw) return this.showToast('⚠️ 請輸入完整的 Email 與密碼');
+    if(!this.state.usersDB) this.state.usersDB = {};
+    if(!this.state.usersDB[email]) {
+      this.state.usersDB[email] = { password: pw, points: 50, coupons: [], lastCheckInDate: '' }; 
+      this.showToast('🎉 新會員註冊成功！已贈送 50 點購物金');
+    } else {
+      if(this.state.usersDB[email].password !== pw) return this.showToast('❌ 密碼錯誤，請重新輸入');
+      this.showToast('✅ 登入成功');
+    }
+    this.state.user = email; this.saveState(); this.renderMember(); 
+  },
+  
+  logout() { this.state.user = null; this.saveState(); this.renderMember(); },
+
+  claimDailyPoint() {
+    let u = this.state.usersDB[this.state.user];
+    let today = new Date().toLocaleDateString();
+    if(u.lastCheckInDate === today) return this.showToast('⚠️ 您今天已經簽到過囉！明天再來吧！');
+    u.points += 10; u.lastCheckInDate = today; this.saveState(); this.renderMember();
+    this.showToast('🎁 簽到成功！獲得 10 點');
+  },
+
+  claimCoupon(id, name, min, discount) {
+    let u = this.state.usersDB[this.state.user];
+    if(u.coupons.find(c => c.id === id)) return this.showToast('您已經領取過這張折價券囉！');
+    u.coupons.push({ id, name, min, discount, used: false });
+    this.saveState(); this.renderMember(); this.showToast('🎟️ 成功領取折價券！');
+  },
+
+  // 開啟退換貨表單
+  openReturnModal(orderId) {
+    document.getElementById('rtn-order-id').value = orderId;
+    document.getElementById('rtn-reason').value = '商品瑕疵或損壞';
+    document.getElementById('rtn-detail').value = '';
+    document.getElementById('rtn-img').value = '';
+    document.getElementById('return-modal').style.display = 'flex';
+  },
+
+  // 送出退換貨
+  submitReturn(e) {
+    e.preventDefault();
+    const orderId = document.getElementById('rtn-order-id').value;
+    let order = this.state.orders.find(o => o.id === orderId);
+    if(order) {
+      order.status = '退換貨處理中';
+      order.returnInfo = {
+        date: new Date().toLocaleDateString(),
+        reason: document.getElementById('rtn-reason').value,
+        detail: document.getElementById('rtn-detail').value,
+        img: document.getElementById('rtn-img').value
+      };
+      this.saveState();
+      this.renderMember();
+      document.getElementById('return-modal').style.display = 'none';
+      this.showToast('✅ 退換貨申請已送出！');
+    }
+  },
+
   renderMember() {
     if(this.state.user) {
       document.getElementById('member-login').style.display = 'none'; document.getElementById('member-dashboard').style.display = 'block';
       document.getElementById('user-email-display').innerText = this.state.user;
-      document.getElementById('order-history').innerHTML = this.state.orders.map(o => `
-        <div style="border:1px solid var(--border); padding:10px; margin-bottom:10px;">
-          <strong>${o.id}</strong> | 總計: $${o.total.toLocaleString()} | 狀態: ${o.status}
-        </div>`).join('');
+      let u = this.state.usersDB[this.state.user]; document.getElementById('mem-points').innerText = u.points;
+
+      let unusedCoupons = u.coupons.filter(c => !c.used);
+      document.getElementById('mem-coupons').innerHTML = unusedCoupons.length ? unusedCoupons.map(c => `
+        <div style="background:#fff; border:1px solid var(--success); padding:10px 15px; border-radius:8px; width:200px; border-left:4px solid var(--success);">
+          <strong>${c.name}</strong><br><span style="font-size:12px; color:#555;">滿 $${c.min} 可折抵 $${c.discount}</span>
+        </div>`).join('') : '<p style="color:#777;">目前沒有可用的折價券</p>';
+
+      let myOrders = this.state.orders.filter(o => o.user === this.state.user);
+      document.getElementById('order-history').innerHTML = myOrders.length ? myOrders.map(o => {
+        let returnBtnHtml = '';
+        if(o.status === '已完成' && !o.returnInfo) {
+          let orderTime = o.timestamp || new Date(o.date).getTime();
+          let diffDays = (new Date().getTime() - orderTime) / (1000 * 60 * 60 * 24);
+          if(diffDays <= 7) {
+            returnBtnHtml = `<button class="btn btn-outline" style="margin-top:10px; padding:4px 8px; font-size:12px; color:var(--danger); border-color:var(--danger);" onclick="app.openReturnModal('${o.id}')">申請退換貨</button>`;
+          }
+        }
+        
+        let rtnTagHtml = '';
+        if(o.returnInfo) {
+          rtnTagHtml = `<div style="margin-top:10px; padding:8px; background:#fdf2e9; border-radius:4px; font-size:12px; color:#d35400;">📦 已申請退貨 (原因: ${o.returnInfo.reason})</div>`;
+        }
+
+        return `
+        <div style="border:1px solid var(--border); padding:15px; margin-bottom:10px; border-radius:8px; background:white;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <strong>訂單：${o.id}</strong><span style="color:white; background:var(--primary); padding:2px 8px; border-radius:12px; font-size:12px;">${o.status}</span>
+          </div>
+          <div style="font-size:14px; color:var(--text-muted); margin-bottom:10px;">${o.items.map(i=>i.name + ' x ' + i.qty).join('<br>')}</div>
+          <div style="font-size:12px; color:#777; background:#f9f9f9; padding:5px; border-radius:4px; margin-bottom:10px;">ℹ️ ${o.extraInfo || ''}<br>🏠 配送至: ${o.address || '無紀錄'}</div>
+          ${rtnTagHtml}
+          <div style="display:flex; justify-content:space-between; align-items:flex-end;">
+            <div>${returnBtnHtml}</div>
+            <div style="text-align:right;">
+              <span style="font-size:12px; color:var(--success);">${o.discountInfo || ''}</span><br>
+              <strong style="color:var(--danger); font-size:16px;">總計: $${o.total.toLocaleString()}</strong>
+            </div>
+          </div>
+        </div>`
+      }).join('') : '<p>尚無訂單紀錄</p>';
     } else {
       document.getElementById('member-login').style.display = 'block'; document.getElementById('member-dashboard').style.display = 'none';
+      document.getElementById('login-email').value = ''; document.getElementById('login-pw').value = '';
     }
-  },
-  login() {
-    const email = document.getElementById('login-email').value;
-    if(email) { this.state.user = email; this.saveState(); this.renderMember(); this.showToast('登入成功'); }
-  },
-  logout() { this.state.user = null; this.saveState(); this.renderMember(); }
+  }
 };
 window.onload = () => app.init();
 </script>
