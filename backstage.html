@@ -104,7 +104,7 @@
       </div>
       <div class="table-wrapper">
         <table>
-          <thead><tr><th>圖片</th><th>ID</th><th>名稱</th><th>分類</th><th>售價</th><th>庫存</th><th>操作</th></tr></thead>
+          <thead><tr><th>圖片</th><th>ID</th><th>名稱</th><th>分類/風格</th><th>售價</th><th>庫存</th><th>操作</th></tr></thead>
           <tbody id="products-table"></tbody>
         </table>
       </div>
@@ -162,6 +162,7 @@
   </div>
 </div>
 
+<!-- 修改後的商品新增/編輯 Modal 結構 -->
 <div id="product-modal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modal-title" style="margin-bottom: 20px;">新增/編輯商品</h3>
@@ -169,15 +170,20 @@
       <input type="hidden" id="p-id">
       <div class="form-row">
         <div class="form-group" style="flex:2;"><label>商品名稱</label><input type="text" id="p-name" required></div>
-        <div class="form-group" style="flex:1;"><label>圖片網址</label><input type="text" id="p-img"></div>
       </div>
       <div class="form-row">
         <div class="form-group"><label>分類</label><select id="p-cat"><option>沙發</option><option>床架與床墊</option><option>桌類</option><option>收納櫃</option></select></div>
         <div class="form-group"><label>空間</label><select id="p-room"><option>客廳</option><option>臥室</option><option>餐廳</option><option>書房</option></select></div>
+        <div class="form-group"><label>風格</label><select id="p-style"><option>北歐風</option><option>工業風</option><option>極簡風</option></select></div>
       </div>
       <div class="form-row">
         <div class="form-group"><label>售價</label><input type="number" id="p-price" required></div>
         <div class="form-group"><label>庫存</label><input type="number" id="p-stock" required></div>
+      </div>
+      <div class="form-group"><label>主圖網址</label><input type="text" id="p-img"></div>
+      <div class="form-row">
+        <div class="form-group"><label>附圖網址 1</label><input type="text" id="p-img2" placeholder="選填"></div>
+        <div class="form-group"><label>附圖網址 2</label><input type="text" id="p-img3" placeholder="選填"></div>
       </div>
       <div style="text-align:right;">
         <button type="button" class="btn btn-outline" onclick="document.getElementById('product-modal').style.display='none'">取消</button>
@@ -274,7 +280,6 @@ const adminApp = {
     document.getElementById('stat-orders').innerText = this.fullState.orders.length;
     document.getElementById('stat-pending').innerText = this.fullState.orders.filter(o => o.status === '備貨中').length;
     
-    // 顯示今日訪客人數
     let today = new Date().toLocaleDateString();
     let visitCount = (this.fullState.visitors && this.fullState.visitors.date === today) ? this.fullState.visitors.count : 0;
     document.getElementById('stat-visitors').innerText = visitCount;
@@ -288,49 +293,65 @@ const adminApp = {
       lowStock.map(p => `<tr><td>${p.id}</td><td>${p.name}</td><td style="color:red; font-weight:bold;">${p.stock}</td></tr>`).join('') : '<tr><td colspan="3" style="text-align:center;">庫存充足</td></tr>';
   },
 
+  // 更新商品管理表格視圖，展示圖片數量與風格
   renderProducts() {
     const kw = document.getElementById('search-product').value.toLowerCase();
     let d = kw ? this.products.filter(p => p.name.toLowerCase().includes(kw) || p.id.toLowerCase().includes(kw)) : this.products;
-    document.getElementById('products-table').innerHTML = d.map(p => `
-      <tr>
-        <td><img src="${p.image}" style="width:40px; height:40px; object-fit:cover;"></td>
-        <td style="font-size:12px; color:#777;">${p.id}</td><td><strong>${p.name}</strong></td>
-        <td>${p.category}</td><td style="color:var(--danger)">$${p.price.toLocaleString()}</td>
-        <td style="${p.stock < 3 ? 'color:red;font-weight:bold;' : ''}">${p.stock}</td>
-        <td><button class="btn btn-outline" style="padding:4px 8px;" onclick="adminApp.openProductModal('${p.id}')">編輯</button>
-            <button class="btn btn-danger" style="padding:4px 8px;" onclick="adminApp.deleteProduct('${p.id}')">刪除</button></td>
-      </tr>
-    `).join('') || '<tr><td colspan="7" style="text-align:center;">無資料</td></tr>';
+    document.getElementById('products-table').innerHTML = d.map(p => {
+      let imgCount = 1;
+      if (p.image2) imgCount++;
+      if (p.image3) imgCount++;
+      return `
+        <tr>
+          <td style="text-align:center;"><img src="${p.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"><br><span style="font-size:11px;color:#888;">共 ${imgCount} 張</span></td>
+          <td style="font-size:12px; color:#777;">${p.id}</td><td><strong>${p.name}</strong></td>
+          <td>${p.category}<br><span style="font-size:11px; color:#888;">${p.style || '北歐風'}</span></td><td style="color:var(--danger)">$${p.price.toLocaleString()}</td>
+          <td style="${p.stock < 3 ? 'color:red;font-weight:bold;' : ''}">${p.stock}</td>
+          <td><button class="btn btn-outline" style="padding:4px 8px;" onclick="adminApp.openProductModal('${p.id}')">編輯</button>
+              <button class="btn btn-danger" style="padding:4px 8px;" onclick="adminApp.deleteProduct('${p.id}')">刪除</button></td>
+        </tr>
+      `;
+    }).join('') || '<tr><td colspan="7" style="text-align:center;">無資料</td></tr>';
   },
 
+  // 擴增 Modal 讀取屬性
   openProductModal(id = null) {
     document.getElementById('product-modal').style.display = 'flex';
     if(id) {
       const p = this.products.find(x => x.id === id);
       document.getElementById('p-id').value = p.id; document.getElementById('p-name').value = p.name;
-      document.getElementById('p-img').value = p.image; document.getElementById('p-cat').value = p.category;
-      document.getElementById('p-room').value = p.room; document.getElementById('p-price').value = p.price;
+      document.getElementById('p-img').value = p.image;
+      document.getElementById('p-img2').value = p.image2 || '';
+      document.getElementById('p-img3').value = p.image3 || '';
+      document.getElementById('p-cat').value = p.category;
+      document.getElementById('p-room').value = p.room;
+      document.getElementById('p-style').value = p.style || '北歐風';
+      document.getElementById('p-price').value = p.price;
       document.getElementById('p-stock').value = p.stock;
     } else {
       document.getElementById('p-id').value = ''; document.getElementById('p-name').value = '';
-      document.getElementById('p-img').value = ''; document.getElementById('p-cat').value = '沙發';
-      document.getElementById('p-room').value = '客廳'; document.getElementById('p-price').value = '';
-      document.getElementById('p-stock').value = '';
+      document.getElementById('p-img').value = ''; document.getElementById('p-img2').value = ''; document.getElementById('p-img3').value = '';
+      document.getElementById('p-cat').value = '沙發'; document.getElementById('p-room').value = '客廳'; document.getElementById('p-style').value = '北歐風';
+      document.getElementById('p-price').value = ''; document.getElementById('p-stock').value = '';
     }
   },
 
+  // 儲存商品時寫入同步前端依賴的屬性 (圖片與風格)
   saveProduct(e) {
     e.preventDefault();
     const id = document.getElementById('p-id').value; const name = document.getElementById('p-name').value;
     const imgUrl = document.getElementById('p-img').value || `https://picsum.photos/seed/${Math.floor(Math.random()*10000)}/400/300`;
-    const cat = document.getElementById('p-cat').value; const room = document.getElementById('p-room').value;
+    const imgUrl2 = document.getElementById('p-img2').value;
+    const imgUrl3 = document.getElementById('p-img3').value;
+    const cat = document.getElementById('p-cat').value; const room = document.getElementById('p-room').value; const style = document.getElementById('p-style').value;
     const price = parseInt(document.getElementById('p-price').value); const stock = parseInt(document.getElementById('p-stock').value);
 
     if(id) {
       const p = this.products.find(x => x.id === id);
-      p.name = name; p.image = imgUrl; p.category = cat; p.room = room; p.price = price; p.stock = stock;
+      p.name = name; p.image = imgUrl; p.image2 = imgUrl2; p.image3 = imgUrl3; 
+      p.category = cat; p.room = room; p.style = style; p.price = price; p.stock = stock;
     } else {
-      this.products.unshift({ id: 'P'+new Date().getTime().toString().slice(-4), name, image: imgUrl, category: cat, room, price, stock, soldCount: 0 });
+      this.products.unshift({ id: 'P'+new Date().getTime().toString().slice(-4), name, image: imgUrl, image2: imgUrl2, image3: imgUrl3, category: cat, room, style, price, stock, soldCount: 0 });
     }
     localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products));
     document.getElementById('product-modal').style.display = 'none'; this.renderProducts();
