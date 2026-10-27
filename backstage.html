@@ -179,10 +179,10 @@
         <div class="form-group"><label>售價</label><input type="number" id="p-price" required></div>
         <div class="form-group"><label>庫存</label><input type="number" id="p-stock" required></div>
       </div>
-      <div class="form-group"><label>主圖網址</label><input type="text" id="p-img"></div>
+      <div class="form-group"><label>主圖上傳</label><input type="file" id="p-img" accept="image/*"></div>
       <div class="form-row">
-        <div class="form-group"><label>附圖網址 1</label><input type="text" id="p-img2" placeholder="選填"></div>
-        <div class="form-group"><label>附圖網址 2</label><input type="text" id="p-img3" placeholder="選填"></div>
+        <div class="form-group"><label>附圖上傳 1</label><input type="file" id="p-img2" accept="image/*"></div>
+        <div class="form-group"><label>附圖上傳 2</label><input type="file" id="p-img3" accept="image/*"></div>
       </div>
       <div style="text-align:right;">
         <button type="button" class="btn btn-outline" onclick="document.getElementById('product-modal').style.display='none'">取消</button>
@@ -324,41 +324,79 @@ const adminApp = {
     document.getElementById('product-modal').style.display = 'flex';
     if(id) {
       const p = this.products.find(x => x.id === id);
-      document.getElementById('p-id').value = p.id; document.getElementById('p-name').value = p.name;
-      document.getElementById('p-img').value = p.image;
-      document.getElementById('p-img2').value = p.image2 || '';
-      document.getElementById('p-img3').value = p.image3 || '';
+      document.getElementById('p-id').value = p.id; 
+      document.getElementById('p-name').value = p.name;
+      // 清空檔案上傳欄位 (避免安全性錯誤)
+      document.getElementById('p-img').value = ''; 
+      document.getElementById('p-img2').value = '';
+      document.getElementById('p-img3').value = '';
       document.getElementById('p-cat').value = p.category;
       document.getElementById('p-room').value = p.room;
       document.getElementById('p-style').value = p.style || '北歐風';
       document.getElementById('p-price').value = p.price;
       document.getElementById('p-stock').value = p.stock;
     } else {
-      document.getElementById('p-id').value = ''; document.getElementById('p-name').value = '';
-      document.getElementById('p-img').value = ''; document.getElementById('p-img2').value = ''; document.getElementById('p-img3').value = '';
-      document.getElementById('p-cat').value = '沙發'; document.getElementById('p-room').value = '客廳'; document.getElementById('p-style').value = '北歐風';
-      document.getElementById('p-price').value = ''; document.getElementById('p-stock').value = '';
+      document.getElementById('p-id').value = ''; 
+      document.getElementById('p-name').value = '';
+      document.getElementById('p-img').value = ''; 
+      document.getElementById('p-img2').value = ''; 
+      document.getElementById('p-img3').value = '';
+      document.getElementById('p-cat').value = '沙發'; 
+      document.getElementById('p-room').value = '客廳'; 
+      document.getElementById('p-style').value = '北歐風';
+      document.getElementById('p-price').value = ''; 
+      document.getElementById('p-stock').value = '';
     }
   },
 
-  saveProduct(e) {
+  async saveProduct(e) {
     e.preventDefault();
-    const id = document.getElementById('p-id').value; const name = document.getElementById('p-name').value;
-    const imgUrl = document.getElementById('p-img').value || `https://picsum.photos/seed/${Math.floor(Math.random()*10000)}/400/300`;
-    const imgUrl2 = document.getElementById('p-img2').value;
-    const imgUrl3 = document.getElementById('p-img3').value;
-    const cat = document.getElementById('p-cat').value; const room = document.getElementById('p-room').value; const style = document.getElementById('p-style').value;
-    const price = parseInt(document.getElementById('p-price').value); const stock = parseInt(document.getElementById('p-stock').value);
+    const id = document.getElementById('p-id').value; 
+    const name = document.getElementById('p-name').value;
+    
+    // 建立一個讀取檔案為 Base64 的輔助函式
+    const getBase64 = (file) => new Promise((resolve, reject) => {
+      if (!file) return resolve('');
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+
+    // 讀取上傳的圖片檔案
+    const file1 = document.getElementById('p-img').files[0];
+    const file2 = document.getElementById('p-img2').files[0];
+    const file3 = document.getElementById('p-img3').files[0];
+
+    // 轉換圖片，如果沒有上傳主圖，則維持使用隨機圖片
+    let imgUrl = await getBase64(file1) || `https://picsum.photos/seed/${Math.floor(Math.random()*10000)}/400/300`;
+    let imgUrl2 = await getBase64(file2);
+    let imgUrl3 = await getBase64(file3);
+
+    const cat = document.getElementById('p-cat').value; 
+    const room = document.getElementById('p-room').value; 
+    const style = document.getElementById('p-style').value;
+    const price = parseInt(document.getElementById('p-price').value); 
+    const stock = parseInt(document.getElementById('p-stock').value);
 
     if(id) {
       const p = this.products.find(x => x.id === id);
-      p.name = name; p.image = imgUrl; p.image2 = imgUrl2; p.image3 = imgUrl3; 
+      p.name = name; 
+      // 編輯時，只有在有重新上傳新圖片時才覆蓋原本的圖片
+      if (file1) p.image = imgUrl; 
+      if (file2) p.image2 = imgUrl2; 
+      if (file3) p.image3 = imgUrl3; 
       p.category = cat; p.room = room; p.style = style; p.price = price; p.stock = stock;
     } else {
-      this.products.unshift({ id: 'P'+new Date().getTime().toString().slice(-4), name, image: imgUrl, image2: imgUrl2, image3: imgUrl3, category: cat, room, style, price, stock, soldCount: 0 });
+      this.products.unshift({ 
+        id: 'P'+new Date().getTime().toString().slice(-4), 
+        name, image: imgUrl, image2: imgUrl2, image3: imgUrl3, 
+        category: cat, room, style, price, stock, soldCount: 0 
+      });
     }
     localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products));
-    document.getElementById('product-modal').style.display = 'none'; this.renderProducts();
+    document.getElementById('product-modal').style.display = 'none'; 
+    this.renderProducts();
   },
 
   deleteProduct(id) { if(confirm('確定刪除？')) { this.products = this.products.filter(p => p.id !== id); localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products)); this.renderProducts(); } },
