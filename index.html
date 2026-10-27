@@ -115,7 +115,7 @@
   </div>
   <div class="nav-item">客廳
     <div class="dropdown">
-      <span class="dropdown-item" onclick="app.search('客廳')">全部客廳家具</span>
+      <span class="dropdown-item" onclick="app.filterByRoom('客廳')">全部客廳家具</span>
       <span class="dropdown-item" onclick="app.search('電視櫃')">電視櫃</span>
       <span class="dropdown-item" onclick="app.search('茶几')">茶几</span>
       <span class="dropdown-item" onclick="app.search('邊几')">邊几</span>
@@ -125,7 +125,7 @@
   </div>
   <div class="nav-item">臥室
     <div class="dropdown">
-      <span class="dropdown-item" onclick="app.search('臥室')">全部臥室家具</span>
+      <span class="dropdown-item" onclick="app.filterByRoom('臥室')">全部臥室家具</span>
       <span class="dropdown-item" onclick="app.search('床頭櫃')">床頭櫃</span>
       <span class="dropdown-item" onclick="app.search('衣櫃')">衣櫃</span>
       <span class="dropdown-item" onclick="app.search('斗櫃')">斗櫃</span>
@@ -143,7 +143,7 @@
   </div>
   <div class="nav-item">書房
     <div class="dropdown">
-      <span class="dropdown-item" onclick="app.search('書房')">全部書房家具</span>
+      <span class="dropdown-item" onclick="app.filterByRoom('書房')">全部書房家具</span>
       <span class="dropdown-item" onclick="app.search('書桌')">書桌</span>
       <span class="dropdown-item" onclick="app.search('電腦椅')">電腦椅</span>
       <span class="dropdown-item" onclick="app.search('書櫃')">書櫃</span>
@@ -152,15 +152,14 @@
   </div>
   <div class="nav-item">餐廳
     <div class="dropdown">
-      <span class="dropdown-item" onclick="app.search('餐廳')">全部餐廳家具</span>
+      <span class="dropdown-item" onclick="app.filterByRoom('餐廳')">全部餐廳家具</span>
       <span class="dropdown-item" onclick="app.search('餐桌')">餐桌</span>
       <span class="dropdown-item" onclick="app.search('餐椅')">餐椅</span>
       <span class="dropdown-item" onclick="app.search('長凳')">長凳</span>
       <span class="dropdown-item" onclick="app.search('餐邊櫃')">餐邊櫃</span>
     </div>
   </div>
-  <div class="nav-item" onclick="app.navigate('about')">品牌理念</div>
-  <div class="nav-item" onclick="app.navigate('contact')">聯絡我們</div>
+  <div class="nav-item" onclick="app.navigate('list')">最新消息</div>
   <div class="nav-item">顧客服務
     <div class="dropdown">
       <span class="dropdown-item" onclick="app.navigate('faq')">常見問答 (Q&A)</span>
@@ -189,18 +188,11 @@
     <div class="flex-layout">
       <aside class="sidebar">
         <h3>進階篩選</h3>
-        
-        <!-- 更新 4：空間拿掉，改為與後台同步的商品分類 -->
-        <div style="margin-top:15px;"><label>商品分類</label>
-          <select id="filter-category" onchange="app.renderList()">
-            <option value="">全部</option>
-            <option value="沙發">沙發</option>
-            <option value="床架與床墊">床架與床墊</option>
-            <option value="桌類">桌類</option>
-            <option value="收納櫃">收納櫃</option>
+        <div style="margin-top:15px;"><label>空間</label>
+          <select id="filter-room" onchange="app.renderList()">
+            <option value="">全部</option><option value="客廳">客廳</option><option value="臥室">臥室</option><option value="餐廳">餐廳</option><option value="書房">書房</option>
           </select>
         </div>
-        
         <div style="margin-top:15px;"><label>風格</label>
           <select id="filter-style" onchange="app.renderList()">
             <option value="">全部</option><option value="北歐風">北歐風</option><option value="工業風">工業風</option><option value="極簡風">極簡風</option>
@@ -236,7 +228,7 @@
       
       <div class="main-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid var(--border);">
-          <h3 style="margin:0;" id="list-title">商品列表</h3>
+          <h3 style="margin:0;">商品列表</h3>
           <div style="display:flex; align-items:center; gap:10px;">
             <label style="font-size:14px; font-weight:bold; color:var(--text-muted);">排序方式</label>
             <select id="sort-select" onchange="app.renderList()" style="width:auto; padding:5px 10px; font-size:14px;">
@@ -256,60 +248,7 @@
 
   <div id="view-detail" class="view"><div id="detail-content"></div></div>
 
-  <!-- 新增的 品牌理念 頁面 -->
-  <div id="view-about" class="view">
-    <div style="font-size:14px; color:#555; margin-bottom:20px; display:flex; gap:8px; align-items:center;">
-      <a style="color:#0066cc; cursor:pointer; text-decoration:none;" onclick="app.navigate('home')">🏠 首頁</a> &gt; <span style="color:#999;">品牌理念</span>
-    </div>
-    <div style="background: url('https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?auto=format&fit=crop&w=1200&q=80') center/cover; height: 300px; border-radius: 8px; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden;">
-      <div style="position:absolute; width:100%; height:100%; background:rgba(0,0,0,0.4);"></div>
-      <h2 style="color:white; font-size:36px; letter-spacing:4px; z-index:1; text-shadow: 0 4px 8px rgba(0,0,0,0.6);">關於我們 / 品牌理念</h2>
-    </div>
-    <div style="background:white; padding:40px; border-radius:8px; margin-top:-30px; position:relative; z-index:2; box-shadow:0 10px 20px rgba(0,0,0,0.08); line-height:2.2; max-width:900px; margin-left:auto; margin-right:auto;">
-      <h3 style="color:var(--primary); margin-bottom:20px; text-align:center; font-size:24px;">「為生活留白，為質感停留」</h3>
-      <p style="text-align:justify; font-size:16px; color:#555;">CHG 好室選物，創立於對美好生活的嚮往。我們相信，家不僅僅是一個居住的空間，更是反映個人品味與生活態度的避風港。我們致力於嚴選國內外優質的設計家具，將美學與機能完美結合。</p>
-      <p style="text-align:justify; font-size:16px; color:#555; margin-top:15px;">無論是溫暖的北歐風、個性的工業風，還是純粹的極簡風，我們都為您精心挑選。我們堅持提供高品質、價格合理的居家商品，確保每一件交到您手中的家具，都能經得起時間的考驗，讓每一位顧客都能輕鬆打造心目中的理想好室。</p>
-    </div>
-  </div>
-
-  <!-- 新增的 聯絡我們 頁面 -->
-  <div id="view-contact" class="view">
-    <div style="font-size:14px; color:#555; margin-bottom:20px; display:flex; gap:8px; align-items:center;">
-      <a style="color:#0066cc; cursor:pointer; text-decoration:none;" onclick="app.navigate('home')">🏠 首頁</a> &gt; <span style="color:#999;">聯絡我們</span>
-    </div>
-    <h2 style="margin-bottom: 25px; color:var(--primary); text-align:center;">聯絡我們</h2>
-    
-    <div class="grid-4" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
-      <!-- 客服資訊卡片 -->
-      <div style="background:white; padding:30px; border-radius:12px; box-shadow:var(--shadow); border-top:5px solid #3498db;">
-        <h3 style="color:#3498db; margin-bottom:20px; font-size:20px; display:flex; align-items:center; gap:8px;">💬 官方客服資訊</h3>
-        <p style="font-size:15px; color:#555;"><strong>✉️ 客服信箱：</strong> service@chg-home.com</p>
-        <p style="font-size:15px; color:#555; margin-top:15px;"><strong>📱 官方 LINE ID：</strong> <span style="color:#2ecc71; font-weight:bold;">@chg_home</span> (含@)</p>
-        <p style="font-size:15px; color:#555; margin-top:15px;"><strong>🕒 服務時間：</strong> 週一至週五 09:00 - 18:00<br><span style="font-size:13px; color:#888; margin-left:25px;">(國定假日暫停客服服務)</span></p>
-      </div>
-      
-      <!-- 匯款資訊卡片 -->
-      <div style="background:white; padding:30px; border-radius:12px; box-shadow:var(--shadow); border-top:5px solid #2ecc71;">
-        <h3 style="color:#2ecc71; margin-bottom:20px; font-size:20px; display:flex; align-items:center; gap:8px;">🏦 官方匯款資訊</h3>
-        <p style="font-size:15px; color:#555;"><strong>銀行名稱：</strong> 808 (玉山銀行)</p>
-        <p style="font-size:15px; color:#555; margin-top:15px;"><strong>分行名稱：</strong> 營業部</p>
-        <p style="font-size:15px; color:#555; margin-top:15px;"><strong>匯款帳號：</strong> <strong style="font-size:18px; color:#333;">1234-567-890123</strong></p>
-        <p style="font-size:15px; color:#555; margin-top:15px;"><strong>戶名：</strong> 好室選物股份有限公司</p>
-      </div>
-    </div>
-
-    <!-- 貼心告知區塊 -->
-    <div style="background:#fff5e6; padding:30px; border-radius:12px; box-shadow:var(--shadow); margin-top:30px; border-left:6px solid #f39c12;">
-       <h3 style="color:#d35400; margin-bottom:20px; display:flex; align-items:center; gap:8px;">💡 貼心告知事項</h3>
-       <ul style="color:#555; font-size:15px; margin-left:20px; list-style-type:disc; line-height:2;">
-         <li>匯款完成後，請務必透過官方 LINE 或會員中心的「訂單通訊」回報您的<strong style="color:#d35400;">匯款帳號後五碼</strong>，以便加速對帳與出貨流程。</li>
-         <li>大型家具配送需安排專車，客服人員將於訂單成立並付款完成後 <strong style="color:#d35400;">1-3 個工作天內</strong>與您聯繫確認配送時間。</li>
-         <li>如遇商品缺貨或不可抗力之特殊狀況，我們將第一時間主動通知您，並提供無條件換貨或全額退款服務。</li>
-         <li><strong style="color:var(--danger);">⚠️ 防詐騙提醒：</strong>我們絕對不會主動要求您前往 ATM 進行任何「分期付款解除」、「會員升級」或「退款」操作。若接到可疑電話，請立即掛斷並撥打 165 反詐騙專線。</li>
-       </ul>
-    </div>
-  </div>
-
+  <!-- 獨立的 Q&A 頁面 -->
   <div id="view-faq" class="view">
     <div style="font-size:14px; color:#555; margin-bottom:20px; display:flex; gap:8px; align-items:center;">
       <a style="color:#0066cc; cursor:pointer; text-decoration:none;" onclick="app.navigate('home')">🏠 首頁</a> &gt; <span>顧客服務</span> &gt; <span style="color:#999;">常見問答 (Q&A)</span>
@@ -367,29 +306,12 @@
       <div class="main-content">
         <form id="checkout-form" onsubmit="app.submitOrder(event)" style="background: white; padding: 20px; border-radius: var(--radius);">
           <h3>1. 收件資訊</h3>
-          <div class="form-group" style="margin-top:15px;">
-            <label>配送區域 (運費計算)</label>
-            <select id="chk-region" onchange="app.updateCheckoutSummary()">
-              <option value="0">雙北、桃園、基隆、宜蘭、新竹、台中、彰化 (免運)</option>
-              <option value="1000">苗栗、雲林、南投 (運費 $1,000)</option>
-              <option value="1800">嘉義、台南、高雄、屏東 (運費 $1,800)</option>
-            </select>
-          </div>
+          <div class="form-group" style="margin-top:15px;"><label>配送區域</label><select id="chk-region"><option value="台灣本島">台灣本島</option><option value="台灣離島">台灣離島</option><option value="跨境-海外">海外跨境配送</option></select></div>
           <div class="form-group"><label>收件人姓名</label><input type="text" id="chk-name" required></div>
-          <div class="form-group"><label>詳細地址</label><input type="text" id="chk-address" required placeholder="請填寫完整地址 (例: 信義區松智路1號)"></div>
+          <div class="form-group"><label>詳細地址</label><input type="text" id="chk-address" required placeholder="請填寫完整地址"></div>
           
           <h3 style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">2. 付款與發票</h3>
-          <div class="form-group" style="margin-top:15px;">
-            <label>付款方式</label>
-            <select id="chk-payment" onchange="app.updateCheckoutSummary()">
-              <option value="信用卡一次付清">信用卡一次付清</option>
-              <option value="信用卡 3 期 0 利率">信用卡 3 期 0 利率</option>
-              <option value="信用卡 6 期 0 利率">信用卡 6 期 0 利率</option>
-              <option value="信用卡 12 期 0 利率">信用卡 12 期 0 利率</option>
-              <option value="ATM 轉帳">ATM 虛擬帳號轉帳</option>
-            </select>
-            <div id="payment-info" style="color:var(--danger); font-size:13px; margin-top:5px; font-weight:bold;"></div>
-          </div>
+          <div class="form-group" style="margin-top:15px;"><label>付款方式</label><select id="chk-payment"><option value="信用卡一次付清">信用卡一次付清</option><option value="信用卡 3 期 0 利率">信用卡 3 期 0 利率</option><option value="ATM 轉帳">ATM 虛擬帳號轉帳</option></select></div>
           <div class="form-group"><label>發票開立</label><select id="chk-invoice" onchange="app.toggleInvoiceInput()"><option value="會員載具">會員載具 (雲端發票)</option><option value="手機條碼載具">手機條碼載具</option><option value="公司三聯式發票">公司三聯式發票 (需填統編)</option></select></div>
           <div class="form-group" id="invoice-detail-group" style="display:none;"><label id="invoice-detail-label">手機條碼</label><input type="text" id="chk-invoice-detail" placeholder="請填寫條碼或統編"></div>
 
@@ -397,7 +319,7 @@
           <div class="form-group" style="margin-top:15px;"><label>選擇折價券</label><select id="chk-coupon" onchange="app.updateCheckoutSummary()"></select></div>
           <div class="form-group"><label>使用點數折抵 (目前 <span id="chk-max-points" style="color:var(--danger); font-weight:bold;">0</span> 點)</label><input type="number" id="chk-points" min="0" value="0" oninput="app.updateCheckoutSummary()"></div>
           
-          <button type="submit" class="btn btn-danger" style="width: 100%; margin-top:20px; font-size:18px; padding:12px;">確認結帳送出</button>
+          <button type="submit" class="btn btn-danger" style="width: 100%; margin-top:20px; font-size:18px; padding:12px;">確認結帳</button>
         </form>
       </div>
       <aside class="sidebar"><h3>結帳明細</h3><div id="chk-summary-text" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px; line-height:2;"></div></aside>
@@ -542,22 +464,24 @@ function initializeProducts() {
       throw new Error("無商品資料"); 
     }
   } catch (e) {
-    DB.products = [];
-    for (let i = 1; i <= 8; i++) {
-      const categoryMap = {1:'沙發', 2:'桌類', 3:'床架與床墊', 4:'收納櫃', 5:'沙發', 6:'桌類', 7:'床架與床墊', 8:'收納櫃'};
-      DB.products.push({
-        id: `P00${i}`, name: `質感生活提案 ${i}`, image: `https://picsum.photos/seed/${i*100}/400/300`,
-        category: categoryMap[i], room: i%2===0?'臥室':'客廳', style: i%3===0?'工業風':'北歐風', 
-        price: 5000 + i*1200, stock: 5, soldCount: 0
-      });
-    }
+    // 同步後台預設的商品與圖片設定
+    DB.products = [
+      { id: 'P001', name: '工業風牛皮沙發1型', image: './image/沙發/沙發1.png', image2: './image/沙發/沙發1-1.png', image3: './image/沙發/沙發1-2.png', category: '沙發', room: '客廳', style: '工業風', price: 10228, stock: 5, soldCount: 0 },
+      { id: 'P002', name: '質感生活提案 2', image: './images/p2.jpg', image2: './images/p2-2.jpg', image3: './images/p2-3.jpg', category: '桌類', room: '客廳', style: '北歐風', price: 7400, stock: 5, soldCount: 0 },
+      { id: 'P003', name: '質感生活提案 3', image: './images/p3.jpg', image2: './images/p3-2.jpg', image3: './images/p3-3.jpg', category: '床架與床墊', room: '臥室', style: '工業風', price: 8600, stock: 5, soldCount: 0 },
+      { id: 'P004', name: '質感生活提案 4', image: './images/p4.jpg', image2: './images/p4-2.jpg', image3: './images/p4-3.jpg', category: '收納櫃', room: '客廳', style: '北歐風', price: 9800, stock: 5, soldCount: 0 },
+      { id: 'P005', name: '質感生活提案 5', image: './images/p5.jpg', image2: './images/p5-2.jpg', image3: './images/p5-3.jpg', category: '沙發', room: '臥室', style: '北歐風', price: 11000, stock: 5, soldCount: 0 },
+      { id: 'P006', name: '質感生活提案 6', image: './images/p6.jpg', image2: './images/p6-2.jpg', image3: './images/p6-3.jpg', category: '桌類', room: '客廳', style: '工業風', price: 12200, stock: 5, soldCount: 0 },
+      { id: 'P007', name: '質感生活提案 7', image: './images/p7.jpg', image2: './images/p7-2.jpg', image3: './images/p7-3.jpg', category: '床架與床墊', room: '臥室', style: '北歐風', price: 13400, stock: 5, soldCount: 0 },
+      { id: 'P008', name: '質感生活提案 8', image: './images/p8.jpg', image2: './images/p8-2.jpg', image3: './images/p8-3.jpg', category: '收納櫃', room: '客廳', style: '北歐風', price: 14600, stock: 5, soldCount: 0 }
+    ];
     localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
   }
 }
 
 const app = {
   state: { view: 'home', cart: [], orders: [], compare: [], history: [], user: null, usersDB: {}, currentProductId: null, searchQuery: '' },
-  lastNavView: 'home', 
+  lastNavView: 'home', // 記錄最後一個非詳細頁的畫面，用於返回上一頁
   
   init() {
     initializeProducts();
@@ -635,7 +559,6 @@ const app = {
     if (view === 'compare') this.renderCompare();
     if (view === 'member') this.renderMember(); 
     if (view === 'checkout') this.renderCheckout();
-    // about, contact, policy, faq are statically rendered HTML, simply showing them is enough.
   },
 
   goBack() {
@@ -676,16 +599,10 @@ const app = {
     document.getElementById('home-similar').innerHTML = similar.map(p => this.createProductCard(p)).join('');
   },
   
-  // 更新後的 search 方法：重置下拉篩選、將關鍵字填入並進行更全面的篩選整合
-  search(q) { 
-    this.resetFilters();
-    this.state.searchQuery = q; 
-    document.getElementById('searchInput').value = q; 
-    this.navigate('list'); 
-  },
-
+  search(q) { this.state.searchQuery = q; document.getElementById('searchInput').value = q; this.navigate('list'); },
+  filterByRoom(room) { document.getElementById('filter-room').value = room; this.state.searchQuery = ''; this.navigate('list'); },
   resetFilters() {
-    document.getElementById('filter-category').value = '';
+    document.getElementById('filter-room').value = '';
     document.getElementById('filter-style').value = '';
     document.getElementById('filter-material').value = '';
     document.getElementById('filter-size').value = '';
@@ -694,7 +611,7 @@ const app = {
     document.getElementById('sort-select').value = 'default';
     this.state.searchQuery = '';
     document.getElementById('searchInput').value = '';
-    if(this.state.view === 'list') this.renderList();
+    this.renderList();
   },
 
   getSpec(p) {
@@ -732,7 +649,7 @@ const app = {
   
   renderList() {
     let filtered = [...DB.products]; 
-    const categoryVal = document.getElementById('filter-category').value;
+    const room = document.getElementById('filter-room').value;
     const style = document.getElementById('filter-style').value;
     const material = document.getElementById('filter-material').value;
     const sizeVal = document.getElementById('filter-size').value;
@@ -740,7 +657,7 @@ const app = {
     const priceMin = parseFloat(document.getElementById('price-min').value) || 0;
     const priceMax = parseFloat(document.getElementById('price-max').value) || Infinity;
 
-    if (categoryVal) filtered = filtered.filter(p => p.category === categoryVal);
+    if (room) filtered = filtered.filter(p => p.room === room);
     if (style) filtered = filtered.filter(p => p.style === style || (p.style && p.style.includes(style)));
     if (material) {
         filtered = filtered.filter(p => {
@@ -764,17 +681,8 @@ const app = {
         });
     }
 
-    // 更新：全面比對搜尋關鍵字（包含品名、商品分類，甚至隱含的空間屬性）以完成精準整合
     if (this.state.searchQuery) {
-        let q = this.state.searchQuery.toLowerCase();
-        filtered = filtered.filter(p => 
-            p.name.toLowerCase().includes(q) || 
-            (p.category && p.category.toLowerCase().includes(q)) || 
-            (p.room && p.room.toLowerCase().includes(q))
-        );
-        document.getElementById('list-title').innerText = `搜尋結果：${this.state.searchQuery}`;
-    } else {
-        document.getElementById('list-title').innerText = `商品列表`;
+        filtered = filtered.filter(p => p.name.includes(this.state.searchQuery) || p.category.includes(this.state.searchQuery));
     }
 
     const sortMode = document.getElementById('sort-select').value;
@@ -793,29 +701,21 @@ const app = {
       filtered.sort((a, b) => b.id.localeCompare(a.id));
     }
 
-    document.getElementById('product-list').innerHTML = filtered.length ? filtered.map(p => this.createProductCard(p)).join('') : '<p style="grid-column: 1 / -1; text-align:center; padding: 40px; color:#888;">無符合的商品組合，請嘗試其他條件！</p>';
+    document.getElementById('product-list').innerHTML = filtered.length ? filtered.map(p => this.createProductCard(p)).join('') : '<p>無符合的商品組合，請嘗試其他條件！</p>';
   },
 
-  switchDetailTab(tabName) {
-    document.querySelectorAll('.detail-tab-btn').forEach(el => {
-      el.style.background = '#f9f9f9';
-      el.style.borderTop = 'none';
-      el.style.fontWeight = 'normal';
-    });
-    document.querySelectorAll('.detail-tab-content').forEach(el => {
-      el.style.display = 'none';
-    });
+  calcDetailShipping(price) {
+    const region = document.getElementById('detail-shipping-region');
+    const feeEl = document.getElementById('detail-shipping-fee');
+    if(!region || !feeEl) return;
     
-    const btn = document.getElementById('btn-tab-' + tabName);
-    if(btn) {
-      btn.style.background = '#fff';
-      btn.style.borderTop = '3px solid #000';
-      btn.style.fontWeight = 'bold';
-    }
-    
-    const content = document.getElementById('content-tab-' + tabName);
-    if(content) {
-      content.style.display = 'block';
+    const val = region.value;
+    if (val === '台灣本島') {
+      feeEl.innerText = price >= 15000 ? '享免運費' : '運費 $1,000 (滿 $15,000 免運)';
+    } else if (val === '台灣離島') {
+      feeEl.innerText = '運費 $2,500';
+    } else {
+      feeEl.innerText = '運費依材積與重量另計，將有專人與您聯繫';
     }
   },
 
@@ -861,58 +761,27 @@ const app = {
       </div>
     `;
 
-    const descHtml = `
-      ${itemSpec.brand} ${p.name} | 質感設計 | 機能型家具<br>
-      ${itemSpec.desc}<br><br>
-      適合族群：<br>
-      √ 注重居家生活質感<br>
-      √ 需要穩固與安心材質<br>
-      √ 多功能實用需求<br><br>
-      特色：<br>
-      精選材質耐用度高<br>
-      ${p.category}高CP值首選<br>
-      <br>
-      <span style="color:#c0392b;">推薦閱讀【CHG 居家佈置！尺寸怎麼選？必看指南】</span>
-    `;
-
-    const policyHtml = `
-      <h3 style="color:var(--primary); margin-bottom:10px;">🚚 配送與跨境購物</h3><p style="margin-bottom:15px;">台灣本島滿 $15,000 享免運。依縣市區域有所不同，苗栗/南投等地酌收物流費用，花東與外島暫無配送。</p>
-      <h3 style="color:var(--primary); margin-bottom:10px;">💳 促銷機制與分期付款</h3><p style="margin-bottom:15px;">消費每滿 $100 贈 1 點。提供信用卡 3/6/12 期零利率分期服務。</p>
-      <h3 style="color:var(--primary); margin-bottom:10px;">🔄 退換貨與保固維修</h3><p style="margin-bottom:15px;">全站家具皆享 1 年保固。收到商品七日內可至「我的訂單」申請退換貨，需保持包裝完整無損。</p>
-      <h3 style="color:var(--primary); margin-bottom:10px;">🧾 發票處理</h3><p>全面開立電子發票。支援手機條碼載具與公司戶三聯式統編發票。</p>
-    `;
-
-    const faqHtml = `
-      <div style="margin-bottom:15px; border-bottom:1px dashed #ddd; padding-bottom:10px;">
-        <div style="font-weight:bold; color:var(--primary);">Q: 購買後如果發現尺寸不合可以退換嗎？</div>
-        <div style="color:var(--text-muted); margin-top:5px; font-size:14px;">A: 享有七天鑑賞期（非試用期），保持包裝完整無損毀即可申請退換貨，但可能酌收部分整新與物流費用。</div>
-      </div>
-      <div style="margin-bottom:15px; border-bottom:1px dashed #ddd; padding-bottom:10px;">
-        <div style="font-weight:bold; color:var(--primary);">Q: 商品需要自行組裝嗎？</div>
-        <div style="color:var(--text-muted); margin-top:5px; font-size:14px;">A: 絕大多數大型家具將由我們的專業物流團隊為您到府定位組裝，免收額外安裝費。</div>
-      </div>
-      <div>
-        <div style="font-weight:bold; color:var(--primary);">Q: 請問有實體店面可以看實品嗎？</div>
-        <div style="color:var(--text-muted); margin-top:5px; font-size:14px;">A: 目前我們為全線上商城，以此將最優惠的價格回饋給顧客，暫無提供實體展間服務。</div>
-      </div>
-    `;
+    // 處理商品縮圖，如果有的話動態生成
+    const images = [p.image, p.image2, p.image3].filter(Boolean);
+    const thumbHtml = images.map((img, idx) => `
+      <img src="${img}" 
+           class="detail-thumb"
+           onclick="document.getElementById('main-detail-img').src='${img}'; document.querySelectorAll('.detail-thumb').forEach(el=>el.style.borderColor='transparent'); this.style.borderColor='#666';" 
+           style="width:70px; height:70px; object-fit:cover; border:2px solid ${idx===0?'#666':'transparent'}; cursor:pointer; border-radius:4px;">
+    `).join('');
 
     document.getElementById('detail-content').innerHTML = `
-      <div style="font-size:14px; color:#555; margin-bottom:20px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-        <a style="color:#0066cc; cursor:pointer; text-decoration:none;" onclick="app.navigate('home')">🏠 首頁</a> &gt;
-        <a style="color:#0066cc; cursor:pointer; text-decoration:none;" onclick="app.search('${p.category}')">${p.category}</a> &gt;
-        <span style="color:#999;">${p.name}</span>
+      <div style="font-size:13px; color:#555; margin-bottom:15px; display:inline-flex; align-items:center; cursor:pointer; background:#eee; padding:6px 12px; border-radius:20px; transition:0.2s;" onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#eee'" onclick="app.goBack()">
+        <span style="margin-right:5px; font-weight:bold;">&larr;</span> 回到上一頁
       </div>
       
       <div class="flex-layout" style="align-items: flex-start;">
         <div style="flex:1.2; position:relative;">
-          <div style="background:#EFEBE4; overflow:hidden;">
-            <img src="${p.image}" style="width:100%; height:auto; object-fit:cover; aspect-ratio:4/3; display:block;">
+          <div style="background:#EFEBE4; overflow:hidden; border-radius:8px;">
+            <img id="main-detail-img" src="${images[0]}" style="width:100%; height:auto; object-fit:cover; aspect-ratio:4/3; display:block;">
           </div>
           <div style="display:flex; gap:10px; margin-top:10px;">
-            <img src="${p.image}" style="width:70px; height:70px; object-fit:cover; border:2px solid #666; cursor:pointer;">
-            <div style="width:70px; height:70px; background:#ddd; cursor:pointer;"></div>
-            <div style="width:70px; height:70px; background:#ddd; cursor:pointer;"></div>
+            ${thumbHtml}
           </div>
         </div>
         
@@ -945,22 +814,9 @@ const app = {
           ${shippingTextHtml}
         </div>
       </div>
-
-      <div style="margin-top:50px; border-top:1px solid #ccc; padding-top:20px;">
-        <h3 style="font-size:16px; color:#333; margin-bottom:15px; display:flex; align-items:center; gap:5px;">📄 商品介紹</h3>
-        <div style="display:flex; border:1px solid #ccc; border-bottom:none; text-align:center;">
-          <div id="btn-tab-desc" class="detail-tab-btn" style="flex:1; padding:15px; border-right:1px solid #ccc; background:#fff; font-weight:bold; color:#333; border-top:3px solid #000; cursor:pointer;" onclick="app.switchDetailTab('desc')">商品細節</div>
-          <div id="btn-tab-policy" class="detail-tab-btn" style="flex:1; padding:15px; border-right:1px solid #ccc; background:#f9f9f9; color:#666; cursor:pointer;" onclick="app.switchDetailTab('policy')">購物需知</div>
-          <div id="btn-tab-faq" class="detail-tab-btn" style="flex:1; padding:15px; background:#f9f9f9; color:#666; cursor:pointer;" onclick="app.switchDetailTab('faq')">FAQ</div>
-        </div>
-        
-        <div style="border:1px solid #ccc; padding:30px; background:#fff; font-size:14px; color:#444; line-height:1.8;">
-          <div id="content-tab-desc" class="detail-tab-content" style="display:block;">${descHtml}</div>
-          <div id="content-tab-policy" class="detail-tab-content" style="display:none;">${policyHtml}</div>
-          <div id="content-tab-faq" class="detail-tab-content" style="display:none;">${faqHtml}</div>
-        </div>
-      </div>
     `;
+    
+    setTimeout(() => this.calcDetailShipping(p.price), 0);
   },
 
   openAIModal() { document.getElementById('ai-modal').style.display = 'flex'; },
@@ -1167,43 +1023,21 @@ const app = {
   updateCheckoutSummary() {
     if(!this.state.user) return;
     let u = this.state.usersDB[this.state.user] || { points: 0 }; 
-    
     let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
-    let shippingFee = parseInt(document.getElementById('chk-region').value) || 0;
-    
     let cSelect = document.getElementById('chk-coupon'); 
     let cDiscount = cSelect && cSelect.value ? parseInt(cSelect.options[cSelect.selectedIndex].dataset.discount) : 0;
     
     let pInput = document.getElementById('chk-points'); 
     let usePoints = parseInt(pInput.value) || 0;
     if (usePoints > (u.points||0)) usePoints = (u.points||0); 
-    if (usePoints > subtotal + shippingFee - cDiscount) usePoints = subtotal + shippingFee - cDiscount; 
+    if (usePoints > subtotal - cDiscount) usePoints = subtotal - cDiscount; 
     pInput.value = usePoints;
     
-    let finalTotal = subtotal + shippingFee - cDiscount - usePoints; 
+    let finalTotal = subtotal - cDiscount - usePoints; 
     let earnPoints = Math.floor(finalTotal / 100);
 
-    let paymentMode = document.getElementById('chk-payment').value;
-    let paymentText = '';
-    if (paymentMode.includes('3 期')) paymentText = `分 3 期：每月約 $${Math.floor(finalTotal / 3).toLocaleString()}`;
-    else if (paymentMode.includes('6 期')) paymentText = `分 6 期：每月約 $${Math.floor(finalTotal / 6).toLocaleString()}`;
-    else if (paymentMode.includes('12 期')) paymentText = `分 12 期：每月約 $${Math.floor(finalTotal / 12).toLocaleString()}`;
-    
-    document.getElementById('payment-info').innerText = paymentText;
-
-    let itemsHtml = this.state.cart.map(i => `
-      <div style="display:flex; justify-content:space-between; font-size:13px; color:#555; margin-bottom:5px;">
-        <span>${i.name} x ${i.qty}</span>
-        <span>$${(i.price * i.qty).toLocaleString()}</span>
-      </div>`).join('');
-
     document.getElementById('chk-summary-text').innerHTML = `
-      <div style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-        <h4 style="font-size:14px; margin-bottom:10px; color:#333;">結帳商品清單</h4>
-        ${itemsHtml}
-      </div>
       <div style="display:flex; justify-content:space-between;"><span>商品小計:</span> <span>$${subtotal.toLocaleString()}</span></div>
-      <div style="display:flex; justify-content:space-between;"><span>運費:</span> <span>$${shippingFee.toLocaleString()}</span></div>
       <div style="display:flex; justify-content:space-between; color:var(--success);"><span>優惠折抵:</span> <span>-$${(cDiscount+usePoints).toLocaleString()}</span></div>
       <hr style="margin:10px 0; border-top:1px solid var(--border);">
       <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; color:var(--danger);"><span>應付總額:</span> <span>$${finalTotal.toLocaleString()}</span></div>
@@ -1226,11 +1060,10 @@ const app = {
     
     if(!canProceed) return this.showToast(`部分商品庫存不足，請調整購物車！`);
 
-    let shippingFee = parseInt(document.getElementById('chk-region').value) || 0;
     let cSelect = document.getElementById('chk-coupon'); 
     let cDiscount = cSelect.value ? parseInt(cSelect.options[cSelect.selectedIndex].dataset.discount) : 0;
     let usePoints = parseInt(document.getElementById('chk-points').value) || 0;
-    let finalTotal = subtotal + shippingFee - cDiscount - usePoints; 
+    let finalTotal = subtotal - cDiscount - usePoints; 
     let earnPoints = Math.floor(finalTotal / 100);
 
     if(cSelect.value) u.coupons.find(x => x.id === cSelect.value).used = true;
@@ -1245,11 +1078,8 @@ const app = {
     let invVal = document.getElementById('chk-invoice').value; 
     let invDetail = document.getElementById('chk-invoice-detail') ? document.getElementById('chk-invoice-detail').value : '';
     let invString = invVal + (invDetail && invVal !== '會員載具' ? ` (${invDetail})` : '');
-    
-    let regionSelect = document.getElementById('chk-region');
-    let regionText = regionSelect.options[regionSelect.selectedIndex].text.split(' ')[0]; // 取縣市名稱
-    let exInfo = `付款: ${document.getElementById('chk-payment').value} | 發票: ${invString} | 運費: $${shippingFee}`;
-    let fullAddress = `[${regionText}] ` + document.getElementById('chk-address').value;
+    let exInfo = `付款: ${document.getElementById('chk-payment').value} | 發票: ${invString}`;
+    let fullAddress = `[${document.getElementById('chk-region').value}] ` + document.getElementById('chk-address').value;
 
     this.state.orders.unshift({ 
       id: orderId, user: this.state.user, date: new Date().toLocaleDateString(), timestamp: new Date().getTime(),

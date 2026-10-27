@@ -13,7 +13,7 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'PingFang TC', sans-serif; }
   body { background-color: var(--admin-bg); color: #333; height: 100vh; overflow: hidden; }
   button { cursor: pointer; border: none; background: none; font-family: inherit; }
-  input, select, textarea { border: 1px solid var(--border); border-radius: 4px; padding: 8px; width: 100%; outline: none;}
+  input[type="text"], input[type="number"], input[type="password"], input[type="email"], select, textarea { border: 1px solid var(--border); border-radius: 4px; padding: 8px; width: 100%; outline: none;}
   input:focus, select:focus { border-color: var(--primary); }
   
   .btn { padding: 8px 15px; border-radius: var(--radius); cursor: pointer; font-size: 14px; transition: 0.2s; display: inline-block; }
@@ -148,15 +148,6 @@
           <table><thead><tr><th>商品名稱</th><th>單價</th><th>剩餘庫存</th><th>總價值</th></tr></thead><tbody id="report-inventory-table"></tbody></table>
         </div>
       </div>
-
-      <div class="table-wrapper" style="margin-top:0;">
-        <h3 style="margin-bottom:15px; color:#d35400;">🔄 常見退換貨原因彙整</h3>
-        <table>
-          <thead><tr><th>排行</th><th>退貨原因分類</th><th>申請次數</th></tr></thead>
-          <tbody id="report-returns-table"></tbody>
-        </table>
-      </div>
-
     </div>
 
   </div>
@@ -179,11 +170,29 @@
         <div class="form-group"><label>售價</label><input type="number" id="p-price" required></div>
         <div class="form-group"><label>庫存</label><input type="number" id="p-stock" required></div>
       </div>
-      <div class="form-group"><label>主圖上傳</label><input type="file" id="p-img" accept="image/*"></div>
-      <div class="form-row">
-        <div class="form-group"><label>附圖上傳 1</label><input type="file" id="p-img2" accept="image/*"></div>
-        <div class="form-group"><label>附圖上傳 2</label><input type="file" id="p-img3" accept="image/*"></div>
+      
+      <div class="form-group" style="background:#f4f6f8; padding:15px; border-radius:8px; margin-bottom:15px;">
+        <label>🖼️ 主圖上傳</label>
+        <input type="file" accept="image/*" style="border:none; padding:0; width:100%; margin-bottom:5px;" onchange="adminApp.uploadLocalImage(event, 'p-img', 'preview-img')">
+        <input type="hidden" id="p-img">
+        <img id="preview-img" style="margin-top:5px; height:80px; width:auto; border-radius:4px; object-fit:cover; aspect-ratio:4/3; display:none; border:1px solid #ccc;">
       </div>
+      
+      <div class="form-row">
+        <div class="form-group" style="background:#f4f6f8; padding:15px; border-radius:8px;">
+          <label>附圖 1</label>
+          <input type="file" accept="image/*" style="border:none; padding:0; width:100%; margin-bottom:5px;" onchange="adminApp.uploadLocalImage(event, 'p-img2', 'preview-img2')">
+          <input type="hidden" id="p-img2">
+          <img id="preview-img2" style="margin-top:5px; height:60px; width:auto; border-radius:4px; object-fit:cover; aspect-ratio:4/3; display:none; border:1px solid #ccc;">
+        </div>
+        <div class="form-group" style="background:#f4f6f8; padding:15px; border-radius:8px;">
+          <label>附圖 2</label>
+          <input type="file" accept="image/*" style="border:none; padding:0; width:100%; margin-bottom:5px;" onchange="adminApp.uploadLocalImage(event, 'p-img3', 'preview-img3')">
+          <input type="hidden" id="p-img3">
+          <img id="preview-img3" style="margin-top:5px; height:60px; width:auto; border-radius:4px; object-fit:cover; aspect-ratio:4/3; display:none; border:1px solid #ccc;">
+        </div>
+      </div>
+      
       <div style="text-align:right;">
         <button type="button" class="btn btn-outline" onclick="document.getElementById('product-modal').style.display='none'">取消</button>
         <button type="submit" class="btn btn-primary" style="margin-left:10px;">儲存並同步</button>
@@ -228,8 +237,54 @@ const adminApp = {
   },
 
   loadData() {
-    const savedDb = localStorage.getItem('liviSpaceProducts');
-    if (savedDb) this.products = JSON.parse(savedDb);
+    // 移除之前的判斷邏輯，強制每次都讀取程式碼內的設定
+    this.products = [
+      {
+        id: 'P001', name: '工業風牛皮沙發1型',
+        image: './image/沙發/沙發1.png', image2: './image/沙發/沙發1-1.png', image3: './image/沙發/沙發1-2.png',
+        category: '沙發', room: '客廳', style: '工業風', price: 10228, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P002', name: '質感生活提案 2',
+        image: './images/p2.jpg', image2: './images/p2-2.jpg', image3: './images/p2-3.jpg',
+        category: '桌類', room: '客廳', style: '北歐風', price: 7400, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P003', name: '質感生活提案 3',
+        image: './images/p3.jpg', image2: './images/p3-2.jpg', image3: './images/p3-3.jpg',
+        category: '床架與床墊', room: '臥室', style: '工業風', price: 8600, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P004', name: '質感生活提案 4',
+        image: './images/p4.jpg', image2: './images/p4-2.jpg', image3: './images/p4-3.jpg',
+        category: '收納櫃', room: '客廳', style: '北歐風', price: 9800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P005', name: '質感生活提案 5',
+        image: './images/p5.jpg', image2: './images/p5-2.jpg', image3: './images/p5-3.jpg',
+        category: '沙發', room: '臥室', style: '北歐風', price: 11000, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P006', name: '質感生活提案 6',
+        image: './images/p6.jpg', image2: './images/p6-2.jpg', image3: './images/p6-3.jpg',
+        category: '桌類', room: '客廳', style: '工業風', price: 12200, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P007', name: '質感生活提案 7',
+        image: './images/p7.jpg', image2: './images/p7-2.jpg', image3: './images/p7-3.jpg',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 13400, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P008', name: '質感生活提案 8',
+        image: './images/p8.jpg', image2: './images/p8-2.jpg', image3: './images/p8-3.jpg',
+        category: '收納櫃', room: '客廳', style: '北歐風', price: 14600, stock: 5, soldCount: 0
+      }
+    ];
+
+    // 強制將上面的陣列寫入 localStorage，讓前台跟著同步更新
+    localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products));
+    
+    // 其餘訂單與會員資料仍然保留讀取暫存機制
     const savedState = localStorage.getItem('liviSpaceState');
     if (savedState) {
       this.fullState = JSON.parse(savedState);
@@ -238,7 +293,6 @@ const adminApp = {
     } else {
       this.fullState = { orders: [], usersDB: {} };
     }
-    // 強制每次進入頁面時將登入狀態設為 false，避免從 localStorage 自動登入
     this.isAuth = false;
   },
 
@@ -255,7 +309,6 @@ const adminApp = {
   login() {
     if (document.getElementById('admin-user').value === 'admin' && document.getElementById('admin-pw').value === 'admin123') {
       this.isAuth = true; 
-      // 移除寫入 localStorage 的行為，讓登入狀態只保留在此次分頁生命週期中
       this.checkAuth();
     } else alert('密碼錯誤！(預設: admin / admin123)');
   },
@@ -281,7 +334,6 @@ const adminApp = {
   },
 
   renderDashboard() {
-    this.loadData();
     const rev = this.fullState.orders.reduce((sum, o) => sum + o.total, 0);
     document.getElementById('stat-rev').innerText = '$' + rev.toLocaleString();
     document.getElementById('stat-orders').innerText = this.fullState.orders.length;
@@ -309,7 +361,7 @@ const adminApp = {
       if (p.image3) imgCount++;
       return `
         <tr>
-          <td style="text-align:center;"><img src="${p.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;"><br><span style="font-size:11px;color:#888;">共 ${imgCount} 張</span></td>
+          <td style="text-align:center;"><img src="${p.image}" style="width:40px; height:auto; aspect-ratio: 4/3; object-fit:cover; border-radius:4px;"><br><span style="font-size:11px;color:#888;">共 ${imgCount} 張</span></td>
           <td style="font-size:12px; color:#777;">${p.id}</td><td><strong>${p.name}</strong></td>
           <td>${p.category}<br><span style="font-size:11px; color:#888;">${p.style || '北歐風'}</span></td><td style="color:var(--danger)">$${p.price.toLocaleString()}</td>
           <td style="${p.stock < 3 ? 'color:red;font-weight:bold;' : ''}">${p.stock}</td>
@@ -320,89 +372,93 @@ const adminApp = {
     }).join('') || '<tr><td colspan="7" style="text-align:center;">無資料</td></tr>';
   },
 
+  setPreview(imgId, src) {
+    const el = document.getElementById(imgId);
+    if (src) {
+      el.src = src;
+      el.style.display = 'block';
+    } else {
+      el.src = '';
+      el.style.display = 'none';
+    }
+  },
+
   openProductModal(id = null) {
     document.getElementById('product-modal').style.display = 'flex';
+    document.querySelectorAll('#product-modal input[type="file"]').forEach(el => el.value = '');
+
     if(id) {
       const p = this.products.find(x => x.id === id);
-      document.getElementById('p-id').value = p.id; 
-      document.getElementById('p-name').value = p.name;
-      // 清空檔案上傳欄位 (避免安全性錯誤)
-      document.getElementById('p-img').value = ''; 
-      document.getElementById('p-img2').value = '';
-      document.getElementById('p-img3').value = '';
+      document.getElementById('p-id').value = p.id; document.getElementById('p-name').value = p.name;
       document.getElementById('p-cat').value = p.category;
       document.getElementById('p-room').value = p.room;
       document.getElementById('p-style').value = p.style || '北歐風';
       document.getElementById('p-price').value = p.price;
       document.getElementById('p-stock').value = p.stock;
+      
+      document.getElementById('p-img').value = p.image || '';
+      document.getElementById('p-img2').value = p.image2 || '';
+      document.getElementById('p-img3').value = p.image3 || '';
+      
+      this.setPreview('preview-img', p.image);
+      this.setPreview('preview-img2', p.image2);
+      this.setPreview('preview-img3', p.image3);
     } else {
-      document.getElementById('p-id').value = ''; 
-      document.getElementById('p-name').value = '';
+      document.getElementById('p-id').value = ''; document.getElementById('p-name').value = '';
+      document.getElementById('p-cat').value = '沙發'; document.getElementById('p-room').value = '客廳'; document.getElementById('p-style').value = '北歐風';
+      document.getElementById('p-price').value = ''; document.getElementById('p-stock').value = '';
+      
       document.getElementById('p-img').value = ''; 
       document.getElementById('p-img2').value = ''; 
       document.getElementById('p-img3').value = '';
-      document.getElementById('p-cat').value = '沙發'; 
-      document.getElementById('p-room').value = '客廳'; 
-      document.getElementById('p-style').value = '北歐風';
-      document.getElementById('p-price').value = ''; 
-      document.getElementById('p-stock').value = '';
+      
+      this.setPreview('preview-img', '');
+      this.setPreview('preview-img2', '');
+      this.setPreview('preview-img3', '');
     }
   },
 
-  async saveProduct(e) {
-    e.preventDefault();
-    const id = document.getElementById('p-id').value; 
-    const name = document.getElementById('p-name').value;
+  uploadLocalImage(event, targetId, previewId) {
+    const file = event.target.files[0];
+    if(!file) return;
     
-    // 建立一個讀取檔案為 Base64 的輔助函式
-    const getBase64 = (file) => new Promise((resolve, reject) => {
-      if (!file) return resolve('');
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = error => reject(error);
-    });
+    if(file.size > 500 * 1024) {
+      alert('⚠️ 圖片太大了！為了系統穩定，請上傳小於 500KB 的圖片喔！');
+      event.target.value = ''; 
+      return;
+    }
 
-    // 讀取上傳的圖片檔案
-    const file1 = document.getElementById('p-img').files[0];
-    const file2 = document.getElementById('p-img2').files[0];
-    const file3 = document.getElementById('p-img3').files[0];
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      document.getElementById(targetId).value = evt.target.result;
+      this.setPreview(previewId, evt.target.result);
+    };
+    reader.readAsDataURL(file);
+  },
 
-    // 轉換圖片，如果沒有上傳主圖，則維持使用隨機圖片
-    let imgUrl = await getBase64(file1) || `https://picsum.photos/seed/${Math.floor(Math.random()*10000)}/400/300`;
-    let imgUrl2 = await getBase64(file2);
-    let imgUrl3 = await getBase64(file3);
-
-    const cat = document.getElementById('p-cat').value; 
-    const room = document.getElementById('p-room').value; 
-    const style = document.getElementById('p-style').value;
-    const price = parseInt(document.getElementById('p-price').value); 
-    const stock = parseInt(document.getElementById('p-stock').value);
+  saveProduct(e) {
+    e.preventDefault();
+    const id = document.getElementById('p-id').value; const name = document.getElementById('p-name').value;
+    const imgUrl = document.getElementById('p-img').value || `./images/p1.jpg`; 
+    const imgUrl2 = document.getElementById('p-img2').value;
+    const imgUrl3 = document.getElementById('p-img3').value;
+    const cat = document.getElementById('p-cat').value; const room = document.getElementById('p-room').value; const style = document.getElementById('p-style').value;
+    const price = parseInt(document.getElementById('p-price').value); const stock = parseInt(document.getElementById('p-stock').value);
 
     if(id) {
       const p = this.products.find(x => x.id === id);
-      p.name = name; 
-      // 編輯時，只有在有重新上傳新圖片時才覆蓋原本的圖片
-      if (file1) p.image = imgUrl; 
-      if (file2) p.image2 = imgUrl2; 
-      if (file3) p.image3 = imgUrl3; 
+      p.name = name; p.image = imgUrl; p.image2 = imgUrl2; p.image3 = imgUrl3; 
       p.category = cat; p.room = room; p.style = style; p.price = price; p.stock = stock;
     } else {
-      this.products.unshift({ 
-        id: 'P'+new Date().getTime().toString().slice(-4), 
-        name, image: imgUrl, image2: imgUrl2, image3: imgUrl3, 
-        category: cat, room, style, price, stock, soldCount: 0 
-      });
+      this.products.unshift({ id: 'P'+new Date().getTime().toString().slice(-4), name, image: imgUrl, image2: imgUrl2, image3: imgUrl3, category: cat, room, style, price, stock, soldCount: 0 });
     }
     localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products));
-    document.getElementById('product-modal').style.display = 'none'; 
-    this.renderProducts();
+    document.getElementById('product-modal').style.display = 'none'; this.renderProducts();
   },
 
   deleteProduct(id) { if(confirm('確定刪除？')) { this.products = this.products.filter(p => p.id !== id); localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products)); this.renderProducts(); } },
 
   renderOrders() {
-    this.loadData();
     document.getElementById('orders-table').innerHTML = this.fullState.orders.length ? this.fullState.orders.map((o, idx) => {
       const itemsHtml = o.items.map(i => `<div>- ${i.name} (x${i.qty})</div>`).join('');
       
@@ -444,7 +500,6 @@ const adminApp = {
   deleteOrder(idx) { if(confirm('確定要刪除這筆訂單嗎？')) { this.fullState.orders.splice(idx, 1); localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState)); this.renderOrders(); }},
 
   renderMembers() {
-    this.loadData();
     const users = Object.keys(this.fullState.usersDB);
     document.getElementById('members-table').innerHTML = users.length ? users.map(email => {
       const u = this.fullState.usersDB[email];
@@ -480,7 +535,6 @@ const adminApp = {
   },
 
   renderReports() {
-    this.loadData();
     const currentYear = new Date().getFullYear().toString();
     const yearOrders = this.fullState.orders.filter(o => o.date.includes(currentYear));
     document.getElementById('report-year-rev').innerText = '$' + yearOrders.reduce((sum, o) => sum + o.total, 0).toLocaleString();
@@ -497,18 +551,6 @@ const adminApp = {
       <tr><td>${p.name}</td><td>$${p.price.toLocaleString()}</td>
       <td style="${p.stock < 3 ? 'color:red; font-weight:bold;' : ''}">${p.stock}</td>
       <td style="color:var(--success); font-weight:bold;">$${(p.price * p.stock).toLocaleString()}</td></tr>`).join('');
-
-    const returnCounts = {};
-    this.fullState.orders.forEach(o => {
-      if(o.returnInfo && o.returnInfo.reason) {
-        returnCounts[o.returnInfo.reason] = (returnCounts[o.returnInfo.reason] || 0) + 1;
-      }
-    });
-    
-    const returnData = Object.keys(returnCounts).map(k => ({ reason: k, count: returnCounts[k] })).sort((a,b) => b.count - a.count);
-    document.getElementById('report-returns-table').innerHTML = returnData.length ? returnData.map((item, idx) => `
-      <tr><td><strong>#${idx + 1}</strong></td><td>${item.reason}</td><td style="color:var(--danger); font-weight:bold;">${item.count} 次</td></tr>
-    `).join('') : '<tr><td colspan="3" style="text-align:center; color:var(--text-muted);">目前無任何退貨紀錄</td></tr>';
   }
 };
 window.onload = () => adminApp.init();
