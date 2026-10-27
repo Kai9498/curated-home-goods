@@ -162,7 +162,6 @@
   </div>
 </div>
 
-<!-- 修改後的商品新增/編輯 Modal 結構 -->
 <div id="product-modal" class="modal-overlay">
   <div class="modal-content">
     <h3 id="modal-title" style="margin-bottom: 20px;">新增/編輯商品</h3>
@@ -236,10 +235,11 @@ const adminApp = {
       this.fullState = JSON.parse(savedState);
       if(!this.fullState.orders) this.fullState.orders = [];
       if(!this.fullState.usersDB) this.fullState.usersDB = {};
-      this.isAuth = this.fullState.isAdminAuth || false;
     } else {
-      this.fullState = { orders: [], usersDB: {}, isAdminAuth: false };
+      this.fullState = { orders: [], usersDB: {} };
     }
+    // 強制每次進入頁面時將登入狀態設為 false，避免從 localStorage 自動登入
+    this.isAuth = false;
   },
 
   checkAuth() {
@@ -254,11 +254,18 @@ const adminApp = {
 
   login() {
     if (document.getElementById('admin-user').value === 'admin' && document.getElementById('admin-pw').value === 'admin123') {
-      this.isAuth = true; this.fullState.isAdminAuth = true;
-      localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState)); this.checkAuth();
+      this.isAuth = true; 
+      // 移除寫入 localStorage 的行為，讓登入狀態只保留在此次分頁生命週期中
+      this.checkAuth();
     } else alert('密碼錯誤！(預設: admin / admin123)');
   },
-  logout() { this.isAuth = false; this.fullState.isAdminAuth = false; localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState)); this.checkAuth(); },
+  
+  logout() { 
+    this.isAuth = false; 
+    document.getElementById('admin-user').value = '';
+    document.getElementById('admin-pw').value = '';
+    this.checkAuth(); 
+  },
 
   switchTab(tab) {
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -293,7 +300,6 @@ const adminApp = {
       lowStock.map(p => `<tr><td>${p.id}</td><td>${p.name}</td><td style="color:red; font-weight:bold;">${p.stock}</td></tr>`).join('') : '<tr><td colspan="3" style="text-align:center;">庫存充足</td></tr>';
   },
 
-  // 更新商品管理表格視圖，展示圖片數量與風格
   renderProducts() {
     const kw = document.getElementById('search-product').value.toLowerCase();
     let d = kw ? this.products.filter(p => p.name.toLowerCase().includes(kw) || p.id.toLowerCase().includes(kw)) : this.products;
@@ -314,7 +320,6 @@ const adminApp = {
     }).join('') || '<tr><td colspan="7" style="text-align:center;">無資料</td></tr>';
   },
 
-  // 擴增 Modal 讀取屬性
   openProductModal(id = null) {
     document.getElementById('product-modal').style.display = 'flex';
     if(id) {
@@ -336,7 +341,6 @@ const adminApp = {
     }
   },
 
-  // 儲存商品時寫入同步前端依賴的屬性 (圖片與風格)
   saveProduct(e) {
     e.preventDefault();
     const id = document.getElementById('p-id').value; const name = document.getElementById('p-name').value;
