@@ -658,14 +658,151 @@ function initializeProducts() {
     }
   } catch (e) {
     DB.products = [
-      { id: 'P001', name: '工業風牛皮沙發1型', image: './image/沙發/沙發1.png', image2: './image/沙發/沙發1-1.png', image3: './image/沙發/沙發1-2.png', category: '沙發', room: '客廳', style: '工業風', price: 10228, stock: 5, soldCount: 0 },
-      { id: 'P002', name: '質感生活提案 2', image: './images/p2.jpg', image2: './images/p2-2.jpg', image3: './images/p2-3.jpg', category: '桌類', room: '客廳', style: '北歐風', price: 7400, stock: 5, soldCount: 0 },
-      { id: 'P003', name: '質感生活提案 3', image: './images/p3.jpg', image2: './images/p3-2.jpg', image3: './images/p3-3.jpg', category: '床架與床墊', room: '臥室', style: '工業風', price: 8600, stock: 5, soldCount: 0 },
-      { id: 'P004', name: '質感生活提案 4', image: './images/p4.jpg', image2: './images/p4-2.jpg', image3: './images/p4-3.jpg', category: '收納櫃', room: '客廳', style: '北歐風', price: 9800, stock: 5, soldCount: 0 },
-      { id: 'P005', name: '質感生活提案 5', image: './images/p5.jpg', image2: './images/p5-2.jpg', image3: './images/p5-3.jpg', category: '沙發', room: '臥室', style: '北歐風', price: 11000, stock: 5, soldCount: 0 },
-      { id: 'P006', name: '質感生活提案 6', image: './images/p6.jpg', image2: './images/p6-2.jpg', image3: './images/p6-3.jpg', category: '桌類', room: '客廳', style: '工業風', price: 12200, stock: 5, soldCount: 0 },
-      { id: 'P007', name: '質感生活提案 7', image: './images/p7.jpg', image2: './images/p7-2.jpg', image3: './images/p7-3.jpg', category: '床架與床墊', room: '臥室', style: '北歐風', price: 13400, stock: 5, soldCount: 0 },
-      { id: 'P008', name: '質感生活提案 8', image: './images/p8.jpg', image2: './images/p8-2.jpg', image3: './images/p8-3.jpg', category: '收納櫃', room: '客廳', style: '北歐風', price: 14600, stock: 5, soldCount: 0 }
+     {
+        id: 'P001', name: '工業風牛皮沙發1型',
+        image: './image/沙發/沙發1.png', image2: './image/沙發/沙發1-1.png', image3: './image/沙發/沙發1-2.png',
+        category: '沙發', room: '客廳', style: '工業風', price: 10228, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P002', name: '防貓抓布沙發L型',
+        image: './image/沙發/catsofa.png', image2: './image/沙發/catsofa1.png', image3: './image/沙發/catsofa2.png',
+        category: '沙發', room: '客廳', style: '極簡風', price: 7400, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P003', name: '單人防貓抓沙發',
+        image: './image/沙發/Single cat sofa.png', image2: './image/沙發/Single cat sofa1.png', image3: './image/沙發/Single cat sofa2.png',
+        category: '沙發', room: '客廳', style: '極簡風', price: 8600, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P004', name: '雙人防貓抓沙發',
+        image: './image/沙發/Double cat sofa.png', image2: './image/沙發/Double cat sofa1.png', image3: './image/沙發/Double cat sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 9800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P005', name: '三人防貓抓沙發',
+        image: './image/沙發/Three-seater cat sofa.png', image2: './image/沙發/Three-seater cat sofa1.png', image3: './image/沙發/Three-seater cat sofa2.png',
+        category: '沙發', room: '臥室', style: '北歐風', price: 11000, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P006', name: '布沙發L型',
+        image: './image/沙發/Fabric sofa L.png', image2: './image/沙發/Fabric sofa L1.png', image3: './image/沙發/Fabric sofa L2.png',
+        category: '沙發', room: '客廳', style: '工業風', price: 12200, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P007', name: '單人布沙發',
+        image: './image/沙發/Single fabric sofa.png', image2: './image/沙發/Single fabric sofa1.png', image3: './image/沙發/Single fabric sofa2.png',
+        category: '沙發', room: '客廳', style: '極簡風', price: 13400, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P008', name: '雙人布沙發',
+        image: './image/沙發/Double fabric sofa.png', image2: './image/沙發/Double fabric sofa1.png', image3: './image/沙發/Double fabric sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 14600, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P009', name: '三人布沙發',
+        image: './image/沙發/Three-seater fabric sofa.png', image2: './image/沙發/Three-seater fabric sofa1.png', image3: './image/沙發/Three-seater fabric sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P010', name: '皮沙發L型',
+        image: './image/沙發/L-shaped leather sofa.png', image2: './image/沙發/L-shaped leather sofa1.png', image3: './image/沙發/L-shaped leather sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+       {
+        id: 'P011', name: '單人皮沙發',
+        image: './image/沙發/Single leather sofa.png', image2: './image/沙發/Single leather sofa1.png', image3: './image/沙發/Single leather sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+       {
+        id: 'P012', name: '雙人皮沙發',
+        image: './image/沙發/Double leather sofa.png', image2: './image/沙發/Double leather sofa1.png', image3: './image/沙發/Double leather sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+       {
+        id: 'P013', name: '三人皮沙發',
+        image: './image/沙發/Three-seater leather sofa.png', image2: './image/沙發/Three-seater leather sofa1.png', image3: './image/沙發/Three-seater leather sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P014', name: '電動沙發L型',
+        image: './image/沙發/L-shaped electric sofa.webp', image2: './image/沙發/L-shaped electric sofa1.webp', image3: './image/沙發/L-shaped electric sofa2.webp',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P015', name: '單人電動沙發',
+        image: './image/沙發/Single electric sofa.png', image2: './image/沙發/Single electric sofa1.png', image3: './image/沙發/Single electric sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P016', name: '雙人電動沙發',
+        image: './image/沙發/Electric double sofa.png', image2: './image/沙發/Electric double sofa1.png', image3: './image/沙發/Electric double sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P017', name: '三人電動沙發',
+        image: './image/沙發/Electric three-seater sofa.png', image2: './image/沙發/Electric three-seater sofa1.png', image3: './image/沙發/Electric three-seater sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P021', name: '單人乳膠床墊',
+        image: './image/床墊/Single latex mattress.png', image2: './image/床墊/Single latex mattress1.png', image3: './image/床墊/Single latex mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P022', name: '單人加大乳膠床墊',
+        image: './image/床墊/Single加大 latex mattress.png', image2: './image/床墊/Single加大 latex mattress1.png', image3: './image/床墊/Single加大 latex mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P023', name: '雙人乳膠床墊',
+        image: './image/床墊/Double latex mattress.png', image2: './image/床墊/Double latex mattress1.png', image3: './image/床墊/Double latex mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+       {
+        id: 'P024', name: '雙人加大乳膠床墊',
+        image: './image/床墊/Double加大 latex mattress.png', image2: './image/床墊/Double加大 latex mattress1.png', image3: './image/床墊/Double加大 latex mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P025', name: '單人偏硬床墊',
+        image: './image/床墊/Single hard mattress.png', image2: './image/床墊/Single hard mattress1.png', image3: './image/床墊/Single hard mattress2.png',
+        category: '床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P026', name: '單人加大偏硬床墊',
+        image: './image/床墊/Single加大 hard mattress.png', image2: './image/床墊/Single加大 hard mattress1.png', image3: './image/床墊/Single加大 hard mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P027', name: '雙人偏硬床墊',
+        image: './image/床墊/Double hard mattress.png', image2: './image/床墊/Double hard mattress1.png', image3: './image/床墊/Double hard mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P028', name: '雙人加大偏硬床墊',
+        image: './image/床墊/Double加大 hard mattress.png', image2: './image/床墊/Double加大 hard mattress1.png', image3: './image/床墊/Double加大 hard mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P029', name: '單人偏軟床墊',
+        image: './image/床墊/Single soft mattress.png', image2: './image/床墊/Single soft mattress1.png', image3: './image/床墊/Single soft mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P030', name: '單人加大偏軟床墊',
+        image: './image/床墊/Single加大 soft mattress.png', image2: './image/床墊/Single加大 soft mattress1.png', image3: './image/床墊/Single加大 soft mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P031', name: '雙人偏軟床墊',
+        image: './image/床墊/Double soft mattress.png', image2: './image/床墊/Double soft mattress1.png', image3: './image/床墊/Double soft mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P032', name: '雙人加大偏軟床墊',
+        image: './image/床墊/Double加大 soft mattress.png', image2: './image/床墊/Double加大 soft mattress1.png', image3: './image/床墊/Double加大 soft mattress2.png',
+        category: '床架與床墊', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
     ];
     localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
   }
