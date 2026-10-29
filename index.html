@@ -337,26 +337,31 @@
         <h3 style="margin-bottom: 20px; border-bottom: 2px solid var(--primary); padding-bottom: 10px; color:var(--primary); font-size:18px;">進階篩選</h3>
         
         <div style="margin-bottom: 25px;">
-          <h4 style="margin-bottom: 12px; font-size: 15px; color:#444;">商品分類</h4>
-          <label style="display:block; margin-bottom:8px; cursor:pointer;"><input type="checkbox" class="filter-cat" value="沙發" onchange="app.renderList()"> 沙發系列</label>
-          <label style="display:block; margin-bottom:8px; cursor:pointer;"><input type="checkbox" class="filter-cat" value="床墊" onchange="app.renderList()"> 床架與床墊</label>
-          <label style="display:block; margin-bottom:8px; cursor:pointer;"><input type="checkbox" class="filter-cat" value="桌" onchange="app.renderList()"> 桌椅系列</label>
-          <label style="display:block; margin-bottom:8px; cursor:pointer;"><input type="checkbox" class="filter-cat" value="櫃" onchange="app.renderList()"> 收納櫃</label>
+          <h4 style="margin-bottom: 12px; font-size: 15px; color:#444;">風格設計</h4>
+          <select id="filter-style-select" onchange="app.renderList()">
+            <option value="">全部風格</option>
+            <option value="北歐風">北歐風</option>
+            <option value="工業風">工業風</option>
+            <option value="極簡風">極簡風</option>
+          </select>
         </div>
 
         <div style="margin-bottom: 25px;">
-          <h4 style="margin-bottom: 12px; font-size: 15px; color:#444;">風格設計</h4>
-          <label style="display:block; margin-bottom:8px; cursor:pointer;"><input type="checkbox" class="filter-style" value="北歐風" onchange="app.renderList()"> 北歐風</label>
-          <label style="display:block; margin-bottom:8px; cursor:pointer;"><input type="checkbox" class="filter-style" value="工業風" onchange="app.renderList()"> 工業風</label>
-          <label style="display:block; margin-bottom:8px; cursor:pointer;"><input type="checkbox" class="filter-style" value="極簡風" onchange="app.renderList()"> 極簡風</label>
+          <h4 style="margin-bottom: 12px; font-size: 15px; color:#444;">尺寸(寬)</h4>
+          <select id="filter-width-select" onchange="app.renderList()">
+            <option value="">全部尺寸</option>
+            <option value="<100">100cm 以下</option>
+            <option value="100-160">100cm - 160cm</option>
+            <option value=">160">160cm 以上</option>
+          </select>
         </div>
 
         <div style="margin-bottom: 25px;">
           <h4 style="margin-bottom: 12px; font-size: 15px; color:#444;">價格區間</h4>
           <div style="display:flex; gap:10px; align-items:center;">
-            <input type="number" id="filter-min-price" placeholder="最低" style="width:100%; padding:6px;" onchange="app.renderList()">
+            <input type="number" id="filter-min-price" placeholder="最低" style="width:100%; padding:6px;" oninput="app.renderList()">
             <span style="color:#aaa;">-</span>
-            <input type="number" id="filter-max-price" placeholder="最高" style="width:100%; padding:6px;" onchange="app.renderList()">
+            <input type="number" id="filter-max-price" placeholder="最高" style="width:100%; padding:6px;" oninput="app.renderList()">
           </div>
         </div>
         
@@ -374,7 +379,6 @@
               <option value="price-asc">價格：由低到高</option>
               <option value="price-desc">價格：由高到低</option>
               <option value="sales">熱銷商品</option>
-              <option value="rating">評價最高</option>
               <option value="newest">最新上架</option>
             </select>
           </div>
@@ -679,17 +683,151 @@ function initializeProducts() {
     }
   } catch (e) {
     DB.products = [
-      { id: 'P001', name: '工業風牛皮沙發1型', image: './image/沙發/沙發1.png', image2: './image/沙發/沙發1-1.png', image3: './image/沙發/沙發1-2.png', category: '沙發', room: '客廳', style: '工業風', price: 10228, stock: 5, soldCount: 0 },
-      { id: 'P002', name: '防貓抓布沙發L型', image: './image/沙發/catsofa.png', image2: './image/沙發/catsofa1.png', image3: './image/沙發/catsofa2.png', category: '沙發', room: '客廳', style: '極簡風', price: 7400, stock: 5, soldCount: 0 },
-      { id: 'P003', name: '單人防貓抓沙發', image: './image/沙發/Single cat sofa.png', image2: './image/沙發/Single cat sofa1.png', image3: './image/沙發/Single cat sofa2.png', category: '沙發', room: '客廳', style: '極簡風', price: 8600, stock: 5, soldCount: 0 },
-      { id: 'P004', name: '雙人防貓抓沙發', image: './image/沙發/Double cat sofa.png', image2: './image/沙發/Double cat sofa1.png', image3: './image/沙發/Double cat sofa2.png', category: '沙發', room: '客廳', style: '北歐風', price: 9800, stock: 5, soldCount: 0 },
-      { id: 'P005', name: '三人防貓抓沙發', image: './image/沙發/Three-seater cat sofa.png', image2: './image/沙發/Three-seater cat sofa1.png', image3: './image/沙發/Three-seater cat sofa2.png', category: '沙發', room: '臥室', style: '北歐風', price: 11000, stock: 5, soldCount: 0 },
-      { id: 'P006', name: '布沙發L型', image: './image/沙發/Fabric sofa L.png', image2: './image/沙發/Fabric sofa L1.png', image3: './image/沙發/Fabric sofa L2.png', category: '沙發', room: '客廳', style: '工業風', price: 12200, stock: 5, soldCount: 0 },
-      { id: 'P007', name: '單人布沙發', image: './image/沙發/Single fabric sofa.png', image2: './image/沙發/Single fabric sofa1.png', image3: './image/沙發/Single fabric sofa2.png', category: '沙發', room: '客廳', style: '極簡風', price: 13400, stock: 5, soldCount: 0 },
-      { id: 'P021', name: '單人乳膠床墊', image: './image/床墊/Single latex mattress.png', image2: './image/床墊/Single latex mattress1.png', image3: './image/床墊/Single latex mattress2.png', category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0 },
-      { id: 'P023', name: '雙人乳膠床墊', image: './image/床墊/Double latex mattress.png', image2: './image/床墊/Double latex mattress1.png', image3: './image/床墊/Double latex mattress2.png', category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0 },
-      { id: 'P025', name: '單人偏硬床墊', image: './image/床墊/Single hard mattress.png', image2: './image/床墊/Single hard mattress1.png', image3: './image/床墊/Single hard mattress2.png', category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0 },
-      { id: 'P027', name: '雙人偏硬床墊', image: './image/床墊/Double hard mattress.png', image2: './image/床墊/Double hard mattress1.png', image3: './image/床墊/Double hard mattress2.png', category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0 }
+      {
+        id: 'P001', name: '工業風牛皮沙發1型',
+        image: './image/沙發/沙發1.png', image2: './image/沙發/沙發1-1.png', image3: './image/沙發/沙發1-2.png',
+        category: '沙發', room: '客廳', style: '工業風', price: 10228, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P002', name: '防貓抓布沙發L型',
+        image: './image/沙發/catsofa.png', image2: './image/沙發/catsofa1.png', image3: './image/沙發/catsofa2.png',
+        category: '沙發', room: '客廳', style: '極簡風', price: 7400, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P003', name: '單人防貓抓沙發',
+        image: './image/沙發/Single cat sofa.png', image2: './image/沙發/Single cat sofa1.png', image3: './image/沙發/Single cat sofa2.png',
+        category: '沙發', room: '客廳', style: '極簡風', price: 8600, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P004', name: '雙人防貓抓沙發',
+        image: './image/沙發/Double cat sofa.png', image2: './image/沙發/Double cat sofa1.png', image3: './image/沙發/Double cat sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 9800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P005', name: '三人防貓抓沙發',
+        image: './image/沙發/Three-seater cat sofa.png', image2: './image/沙發/Three-seater cat sofa1.png', image3: './image/沙發/Three-seater cat sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 11000, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P006', name: '布沙發L型',
+        image: './image/沙發/Fabric sofa L.png', image2: './image/沙發/Fabric sofa L1.png', image3: './image/沙發/Fabric sofa L2.png',
+        category: '沙發', room: '客廳', style: '工業風', price: 12200, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P007', name: '單人布沙發',
+        image: './image/沙發/Single fabric sofa.png', image2: './image/沙發/Single fabric sofa1.png', image3: './image/沙發/Single fabric sofa2.png',
+        category: '沙發', room: '客廳', style: '極簡風', price: 13400, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P008', name: '雙人布沙發',
+        image: './image/沙發/Double fabric sofa.png', image2: './image/沙發/Double fabric sofa1.png', image3: './image/沙發/Double fabric sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 14600, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P009', name: '三人布沙發',
+        image: './image/沙發/Three-seater fabric sofa.png', image2: './image/沙發/Three-seater fabric sofa1.png', image3: './image/沙發/Three-seater fabric sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P010', name: '皮沙發L型',
+        image: './image/沙發/L-shaped leather sofa.png', image2: './image/沙發/L-shaped leather sofa1.png', image3: './image/沙發/L-shaped leather sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+       {
+        id: 'P011', name: '單人皮沙發',
+        image: './image/沙發/Single leather sofa.png', image2: './image/沙發/Single leather sofa1.png', image3: './image/沙發/Single leather sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+       {
+        id: 'P012', name: '雙人皮沙發',
+        image: './image/沙發/Double leather sofa.png', image2: './image/沙發/Double leather sofa1.png', image3: './image/沙發/Double leather sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+       {
+        id: 'P013', name: '三人皮沙發',
+        image: './image/沙發/Three-seater leather sofa.png', image2: './image/沙發/Three-seater leather sofa1.png', image3: './image/沙發/Three-seater leather sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P014', name: '電動沙發L型',
+        image: './image/沙發/L-shaped electric sofa.webp', image2: './image/沙發/L-shaped electric sofa1.webp', image3: './image/沙發/L-shaped electric sofa2.webp',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P015', name: '單人電動沙發',
+        image: './image/沙發/Single electric sofa.png', image2: './image/沙發/Single electric sofa1.png', image3: './image/沙發/Single electric sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P016', name: '雙人電動沙發',
+        image: './image/沙發/Electric double sofa.png', image2: './image/沙發/Electric double sofa1.png', image3: './image/沙發/Electric double sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P017', name: '三人電動沙發',
+        image: './image/沙發/Electric three-seater sofa.png', image2: './image/沙發/Electric three-seater sofa1.png', image3: './image/沙發/Electric three-seater sofa2.png',
+        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P021', name: '單人乳膠床墊',
+        image: './image/床墊/Single latex mattress.png', image2: './image/床墊/Single latex mattress1.png', image3: './image/床墊/Single latex mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P022', name: '單人加大乳膠床墊',
+        image: './image/床墊/Single加大 latex mattress.png', image2: './image/床墊/Single加大 latex mattress1.png', image3: './image/床墊/Single加大 latex mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P023', name: '雙人乳膠床墊',
+        image: './image/床墊/Double latex mattress.png', image2: './image/床墊/Double latex mattress1.png', image3: './image/床墊/Double latex mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+       {
+        id: 'P024', name: '雙人加大乳膠床墊',
+        image: './image/床墊/Double加大 latex mattress.png', image2: './image/床墊/Double加大 latex mattress1.png', image3: './image/床墊/Double加大 latex mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P025', name: '單人偏硬床墊',
+        image: './image/床墊/Single hard mattress.png', image2: './image/床墊/Single hard mattress1.png', image3: './image/床墊/Single hard mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P026', name: '單人加大偏硬床墊',
+        image: './image/床墊/Single加大 hard mattress.png', image2: './image/床墊/Single加大 hard mattress1.png', image3: './image/床墊/Single加大 hard mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P027', name: '雙人偏硬床墊',
+        image: './image/床墊/Double hard mattress.png', image2: './image/床墊/Double hard mattress1.png', image3: './image/床墊/Double hard mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P028', name: '雙人加大偏硬床墊',
+        image: './image/床墊/Double加大 hard mattress.png', image2: './image/床墊/Double加大 hard mattress1.png', image3: './image/床墊/Double加大 hard mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P029', name: '單人偏軟床墊',
+        image: './image/床墊/Single soft mattress.png', image2: './image/床墊/Single soft mattress1.png', image3: './image/床墊/Single soft mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P030', name: '單人加大偏軟床墊',
+        image: './image/床墊/Single加大 soft mattress.png', image2: './image/床墊/Single加大 soft mattress1.png', image3: './image/床墊/Single加大 soft mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P031', name: '雙人偏軟床墊',
+        image: './image/床墊/Double soft mattress.png', image2: './image/床墊/Double soft mattress1.png', image3: './image/床墊/Double soft mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
+      {
+        id: 'P032', name: '雙人加大偏軟床墊',
+        image: './image/床墊/Double加大 soft mattress.png', image2: './image/床墊/Double加大 soft mattress1.png', image3: './image/床墊/Double加大 soft mattress2.png',
+        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
+      },
     ];
     localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
   }
@@ -913,8 +1051,8 @@ const app = {
   
   /* ---------- 進階篩選與列表渲染 ---------- */
   clearFilters() {
-    document.querySelectorAll('.filter-cat').forEach(el => el.checked = false);
-    document.querySelectorAll('.filter-style').forEach(el => el.checked = false);
+    if(document.getElementById('filter-style-select')) document.getElementById('filter-style-select').value = '';
+    if(document.getElementById('filter-width-select')) document.getElementById('filter-width-select').value = '';
     document.getElementById('filter-min-price').value = '';
     document.getElementById('filter-max-price').value = '';
     this.renderList();
@@ -936,16 +1074,26 @@ const app = {
         document.getElementById('list-title').innerText = `全部商品列表`;
     }
 
-    // 進階篩選：分類
-    let checkedCats = Array.from(document.querySelectorAll('.filter-cat:checked')).map(cb => cb.value);
-    if(checkedCats.length > 0) {
-        filtered = filtered.filter(p => checkedCats.some(c => p.category.includes(c) || p.name.includes(c)));
+    // 進階篩選：風格設計 (下拉選單)
+    let selectedStyle = document.getElementById('filter-style-select')?.value;
+    if(selectedStyle) {
+        filtered = filtered.filter(p => p.style === selectedStyle);
     }
 
-    // 進階篩選：風格
-    let checkedStyles = Array.from(document.querySelectorAll('.filter-style:checked')).map(cb => cb.value);
-    if(checkedStyles.length > 0) {
-        filtered = filtered.filter(p => checkedStyles.includes(p.style));
+    // 進階篩選：尺寸寬 (下拉選單)
+    let selectedWidth = document.getElementById('filter-width-select')?.value;
+    if(selectedWidth) {
+        filtered = filtered.filter(p => {
+            let spec = this.getSpec(p);
+            let match = spec.dim.match(/寬\s*(\d+)/);
+            if(match) {
+                let w = parseInt(match[1]);
+                if(selectedWidth === '<100') return w < 100;
+                if(selectedWidth === '100-160') return w >= 100 && w <= 160;
+                if(selectedWidth === '>160') return w > 160;
+            }
+            return true; 
+        });
     }
 
     // 進階篩選：價格區間
@@ -962,11 +1110,6 @@ const app = {
       filtered.sort((a, b) => b.price - a.price);
     } else if (sortMode === 'sales') {
       filtered.sort((a, b) => (b.soldCount || 0) - (a.soldCount || 0));
-    } else if (sortMode === 'rating') {
-      filtered.sort((a, b) => {
-         const getRating = (id) => (parseInt(id.replace(/\D/g, '')) * 13 % 10 + 40); 
-         return getRating(b.id) - getRating(a.id);
-      });
     } else if (sortMode === 'newest') {
       filtered.sort((a, b) => b.id.localeCompare(a.id));
     }
@@ -984,8 +1127,8 @@ const app = {
     
     const spaceMap = {
         '客廳空間': { img: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1200&q=80', keyword: '客廳' },
-        // 修正為正常運作的優質餐廳圖片
-        '餐廳空間': { img: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=1200&q=80', keyword: '桌' },
+        // 更新為高質感且有效連結的餐廳實景圖片
+        '餐廳空間': { img: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=1200&q=80', keyword: '桌' },
         '臥室空間': { img: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1200&q=80', keyword: '臥室' }
     };
     const info = spaceMap[tab];
@@ -1007,7 +1150,7 @@ const app = {
 
     // 產生點擊後浮現的商品資訊卡片
     let cardsHtml = recs.map(p => `
-      <div style="background:white; padding:15px; border-radius:4px; display:flex; gap:15px; align-items:center; width:100%; max-width:420px; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:transform 0.2s;" onclick="app.navigate('detail', {id:'${p.id}'})" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
+      <div style="background:white; padding:15px; border-radius:4px; display:flex; gap:15px; align-items:center; width:100%; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:transform 0.2s;" onclick="app.navigate('detail', {id:'${p.id}'})" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
           <img src="${p.image}" style="width:70px; height:70px; object-fit:cover; border-radius:4px;">
           <div>
               <div style="font-weight:bold; font-size:15px; color:#333;">${p.name}</div>
@@ -1016,7 +1159,7 @@ const app = {
       </div>
     `).join('');
 
-    // 將內容寫入 DOM，包含底圖、白點，以及預設隱藏的遮罩與卡片區域
+    // 將內容寫入 DOM，包含底圖、白點，以及點擊後顯示的遮罩與卡片區域 (已設定 align-items: center 確保置中排列)
     document.getElementById('inspire-content').innerHTML = `
         <div style="position:relative; width:100%; height:600px; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);">
             <!-- 實景圖與白點 (未點擊狀態) -->
@@ -1029,8 +1172,8 @@ const app = {
             </div>
             
             <!-- 點擊白點後顯示的商品卡片群與半透明黑底遮罩 -->
-            <div id="inspire-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); padding:40px; flex-direction:column; justify-content:center; z-index:10; animation:fadeIn 0.3s ease;" onclick="app.hideInspireCards(event)">
-                <div style="display:flex; flex-direction:column; gap:15px; width:fit-content;" onclick="event.stopPropagation()">
+            <div id="inspire-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); padding:40px; flex-direction:column; justify-content:center; align-items:center; z-index:10; animation:fadeIn 0.3s ease;" onclick="app.hideInspireCards(event)">
+                <div style="display:flex; flex-direction:column; gap:15px; width:100%; max-width:420px; align-items:center;" onclick="event.stopPropagation()">
                     ${cardsHtml}
                 </div>
                 <button class="btn" style="position:absolute; bottom:30px; right:30px; color:white; border:1px solid rgba(255,255,255,0.6); background:rgba(0,0,0,0.6); padding:8px 16px; border-radius:20px; font-size:13px;" onclick="event.stopPropagation(); app.search('${info.keyword}')">更多${tab.replace('空間','')}單品 ▶</button>
