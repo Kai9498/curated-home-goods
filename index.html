@@ -650,11 +650,11 @@ const DB = { products: [] };
 function initializeProducts() {
   try {
     const savedDb = localStorage.getItem('liviSpaceProducts');
-    if (savedDb) { 
+    // 如果已有快取且資料是新的（筆數 >= 20）才沿用，否則全部強制使用最新的商品清單
+    if (savedDb && JSON.parse(savedDb).length >= 20) { 
       DB.products = JSON.parse(savedDb); 
-      if (!Array.isArray(DB.products)) throw new Error("資料格式錯誤"); 
     } else { 
-      throw new Error("無商品資料"); 
+      throw new Error("更新預設商品"); 
     }
   } catch (e) {
     DB.products = [
