@@ -220,8 +220,8 @@
 const adminApp = {
   products: [], fullState: {}, isAuth: false,
 
-  init() {
-    this.loadData(); this.checkAuth();
+  async init() {
+    await this.loadData(); this.checkAuth();
     window.addEventListener('storage', (e) => {
       let shouldReRender = false;
       if (e.key === 'liviSpaceState') { this.fullState = JSON.parse(e.newValue); if(!this.fullState.orders) this.fullState.orders=[]; if(!this.fullState.usersDB) this.fullState.usersDB={}; shouldReRender = true; }
@@ -236,160 +236,18 @@ const adminApp = {
     });
   },
 
-  loadData() {
-    // 移除之前的判斷邏輯，強制每次都讀取程式碼內的設定
-    this.products = [
-      {
-        id: 'P001', name: '工業風牛皮沙發1型',
-        image: './image/沙發/沙發1.png', image2: './image/沙發/沙發1-1.png', image3: './image/沙發/沙發1-2.png',
-        category: '沙發', room: '客廳', style: '工業風', price: 10228, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P002', name: '防貓抓布沙發L型',
-        image: './image/沙發/catsofa.png', image2: './image/沙發/catsofa1.png', image3: './image/沙發/catsofa2.png',
-        category: '沙發', room: '客廳', style: '極簡風', price: 7400, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P003', name: '單人防貓抓沙發',
-        image: './image/沙發/Single cat sofa.png', image2: './image/沙發/Single cat sofa1.png', image3: './image/沙發/Single cat sofa2.png',
-        category: '沙發', room: '客廳', style: '極簡風', price: 8600, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P004', name: '雙人防貓抓沙發',
-        image: './image/沙發/Double cat sofa.png', image2: './image/沙發/Double cat sofa1.png', image3: './image/沙發/Double cat sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 9800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P005', name: '三人防貓抓沙發',
-        image: './image/沙發/Three-seater cat sofa.png', image2: './image/沙發/Three-seater cat sofa1.png', image3: './image/沙發/Three-seater cat sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 11000, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P006', name: '布沙發L型',
-        image: './image/沙發/Fabric sofa L.png', image2: './image/沙發/Fabric sofa L1.png', image3: './image/沙發/Fabric sofa L2.png',
-        category: '沙發', room: '客廳', style: '工業風', price: 12200, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P007', name: '單人布沙發',
-        image: './image/沙發/Single fabric sofa.png', image2: './image/沙發/Single fabric sofa1.png', image3: './image/沙發/Single fabric sofa2.png',
-        category: '沙發', room: '客廳', style: '極簡風', price: 13400, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P008', name: '雙人布沙發',
-        image: './image/沙發/Double fabric sofa.png', image2: './image/沙發/Double fabric sofa1.png', image3: './image/沙發/Double fabric sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 14600, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P009', name: '三人布沙發',
-        image: './image/沙發/Three-seater fabric sofa.png', image2: './image/沙發/Three-seater fabric sofa1.png', image3: './image/沙發/Three-seater fabric sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P010', name: '皮沙發L型',
-        image: './image/沙發/L-shaped leather sofa.png', image2: './image/沙發/L-shaped leather sofa1.png', image3: './image/沙發/L-shaped leather sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-       {
-        id: 'P011', name: '單人皮沙發',
-        image: './image/沙發/Single leather sofa.png', image2: './image/沙發/Single leather sofa1.png', image3: './image/沙發/Single leather sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-       {
-        id: 'P012', name: '雙人皮沙發',
-        image: './image/沙發/Double leather sofa.png', image2: './image/沙發/Double leather sofa1.png', image3: './image/沙發/Double leather sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-       {
-        id: 'P013', name: '三人皮沙發',
-        image: './image/沙發/Three-seater leather sofa.png', image2: './image/沙發/Three-seater leather sofa1.png', image3: './image/沙發/Three-seater leather sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P014', name: '電動沙發L型',
-        image: './image/沙發/L-shaped electric sofa.webp', image2: './image/沙發/L-shaped electric sofa1.webp', image3: './image/沙發/L-shaped electric sofa2.webp',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P015', name: '單人電動沙發',
-        image: './image/沙發/Single electric sofa.png', image2: './image/沙發/Single electric sofa1.png', image3: './image/沙發/Single electric sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P016', name: '雙人電動沙發',
-        image: './image/沙發/Electric double sofa.png', image2: './image/沙發/Electric double sofa1.png', image3: './image/沙發/Electric double sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P017', name: '三人電動沙發',
-        image: './image/沙發/Electric three-seater sofa.png', image2: './image/沙發/Electric three-seater sofa1.png', image3: './image/沙發/Electric three-seater sofa2.png',
-        category: '沙發', room: '客廳', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-     {
-        id: 'P021', name: '單人乳膠床墊',
-        image: './image/床墊/Single latex mattress.png', image2: './image/床墊/Single latex mattress1.png', image3: './image/床墊/Single latex mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P022', name: '單人加大乳膠床墊',
-        image: './image/床墊/Single加大 latex mattress.png', image2: './image/床墊/Single加大 latex mattress1.png', image3: './image/床墊/Single加大 latex mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P023', name: '雙人乳膠床墊',
-        image: './image/床墊/Double latex mattress.png', image2: './image/床墊/Double latex mattress1.png', image3: './image/床墊/Double latex mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-       {
-        id: 'P024', name: '雙人加大乳膠床墊',
-        image: './image/床墊/Double加大 latex mattress.png', image2: './image/床墊/Double加大 latex mattress1.png', image3: './image/床墊/Double加大 latex mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P025', name: '單人偏硬床墊',
-        image: './image/床墊/Single hard mattress.png', image2: './image/床墊/Single hard mattress1.png', image3: './image/床墊/Single hard mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P026', name: '單人加大偏硬床墊',
-        image: './image/床墊/Single加大 hard mattress.png', image2: './image/床墊/Single加大 hard mattress1.png', image3: './image/床墊/Single加大 hard mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P027', name: '雙人偏硬床墊',
-        image: './image/床墊/Double hard mattress.png', image2: './image/床墊/Double hard mattress1.png', image3: './image/床墊/Double hard mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P028', name: '雙人加大偏硬床墊',
-        image: './image/床墊/Double加大 hard mattress.png', image2: './image/床墊/Double加大 hard mattress1.png', image3: './image/床墊/Double加大 hard mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P029', name: '單人偏軟床墊',
-        image: './image/床墊/Single soft mattress.png', image2: './image/床墊/Single soft mattress1.png', image3: './image/床墊/Single soft mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P030', name: '單人加大偏軟床墊',
-        image: './image/床墊/Single加大 soft mattress.png', image2: './image/床墊/Single加大 soft mattress1.png', image3: './image/床墊/Single加大 soft mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P031', name: '雙人偏軟床墊',
-        image: './image/床墊/Double soft mattress.png', image2: './image/床墊/Double soft mattress1.png', image3: './image/床墊/Double soft mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-      {
-        id: 'P032', name: '雙人加大偏軟床墊',
-        image: './image/床墊/Double加大 soft mattress.png', image2: './image/床墊/Double加大 soft mattress1.png', image3: './image/床墊/Double加大 soft mattress2.png',
-        category: '床架與床墊', room: '臥室', style: '北歐風', price: 15800, stock: 5, soldCount: 0
-      },
-    ];
-
-    // 強制將上面的陣列寫入 localStorage，讓前台跟著同步更新
-    localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products));
+  // 替換成 👉 【修改後】
+async loadData() {
+  try {
+    // 透過我們在階段一設定好的 window.dbAPI 去 Firebase 抓資料
+    const cloudProducts = await window.dbAPI.getProducts();
+    if (cloudProducts.length > 0) {
+      this.products = cloudProducts;
+    } else {
+      this.products = []; // 如果資料庫沒東西，就設為空陣列
+    }
     
-    // 其餘訂單與會員資料仍然保留讀取暫存機制
+    // 其餘訂單與會員資料如果還沒搬到 Firebase，可以先保留原本的 localStorage 讀取機制
     const savedState = localStorage.getItem('liviSpaceState');
     if (savedState) {
       this.fullState = JSON.parse(savedState);
@@ -399,7 +257,11 @@ const adminApp = {
       this.fullState = { orders: [], usersDB: {} };
     }
     this.isAuth = false;
-  },
+    
+  } catch (error) {
+    console.error("讀取資料失敗：", error);
+  }
+},
 
   checkAuth() {
     if (this.isAuth) {
@@ -541,25 +403,65 @@ const adminApp = {
     reader.readAsDataURL(file);
   },
 
-  saveProduct(e) {
-    e.preventDefault();
-    const id = document.getElementById('p-id').value; const name = document.getElementById('p-name').value;
-    const imgUrl = document.getElementById('p-img').value || `./images/p1.jpg`; 
-    const imgUrl2 = document.getElementById('p-img2').value;
-    const imgUrl3 = document.getElementById('p-img3').value;
-    const cat = document.getElementById('p-cat').value; const room = document.getElementById('p-room').value; const style = document.getElementById('p-style').value;
-    const price = parseInt(document.getElementById('p-price').value); const stock = parseInt(document.getElementById('p-stock').value);
 
-    if(id) {
-      const p = this.products.find(x => x.id === id);
-      p.name = name; p.image = imgUrl; p.image2 = imgUrl2; p.image3 = imgUrl3; 
-      p.category = cat; p.room = room; p.style = style; p.price = price; p.stock = stock;
+async saveProduct(e) {
+  e.preventDefault();
+  const id = document.getElementById('p-id').value; 
+  const name = document.getElementById('p-name').value;
+  const imgUrl = document.getElementById('p-img').value || `./images/p1.jpg`; 
+  const imgUrl2 = document.getElementById('p-img2').value;
+  const imgUrl3 = document.getElementById('p-img3').value;
+  const cat = document.getElementById('p-cat').value; 
+  const room = document.getElementById('p-room').value; 
+  const style = document.getElementById('p-style').value;
+  const price = parseInt(document.getElementById('p-price').value); 
+  const stock = parseInt(document.getElementById('p-stock').value);
+
+  // 【修改重點】自動產生接續的流水號
+  let finalId = id;
+  if (!finalId) { // 如果是「新增商品」(沒有原本的 id)
+    if (this.products && this.products.length > 0) {
+      // 1. 把所有商品的 id (例如 'P032') 的 'P' 去掉，轉換成數字 (32)
+      const idNumbers = this.products.map(p => parseInt(p.id.replace('P', '')) || 0);
+      // 2. 找出目前最大的數字
+      const maxNum = Math.max(...idNumbers);
+      // 3. 數字加 1，並在前面補零到滿 3 位數 (例如 33 變成 '033')
+      finalId = 'P' + (maxNum + 1).toString().padStart(3, '0');
     } else {
-      this.products.unshift({ id: 'P'+new Date().getTime().toString().slice(-4), name, image: imgUrl, image2: imgUrl2, image3: imgUrl3, category: cat, room, style, price, stock, soldCount: 0 });
+      // 如果資料庫完全沒商品，就從 P001 開始
+      finalId = 'P001'; 
     }
-    localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products));
-    document.getElementById('product-modal').style.display = 'none'; this.renderProducts();
-  },
+  }
+
+  // 整理成要存入資料庫的物件
+  let productObj = {
+    id: finalId,
+    name: name,
+    image: imgUrl,
+    image2: imgUrl2,
+    image3: imgUrl3,
+    category: cat,
+    room: room,
+    style: style,
+    price: price,
+    stock: stock,
+    soldCount: 0 
+  };
+
+  try {
+    // 寫入單一商品到 Firebase
+    await window.dbAPI.saveProduct(productObj);
+    
+    // 關閉 Modal 並重新讀取最新資料來渲染畫面
+    document.getElementById('product-modal').style.display = 'none'; 
+    await this.loadData();
+    this.renderProducts();
+    alert(`儲存成功！商品編號為 ${finalId}`);
+  } catch (error) {
+    console.error(error);
+    alert('儲存失敗，請檢查網路連線');
+  }
+},
 
   deleteProduct(id) { if(confirm('確定刪除？')) { this.products = this.products.filter(p => p.id !== id); localStorage.setItem('liviSpaceProducts', JSON.stringify(this.products)); this.renderProducts(); } },
 
@@ -660,5 +562,51 @@ const adminApp = {
 };
 window.onload = () => adminApp.init();
 </script>
+
+<script type="module">
+  // 引入 Firebase 核心與 Firestore 模組
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+  import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+  // 貼上你在階段一取得的 Config
+  const firebaseConfig = {
+  apiKey: "AIzaSyCGeNCoqImHVNppGEiGNNYAiiwuIvublVA",
+  authDomain: "chg-home.firebaseapp.com",
+  projectId: "chg-home",
+  storageBucket: "chg-home.firebasestorage.app",
+  messagingSenderId: "191029130468",
+  appId: "1:191029130468:web:09c9821695f3a0181ca8f1",
+  measurementId: "G-W2F489G53R"
+};
+
+  // 初始化 Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 建立對外開放的非同步資料庫操作函數
+  window.dbAPI = {
+    // 讀取所有商品
+    getProducts: async () => {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      let products = [];
+      querySnapshot.forEach((doc) => {
+        products.push(doc.data());
+      });
+      return products;
+    },
+    
+    // 儲存或更新單一商品
+    saveProduct: async (productObj) => {
+      // 確保商品有 id 作為文件名稱，例如 P001
+      await setDoc(doc(db, "products", productObj.id), productObj);
+    },
+
+    // 刪除商品
+    deleteProduct: async (productId) => {
+      await deleteDoc(doc(db, "products", productId));
+    }
+  };
+</script>
+
 </body>
 </html>
