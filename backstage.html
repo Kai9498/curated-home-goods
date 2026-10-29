@@ -235,19 +235,21 @@ const adminApp = {
       }
     });
   },
-
-  // 替換成 👉 【修改後】
+  
+// 替換成 👉 【修改後】
 async loadData() {
   try {
-    // 透過我們在階段一設定好的 window.dbAPI 去 Firebase 抓資料
-    const cloudProducts = await window.dbAPI.getProducts();
-    if (cloudProducts.length > 0) {
-      this.products = cloudProducts;
-    } else {
-      this.products = []; // 如果資料庫沒東西，就設為空陣列
-    }
-    
-    // 其餘訂單與會員資料如果還沒搬到 Firebase，可以先保留原本的 localStorage 讀取機制
+    // 改用 listenProducts 來即時監聽資料庫變化
+    window.dbAPI.listenProducts((cloudProducts) => {
+      this.products = cloudProducts || [];
+      
+      // 當收到雲端的新資料時，判斷目前停留在哪個分頁，並自動重新渲染該分頁
+      if (document.getElementById('sec-dashboard').style.display === 'block') this.renderDashboard();
+      if (document.getElementById('sec-products').style.display === 'block') this.renderProducts();
+      if (document.getElementById('sec-reports').style.display === 'block') this.renderReports();
+    });
+
+    // 訂單與會員資料的 localStorage 保留
     const savedState = localStorage.getItem('liviSpaceState');
     if (savedState) {
       this.fullState = JSON.parse(savedState);
@@ -566,7 +568,7 @@ window.onload = () => adminApp.init();
 <script type="module">
   // 引入 Firebase 核心與 Firestore 模組
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
   // 貼上你在階段一取得的 Config
   const firebaseConfig = {
@@ -595,6 +597,16 @@ window.onload = () => adminApp.init();
       return products;
     },
     
+    listenProducts: (callback) => {
+          onSnapshot(collection(db, "products"), (snapshot) => {
+            let products = [];
+            snapshot.forEach((doc) => {
+              products.push(doc.data());
+            });
+            callback(products); // 把最新資料丟給負責渲染的程式
+          });
+        },
+
     // 儲存或更新單一商品
     saveProduct: async (productObj) => {
       // 確保商品有 id 作為文件名稱，例如 P001

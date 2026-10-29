@@ -676,14 +676,16 @@ const DB = { products: [] };
 // 替換成 👉 【修改後】
 async function initializeProducts() {
   try {
-    // 呼叫 Firebase 讀取雲端商品清單
-    const cloudProducts = await window.dbAPI.getProducts();
-    
-    if (cloudProducts && cloudProducts.length > 0) {
-      DB.products = cloudProducts;
-    } else {
-      DB.products = []; // 如果雲端資料庫沒資料，就顯示空的
-    }
+    // 改用 listenProducts 來即時監聽
+    window.dbAPI.listenProducts((cloudProducts) => {
+      DB.products = cloudProducts || [];
+      
+      // 一旦資料庫有更新，根據使用者目前所在的畫面，無縫重繪商品
+      if (app.state.view === 'list') app.renderList();
+      if (app.state.view === 'home') app.renderHome();
+      if (app.state.view === 'detail') app.renderDetail();
+      if (app.state.view === 'compare') app.renderCompare();
+    });
   } catch (error) {
     console.error("從 Firebase 讀取商品失敗：", error);
     DB.products = [];
@@ -1679,7 +1681,7 @@ window.onload = () => app.init();
 <script type="module">
   // 引入 Firebase 核心與 Firestore 模組
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
   // 貼上你在階段一取得的 Config
   const firebaseConfig = {
@@ -1706,6 +1708,16 @@ window.onload = () => app.init();
         products.push(doc.data());
       });
       return products;
+    },
+
+    listenProducts: (callback) => {
+      onSnapshot(collection(db, "products"), (snapshot) => {
+        let products = [];
+        snapshot.forEach((doc) => {
+          products.push(doc.data());
+        });
+        callback(products); // 把最新資料丟給負責渲染的程式
+      });
     },
     
     // 儲存或更新單一商品
