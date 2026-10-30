@@ -866,7 +866,7 @@ const app = {
     } else if (tab === '沙發推薦') {
       recs = [...DB.products].filter(p => p.category === '沙發').slice(0, 4);
     } else if (tab === '床墊推薦') {
-      recs = [...DB.products].filter(p => p.category === '床架與床墊' || p.name.includes('床墊')).slice(0, 4);
+      recs = [...DB.products].filter(p => p.category === '床墊').slice(0, 4);
     }
     document.getElementById('home-value-recommend').innerHTML = recs.map(p => this.createProductCard(p)).join('');
   },
@@ -887,21 +887,23 @@ const app = {
     this.navigate('list'); 
   },
 
+  // 替換原本的 getSpec
   getSpec(p) {
     const base = {
-      brand: 'CHG 好室選物', color: '原木色 / 百搭色', origin: '台灣', warranty: '1 年保固', assembly: '自行組裝', loadCapacity: '100 kg', delivery: '一般宅配', dim: '長 120 x 寬 60 x 高 75 cm', weight: '20 kg', material: '高質感複合材質', desc: '高品質質感家具，為您的居家空間增添獨特風格。採用環保材質製作，經久耐用，是您成家選物的最佳搭配。'
+      brand: 'CHG 好室選物', color: '原木色 / 百搭色', origin: '台灣', warranty: '1 年保固', assembly: '自行組裝', loadCapacity: '100 kg', delivery: '一般宅配', weight: '20 kg', material: '高質感複合材質', desc: '高品質質感家具，為您的居家空間增添獨特風格。採用環保材質製作，經久耐用，是您成家選物的最佳搭配。'
     };
 
-    if (p.name.includes('L型')) base.dim = '長 260 x 寬 150 x 高 85 cm';
-    else if (p.name.includes('三人') && p.category === '沙發') base.dim = '長 210 x 寬 90 x 高 85 cm';
-    else if (p.name.includes('雙人') && p.category === '沙發') base.dim = '長 150 x 寬 90 x 高 85 cm';
-    else if (p.name.includes('單人') && p.category === '沙發') base.dim = '長 90 x 寬 90 x 高 85 cm';
-    else if (p.category === '床架與床墊' || p.name.includes('床墊')) {
-        if (p.name.includes('單人加大')) base.dim = '長 188 x 寬 106 x 高 25 cm';
-        else if (p.name.includes('雙人加大')) base.dim = '長 188 x 寬 182 x 高 25 cm';
-        else if (p.name.includes('單人')) base.dim = '長 188 x 寬 91 x 高 25 cm';
-        else if (p.name.includes('雙人')) base.dim = '長 188 x 寬 152 x 高 25 cm';
+    // 【修改重點】：優先抓取後台填寫的長寬高，若無則顯示尚未提供
+    let dimString = '尚未提供';
+    if (p.length || p.width || p.height) {
+        let lengthStr = p.length ? `長 ${p.length}` : '';
+        let widthStr = p.width ? `寬 ${p.width}` : '';
+        let heightStr = p.height ? `高 ${p.height}` : '';
+        
+        let dims = [lengthStr, widthStr, heightStr].filter(Boolean);
+        dimString = dims.join(' x ') + ' cm';
     }
+    base.dim = dimString;
 
     if (p.name.includes('皮')) base.material = '高級真皮 / 合成皮、實木框架';
     if (p.name.includes('布')) base.material = '高質感防潑水布料、高密度泡棉';
@@ -953,18 +955,16 @@ const app = {
         filtered = filtered.filter(p => p.style === selectedStyle);
     }
 
+    // 寬度篩選也改為讀取後台傳來的 p.width
     let selectedWidth = document.getElementById('filter-width-select')?.value;
     if(selectedWidth) {
         filtered = filtered.filter(p => {
-            let spec = this.getSpec(p);
-            let match = spec.dim.match(/寬\s*(\d+)/);
-            if(match) {
-                let w = parseInt(match[1]);
-                if(selectedWidth === '<100') return w < 100;
-                if(selectedWidth === '100-160') return w >= 100 && w <= 160;
-                if(selectedWidth === '>160') return w > 160;
-            }
-            return true; 
+            let w = parseInt(p.width);
+            if(isNaN(w)) return true; // 若無資料則預設顯示
+            if(selectedWidth === '<100') return w < 100;
+            if(selectedWidth === '100-160') return w >= 100 && w <= 160;
+            if(selectedWidth === '>160') return w > 160;
+            return true;
         });
     }
 
@@ -1002,7 +1002,7 @@ const app = {
     };
     const info = spaceMap[tab];
     
-    let recs = [...DB.products].filter(p => p.room === info.keyword || p.category.includes(info.keyword));
+    let recs = [...DB.products].filter(p => p.room === info.keyword || (p.category && p.category.includes(info.keyword)));
     if(recs.length < 3) recs = [...recs, ...DB.products].sort(() => 0.5 - Math.random()); 
     recs = recs.slice(0, 3);
 
@@ -1564,8 +1564,10 @@ const app = {
     this.state.cart.forEach(item => { 
       const p = DB.products.find(x => x.id === item.id); 
       p.stock -= item.qty; p.soldCount = (p.soldCount || 0) + item.qty; 
+      
+      window.dbAPI.saveProduct(p);
     });
-    localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
+    // localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
 
     let invVal = document.getElementById('chk-invoice').value; 
     let invDetail = document.getElementById('chk-invoice-detail') ? document.getElementById('chk-invoice-detail').value : '';
