@@ -128,7 +128,11 @@
 <body>
 
 <header>
-  <div class="logo"><a href="#" onclick="app.navigate('home')">CHG</a></div>
+  <div class="logo">
+  <a href="#" onclick="app.navigate('home')" style="display: flex; align-items: center;">
+    <img src="image/logo.png" alt="CHG 傢俱" style="height: 100px; width: auto; object-fit: contain;">
+  </a>
+</div>
   <div class="search-bar"><input type="text" id="searchInput" placeholder="輸入家具類型或風格..." aria-label="搜尋家具"></div>
   <div class="header-actions">
     <button class="icon-btn" style="background:#f1f1f1;" onclick="window.open('backstage.html', '_blank')">⚙️ 後台</button>
