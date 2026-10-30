@@ -194,9 +194,6 @@
           </div>
           <span class="sub-dropdown-item" onclick="app.search('電視櫃')">電視櫃</span>
           <span class="sub-dropdown-item" onclick="app.search('茶几')">茶几</span>
-          <span class="sub-dropdown-item" onclick="app.search('邊几')">邊几</span>
-          <span class="sub-dropdown-item" onclick="app.search('展示櫃')">展示櫃</span>
-          <span class="sub-dropdown-item" onclick="app.search('鞋櫃')">鞋櫃</span>
         </div>
       </div>
       
@@ -237,10 +234,7 @@
               </div>
             </div>
           </div>
-          <span class="sub-dropdown-item" onclick="app.search('床架')">床架系列</span>
-          <span class="sub-dropdown-item" onclick="app.search('床頭櫃')">床頭櫃</span>
           <span class="sub-dropdown-item" onclick="app.search('衣櫃')">衣櫃</span>
-          <span class="sub-dropdown-item" onclick="app.search('斗櫃')">斗櫃</span>
           <span class="sub-dropdown-item" onclick="app.search('化妝台')">化妝台</span>
         </div>
       </div>
@@ -250,9 +244,8 @@
         <div class="sub-dropdown">
           <span class="sub-dropdown-item" onclick="app.search('書房')">全部書房家具</span>
           <span class="sub-dropdown-item" onclick="app.search('書桌')">書桌</span>
-          <span class="sub-dropdown-item" onclick="app.search('電腦椅')">電腦椅</span>
           <span class="sub-dropdown-item" onclick="app.search('書櫃')">書櫃</span>
-          <span class="sub-dropdown-item" onclick="app.search('層架')">層架</span>
+          <span class="sub-dropdown-item" onclick="app.search('電腦椅')">電腦椅</span>
         </div>
       </div>
       
@@ -262,7 +255,6 @@
           <span class="sub-dropdown-item" onclick="app.search('餐廳')">全部餐廳家具</span>
           <span class="sub-dropdown-item" onclick="app.search('餐桌')">餐桌</span>
           <span class="sub-dropdown-item" onclick="app.search('餐椅')">餐椅</span>
-          <span class="sub-dropdown-item" onclick="app.search('長凳')">長凳</span>
           <span class="sub-dropdown-item" onclick="app.search('餐邊櫃')">餐邊櫃</span>
         </div>
       </div>
@@ -520,17 +512,45 @@
           <div class="form-group"><label>詳細地址</label><input type="text" id="chk-address" required placeholder="請填寫完整地址 (例: 信義區松智路1號)"></div>
           
           <h3 style="margin-top:20px; border-top:1px solid var(--border); padding-top:20px;">2. 付款與發票</h3>
+          
           <div class="form-group" style="margin-top:15px;">
             <label>付款方式</label>
-            <select id="chk-payment" onchange="app.updateCheckoutSummary()">
-              <option value="信用卡一次付清">信用卡一次付清</option>
-              <option value="信用卡 3 期 0 利率">信用卡 3 期 0 利率</option>
-              <option value="信用卡 6 期 0 利率">信用卡 6 期 0 利率</option>
-              <option value="信用卡 12 期 0 利率">信用卡 12 期 0 利率</option>
-              <option value="ATM 轉帳">ATM 虛擬帳號轉帳</option>
-            </select>
-            <div id="payment-info" style="color:var(--danger); font-size:13px; margin-top:5px; font-weight:bold;"></div>
+            <div style="margin-bottom: 10px; font-size: 15px; font-weight: bold; color: #333;">信用卡付款</div>
+            
+            <label style="display:inline-flex; align-items:center; cursor:pointer; font-weight:normal; font-size:14px; margin-bottom:10px;">
+              <input type="checkbox" id="chk-installment" onchange="app.toggleInstallment()" style="width:auto; margin-right:8px;"> 
+              使用信用卡分期 (0 利率)
+            </label>
+            
+            <div id="installment-options" style="display:none; margin-top:5px; margin-bottom: 15px; padding:15px; background:#f9f9f9; border-radius:8px; border:1px solid var(--border);">
+              <label>選擇期數</label>
+              <select id="installment-select" onchange="app.updateCheckoutSummary()">
+                <option value="3">3 期 0 利率</option>
+                <option value="6">6 期 0 利率</option>
+              </select>
+            </div>
+            
+            <div id="payment-info" style="color:var(--danger); font-size:14px; margin-top:5px; font-weight:bold;"></div>
           </div>
+          
+          <!-- 信用卡輸入資訊欄 -->
+          <div id="credit-card-info" style="background:#f9f9f9; padding:15px; border-radius:8px; margin-bottom:15px; border:1px solid var(--border);">
+            <div class="form-group">
+              <label>信用卡號</label>
+              <input type="text" id="cc-number" placeholder="XXXX-XXXX-XXXX-XXXX" required>
+            </div>
+            <div style="display:flex; gap:10px;">
+               <div class="form-group" style="flex:1;">
+                 <label>有效期限</label>
+                 <input type="text" id="cc-exp" placeholder="MM/YY" required>
+               </div>
+               <div class="form-group" style="flex:1;">
+                 <label>安全碼 (CVV)</label>
+                 <input type="text" id="cc-cvv" placeholder="123" required>
+               </div>
+            </div>
+          </div>
+          
           <div class="form-group"><label>發票開立</label><select id="chk-invoice" onchange="app.toggleInvoiceInput()"><option value="會員載具">會員載具 (雲端發票)</option><option value="手機條碼載具">手機條碼載具</option><option value="公司三聯式發票">公司三聯式發票 (需填統編)</option></select></div>
           <div class="form-group" id="invoice-detail-group" style="display:none;"><label id="invoice-detail-label">手機條碼</label><input type="text" id="chk-invoice-detail" placeholder="請填寫條碼或統編"></div>
 
@@ -673,14 +693,11 @@
 <script>
 const DB = { products: [] };
 
-// 替換成 👉 【修改後】
 async function initializeProducts() {
   try {
-    // 改用 listenProducts 來即時監聽
     window.dbAPI.listenProducts((cloudProducts) => {
       DB.products = cloudProducts || [];
       
-      // 一旦資料庫有更新，根據使用者目前所在的畫面，無縫重繪商品
       if (app.state.view === 'list') app.renderList();
       if (app.state.view === 'home') app.renderHome();
       if (app.state.view === 'detail') app.renderDetail();
@@ -796,7 +813,6 @@ const app = {
     document.getElementById('compare-bar').classList.toggle('show', this.state.compare.length > 0 && this.state.view !== 'compare');
   },
 
-  /* ---------- 首頁廣告輪播功能 ---------- */
   initCarousel() {
     if(this.slideInterval) clearInterval(this.slideInterval);
     this.slideInterval = setInterval(() => {
@@ -908,7 +924,6 @@ const app = {
     };
   },
   
-  /* ---------- 進階篩選與列表渲染 ---------- */
   clearFilters() {
     if(document.getElementById('filter-style-select')) document.getElementById('filter-style-select').value = '';
     if(document.getElementById('filter-width-select')) document.getElementById('filter-width-select').value = '';
@@ -933,13 +948,11 @@ const app = {
         document.getElementById('list-title').innerText = `全部商品列表`;
     }
 
-    // 進階篩選：風格設計 (下拉選單)
     let selectedStyle = document.getElementById('filter-style-select')?.value;
     if(selectedStyle) {
         filtered = filtered.filter(p => p.style === selectedStyle);
     }
 
-    // 進階篩選：尺寸寬 (下拉選單)
     let selectedWidth = document.getElementById('filter-width-select')?.value;
     if(selectedWidth) {
         filtered = filtered.filter(p => {
@@ -955,7 +968,6 @@ const app = {
         });
     }
 
-    // 進階篩選：價格區間
     let minPrice = document.getElementById('filter-min-price')?.value;
     let maxPrice = document.getElementById('filter-max-price')?.value;
     if(minPrice) filtered = filtered.filter(p => p.price >= parseInt(minPrice));
@@ -976,7 +988,6 @@ const app = {
     document.getElementById('product-list').innerHTML = filtered.length ? filtered.map(p => this.createProductCard(p)).join('') : '<p style="grid-column: 1 / -1; text-align:center; padding: 40px; color:#888;">查無商品！請嘗試放寬篩選或使用其他關鍵字</p>';
   },
 
-  /* ---------- 空間佈置靈感功能 (全新修復版本) ---------- */
   switchInspireTab(tab) {
     document.querySelectorAll('.inspire-tab').forEach(el => {
       el.style.color = '#999'; el.style.borderBottomColor = 'transparent'; el.style.fontWeight = 'normal';
@@ -986,7 +997,6 @@ const app = {
     
     const spaceMap = {
         '客廳空間': { img: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1200&q=80', keyword: '客廳' },
-        // 更新為高質感且有效連結的餐廳實景圖片
         '餐廳空間': { img: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?auto=format&fit=crop&w=1200&q=80', keyword: '桌' },
         '臥室空間': { img: 'https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1200&q=80', keyword: '臥室' }
     };
@@ -994,9 +1004,8 @@ const app = {
     
     let recs = [...DB.products].filter(p => p.room === info.keyword || p.category.includes(info.keyword));
     if(recs.length < 3) recs = [...recs, ...DB.products].sort(() => 0.5 - Math.random()); 
-    recs = recs.slice(0, 3); // 固定呈現3項商品作為範例
+    recs = recs.slice(0, 3);
 
-    // 產生圖片上的白點 (Hotspots)
     let hotspotsHtml = '';
     recs.forEach((p, idx) => {
         let top = 40 + (idx * 15);
@@ -1007,7 +1016,6 @@ const app = {
         hotspotsHtml += `<div class="hotspot inspire-hotspot" style="top: ${top}%; left: ${left}%;" onclick="app.showInspireCards(event)" title="點擊查看圖中商品"></div>`;
     });
 
-    // 產生點擊後浮現的商品資訊卡片
     let cardsHtml = recs.map(p => `
       <div style="background:white; padding:15px; border-radius:4px; display:flex; gap:15px; align-items:center; width:100%; cursor:pointer; box-shadow:0 4px 12px rgba(0,0,0,0.15); transition:transform 0.2s;" onclick="app.navigate('detail', {id:'${p.id}'})" onmouseover="this.style.transform='scale(1.02)'" onmouseout="this.style.transform='scale(1)'">
           <img src="${p.image}" style="width:70px; height:70px; object-fit:cover; border-radius:4px;">
@@ -1018,10 +1026,8 @@ const app = {
       </div>
     `).join('');
 
-    // 將內容寫入 DOM，包含底圖、白點，以及點擊後顯示的遮罩與卡片區域 (已設定 align-items: center 確保置中排列)
     document.getElementById('inspire-content').innerHTML = `
         <div style="position:relative; width:100%; height:600px; border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow);">
-            <!-- 實景圖與白點 (未點擊狀態) -->
             <img src="${info.img}" style="width:100%; height:100%; object-fit:cover; display:block;">
             <div id="inspire-dots-container">
                 ${hotspotsHtml}
@@ -1030,7 +1036,6 @@ const app = {
                 👆 點擊圖中白點查看商品細節
             </div>
             
-            <!-- 點擊白點後顯示的商品卡片群與半透明黑底遮罩 -->
             <div id="inspire-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); padding:40px; flex-direction:column; justify-content:center; align-items:center; z-index:10; animation:fadeIn 0.3s ease;" onclick="app.hideInspireCards(event)">
                 <div style="display:flex; flex-direction:column; gap:15px; width:100%; max-width:420px; align-items:center;" onclick="event.stopPropagation()">
                     ${cardsHtml}
@@ -1041,21 +1046,18 @@ const app = {
     `;
   },
 
-  // 點選任意白點：展開黑色遮罩並顯示所有卡片
   showInspireCards(e) {
     if(e) e.stopPropagation();
     document.getElementById('inspire-overlay').style.display = 'flex';
-    document.getElementById('inspire-dots-container').style.display = 'none'; // 隱藏原有的白點
+    document.getElementById('inspire-dots-container').style.display = 'none'; 
     document.getElementById('inspire-hint').style.opacity = '0';
   },
 
-  // 點選遮罩背景：關閉卡片，恢復成只有圖片與白點的狀態
   hideInspireCards(e) {
     document.getElementById('inspire-overlay').style.display = 'none';
-    document.getElementById('inspire-dots-container').style.display = 'block'; // 恢復白點顯示
+    document.getElementById('inspire-dots-container').style.display = 'block'; 
     document.getElementById('inspire-hint').style.opacity = '1';
   },
-  /* -------------------------------------------------------- */
 
   switchDetailTab(tabName) {
     document.querySelectorAll('.detail-tab-btn').forEach(el => {
@@ -1406,9 +1408,51 @@ const app = {
     let subtotal = 0;
     list.innerHTML = this.state.cart.map((item, idx) => {
       subtotal += item.price * item.qty;
-      return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px;"><img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover; border-radius:4px;"><div style="flex:1;"><strong>${item.name}</strong></div><div style="width:100px;">$${item.price.toLocaleString()} x ${item.qty}</div><button class="btn btn-outline" onclick="app.state.cart.splice(${idx},1); app.saveState(); app.renderCart();">刪除</button></div>`;
+      // 修改樣式：加入增減數量按鈕 (+ / -) 與自動計算小計
+      return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px;">
+        <img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover; border-radius:4px;">
+        <div style="flex:1;"><strong>${item.name}</strong></div>
+        
+        <div style="display:flex; align-items:center; gap:10px; margin-right:20px;">
+          <button class="btn btn-outline" style="padding:2px 8px;" onclick="app.updateCartQty('${item.id}', -1)">-</button>
+          <span style="width:20px; text-align:center;">${item.qty}</span>
+          <button class="btn btn-outline" style="padding:2px 8px;" onclick="app.updateCartQty('${item.id}', 1)">+</button>
+        </div>
+
+        <div style="width:100px; color:var(--danger); font-weight:bold;">$${(item.price * item.qty).toLocaleString()}</div>
+        <button class="btn btn-outline" onclick="app.updateCartQty('${item.id}', -${item.qty})">刪除</button>
+      </div>`;
     }).join('');
     document.getElementById('cart-summary').innerHTML = `<h3 style="color:var(--danger)">總計: $${subtotal.toLocaleString()}</h3>`;
+  },
+
+  // 處理購物車數量的增減與歸零自動刪除
+  updateCartQty(id, delta) {
+    const item = this.state.cart.find(x => x.id === id);
+    if (item) {
+      const p = DB.products.find(x => x.id === id);
+      // 如果按增加，確認是否超過庫存
+      if (delta > 0 && p && item.qty >= p.stock) {
+        this.showToast('已達該商品庫存上限');
+        return;
+      }
+      
+      item.qty += delta;
+      
+      // 當數量等於或小於 0 時，自動刪除該商品
+      if (item.qty <= 0) {
+        this.state.cart = this.state.cart.filter(x => x.id !== id);
+      }
+      
+      this.saveState();
+      this.renderCart();
+    }
+  },
+
+  toggleInstallment() {
+    const isChecked = document.getElementById('chk-installment').checked;
+    document.getElementById('installment-options').style.display = isChecked ? 'block' : 'none';
+    this.updateCheckoutSummary();
   },
 
   toggleInvoiceInput() {
@@ -1432,6 +1476,12 @@ const app = {
     document.getElementById('chk-points').max = u.points || 0; 
     document.getElementById('chk-points').value = 0;
     
+    // 初始化分期勾選框狀態
+    if (document.getElementById('chk-installment')) {
+        document.getElementById('chk-installment').checked = false;
+        document.getElementById('installment-options').style.display = 'none';
+    }
+    
     this.toggleInvoiceInput(); this.updateCheckoutSummary();
   },
 
@@ -1454,13 +1504,17 @@ const app = {
     let finalTotal = subtotal + shippingFee - cDiscount - usePoints; 
     let earnPoints = Math.floor(finalTotal / 100);
 
-    let paymentMode = document.getElementById('chk-payment').value;
+    // 計算分期金額資訊
+    let isInstallment = document.getElementById('chk-installment') && document.getElementById('chk-installment').checked;
     let paymentText = '';
-    if (paymentMode.includes('3 期')) paymentText = `分 3 期：每月約 $${Math.floor(finalTotal / 3).toLocaleString()}`;
-    else if (paymentMode.includes('6 期')) paymentText = `分 6 期：每月約 $${Math.floor(finalTotal / 6).toLocaleString()}`;
-    else if (paymentMode.includes('12 期')) paymentText = `分 12 期：每月約 $${Math.floor(finalTotal / 12).toLocaleString()}`;
+    if (isInstallment) {
+        let months = parseInt(document.getElementById('installment-select').value);
+        paymentText = `分 ${months} 期：每月約 $${Math.floor(finalTotal / months).toLocaleString()}`;
+    }
     
-    document.getElementById('payment-info').innerText = paymentText;
+    if(document.getElementById('payment-info')) {
+        document.getElementById('payment-info').innerText = paymentText;
+    }
 
     let itemsHtml = this.state.cart.map(i => `
       <div style="display:flex; justify-content:space-between; font-size:13px; color:#555; margin-bottom:5px;">
@@ -1519,7 +1573,12 @@ const app = {
     
     let regionSelect = document.getElementById('chk-region');
     let regionText = regionSelect.options[regionSelect.selectedIndex].text.split(' ')[0]; 
-    let exInfo = `付款: ${document.getElementById('chk-payment').value} | 發票: ${invString} | 運費: $${shippingFee}`;
+    
+    // 組合付款資訊文字
+    let isInstallment = document.getElementById('chk-installment') && document.getElementById('chk-installment').checked;
+    let paymentModeStr = isInstallment ? `信用卡 ${document.getElementById('installment-select').value} 期 0 利率` : '信用卡一次付清';
+    
+    let exInfo = `付款: ${paymentModeStr} | 發票: ${invString} | 運費: $${shippingFee}`;
     let fullAddress = `[${regionText}] ` + document.getElementById('chk-address').value;
 
     this.state.orders.unshift({ 
@@ -1644,9 +1703,19 @@ const app = {
       let myOrders = this.state.orders.filter(o => o.user === this.state.user);
       document.getElementById('order-history').innerHTML = myOrders.length ? myOrders.map(o => {
         let returnBtnHtml = '';
+        let orderTimeObj = new Date(o.timestamp || o.date);
+        
+        let y = orderTimeObj.getFullYear(), m = String(orderTimeObj.getMonth()+1).padStart(2,'0'), d = String(orderTimeObj.getDate()).padStart(2,'0');
+        let hh = String(orderTimeObj.getHours()).padStart(2,'0'), mm = String(orderTimeObj.getMinutes()).padStart(2,'0');
+        let formattedTime = `${y}-${m}-${d} ${hh}:${mm}`;
+        
+        let estDate = new Date(orderTimeObj.getTime() + 7 * 24 * 60 * 60 * 1000);
+        let ey = estDate.getFullYear(), em = String(estDate.getMonth()+1).padStart(2,'0'), ed = String(estDate.getDate()).padStart(2,'0');
+        let estDelivery = `${ey}-${em}-${ed}`;
+        let estDeliveryHtml = o.status === '已完成' ? '' : `<br>🚚 預計到貨時間：${estDelivery}`;
+
         if(o.status === '已完成' && !o.returnInfo) {
-          let orderTime = o.timestamp || new Date(o.date).getTime();
-          let diffDays = (new Date().getTime() - orderTime) / (1000 * 60 * 60 * 24);
+          let diffDays = (new Date().getTime() - orderTimeObj.getTime()) / (1000 * 60 * 60 * 24);
           if(diffDays <= 7) returnBtnHtml = `<button class="btn btn-outline" style="margin-top:10px; padding:4px 8px; font-size:12px; color:var(--danger); border-color:var(--danger);" onclick="app.openReturnModal('${o.id}')">申請退換貨</button>`;
         }
         let rtnTagHtml = '';
@@ -1654,9 +1723,10 @@ const app = {
 
         return `
         <div style="border:1px solid var(--border); padding:15px; margin-bottom:10px; border-radius:8px; background:white;">
-          <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
             <strong>訂單：${o.id}</strong><span style="color:white; background:var(--primary); padding:2px 8px; border-radius:12px; font-size:12px;">${o.status}</span>
           </div>
+          <div style="font-size:13px; color:#555; margin-bottom:8px; background:#f0f8ff; padding:6px 10px; border-radius:4px;">🕒 成立時間：${formattedTime}${estDeliveryHtml}</div>
           <div style="font-size:14px; color:var(--text-muted); margin-bottom:10px;">${o.items.map(i=>i.name + ' x ' + i.qty).join('<br>')}</div>
           <div style="font-size:12px; color:#777; background:#f9f9f9; padding:5px; border-radius:4px; margin-bottom:10px;">ℹ️ ${o.extraInfo || ''}<br>🏠 配送至: ${o.address || '無紀錄'}</div>
           ${rtnTagHtml}
@@ -1679,28 +1749,23 @@ window.onload = () => app.init();
 </script>
 
 <script type="module">
-  // 引入 Firebase 核心與 Firestore 模組
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
   import { getFirestore, collection, getDocs, setDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-  // 貼上你在階段一取得的 Config
   const firebaseConfig = {
-  apiKey: "AIzaSyCGeNCoqImHVNppGEiGNNYAiiwuIvublVA",
-  authDomain: "chg-home.firebaseapp.com",
-  projectId: "chg-home",
-  storageBucket: "chg-home.firebasestorage.app",
-  messagingSenderId: "191029130468",
-  appId: "1:191029130468:web:09c9821695f3a0181ca8f1",
-  measurementId: "G-W2F489G53R"
-};
+    apiKey: "AIzaSyCGeNCoqImHVNppGEiGNNYAiiwuIvublVA",
+    authDomain: "chg-home.firebaseapp.com",
+    projectId: "chg-home",
+    storageBucket: "chg-home.firebasestorage.app",
+    messagingSenderId: "191029130468",
+    appId: "1:191029130468:web:09c9821695f3a0181ca8f1",
+    measurementId: "G-W2F489G53R"
+  };
 
-  // 初始化 Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const appFirebase = initializeApp(firebaseConfig);
+  const db = getFirestore(appFirebase);
 
-  // 建立對外開放的非同步資料庫操作函數
   window.dbAPI = {
-    // 讀取所有商品
     getProducts: async () => {
       const querySnapshot = await getDocs(collection(db, "products"));
       let products = [];
@@ -1716,17 +1781,14 @@ window.onload = () => app.init();
         snapshot.forEach((doc) => {
           products.push(doc.data());
         });
-        callback(products); // 把最新資料丟給負責渲染的程式
+        callback(products); 
       });
     },
     
-    // 儲存或更新單一商品
     saveProduct: async (productObj) => {
-      // 確保商品有 id 作為文件名稱，例如 P001
       await setDoc(doc(db, "products", productObj.id), productObj);
     },
 
-    // 刪除商品
     deleteProduct: async (productId) => {
       await deleteDoc(doc(db, "products", productId));
     }
