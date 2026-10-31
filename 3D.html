@@ -397,8 +397,16 @@
                     scene.remove(target); 
                     const index = objects.indexOf(target);
                     if (index > -1) objects.splice(index, 1);
-                    target.geometry.dispose();
-                    target.material.dispose();
+                    
+                    target.traverse((child) => {
+                        if (child.isMesh || child.isSprite) {
+                            if (child.geometry) child.geometry.dispose();
+                            if (child.material) {
+                                if (child.material.map) child.material.map.dispose();
+                                child.material.dispose();
+                            }
+                        }
+                    });
 
                     if (activeDragObject === target) {
                         activeDragObject = null;
@@ -466,8 +474,39 @@
             if (activeDragObject) updateDragHelper(activeDragObject);
         };
 
-        // 6. 生成家具函式 (加入長短邊判斷邏輯)
-        window.addBox = function(width, height, depth, hexColor) {
+        // 動態生成文字材質的函數
+        function makeTextSprite(message) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.font = "bold 32px 'PingFang TC', sans-serif";
+            const textWidth = ctx.measureText(message).width;
+            
+            canvas.width = textWidth + 40;
+            canvas.height = 50;
+            
+            ctx.font = "bold 32px 'PingFang TC', sans-serif";
+            ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = "rgba(140, 122, 107, 1)";
+            ctx.lineWidth = 4;
+            ctx.strokeRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "rgba(51, 51, 51, 1)";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, depthTest: false }); 
+            const sprite = new THREE.Sprite(spriteMaterial);
+            
+            sprite.scale.set(canvas.width * 0.5, canvas.height * 0.5, 1);
+            return sprite;
+        }
+
+        // 6. 生成家具函式 (加入長短邊判斷邏輯與取消子物件干擾)
+        window.addBox = function(width, height, depth, hexColor, productName) {
             const geometry = new THREE.BoxGeometry(width, height, depth);
             const material = new THREE.MeshStandardMaterial({ 
                 color: hexColor,
@@ -481,12 +520,10 @@
             // --- 判斷長邊，決定紅線的方向與位置 ---
             let markerGeo, markerX, markerZ;
             if (width >= depth) {
-                // 若寬度大於等於深度，長邊為 X 軸。紅線平行 X 軸，貼在 Z 軸邊緣。
                 markerGeo = new THREE.BoxGeometry(width * 0.4, 4, 4); 
                 markerX = 0;
                 markerZ = depth / 2 - 2;
             } else {
-                // 若深度大於寬度，長邊為 Z 軸。紅線平行 Z 軸，貼在 X 軸邊緣。
                 markerGeo = new THREE.BoxGeometry(4, 4, depth * 0.4); 
                 markerX = width / 2 - 2;
                 markerZ = 0;
@@ -495,7 +532,20 @@
             const markerMat = new THREE.MeshBasicMaterial({ color: 0xff3333 }); 
             const marker = new THREE.Mesh(markerGeo, markerMat);
             marker.position.set(markerX, height / 2 + 2, markerZ);
+            
+            // ★ 關鍵修復：防止滑鼠選中紅線，造成放下時出現程式錯誤
+            marker.raycast = function() {}; 
             box.add(marker); 
+
+            // --- 加上文字標籤 (Sprite) ---
+            if(productName) {
+                const labelSprite = makeTextSprite(productName);
+                labelSprite.position.set(0, height / 2 + 25, 0); 
+                
+                // ★ 關鍵修復：防止滑鼠選中文字，造成放下時出現程式錯誤
+                labelSprite.raycast = function() {}; 
+                box.add(labelSprite); 
+            }
 
             box.position.set(50, height / 2, 50);
             scene.add(box);
@@ -629,7 +679,10 @@
                 const colorHash = Math.abs(p.id.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0));
                 const hexColor = colors[colorHash % colors.length];
                 
-                return `<button class="item-btn" style="font-size: 13px;" onclick="window.addBox(${p.width}, ${p.height}, ${p.length}, ${hexColor})">
+                // 把商品名稱的單引號去除，避免破壞 HTML onclick 屬性結構
+                const safeName = p.name.replace(/'/g, ""); 
+
+                return `<button class="item-btn" style="font-size: 13px;" onclick="window.addBox(${p.width}, ${p.height}, ${p.length}, ${hexColor}, '${safeName}')">
                     📦 ${p.name}<br><span style="font-size: 11px; color: #777;">(W${p.width} x H${p.height} x D${p.length})</span>
                 </button>`;
             }).join('');
