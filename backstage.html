@@ -277,6 +277,8 @@
       <input type="hidden" id="p-id">
       <div class="form-row">
         <div class="form-group" style="flex:2;"><label>商品名稱</label><input type="text" id="p-name" required></div>
+        <!-- 新增了商品顏色欄位 -->
+        <div class="form-group" style="flex:1;"><label>商品顏色</label><input type="text" id="p-color" placeholder="例如: 灰色"></div>
       </div>
       <div class="form-row">
         <div class="form-group"><label>分類</label><select id="p-cat"><option>沙發</option><option>電視櫃</option><option>茶几</option><option>床墊</option><option>衣櫃</option><option>化妝台</option><option>書桌</option><option>書櫃</option><option>電腦椅</option><option>餐桌</option><option>餐椅</option><option>餐邊櫃</option></select></div>
@@ -590,7 +592,9 @@ async loadData() {
 
     if(id) {
       const p = this.products.find(x => x.id === id);
-      document.getElementById('p-id').value = p.id; document.getElementById('p-name').value = p.name;
+      document.getElementById('p-id').value = p.id; 
+      document.getElementById('p-name').value = p.name;
+      document.getElementById('p-color').value = p.color || ''; // 載入顏色
       document.getElementById('p-cat').value = p.category;
       document.getElementById('p-room').value = p.room;
       document.getElementById('p-style').value = p.style || '北歐風';
@@ -609,7 +613,9 @@ async loadData() {
       this.setPreview('preview-img2', p.image2);
       this.setPreview('preview-img3', p.image3);
     } else {
-      document.getElementById('p-id').value = ''; document.getElementById('p-name').value = '';
+      document.getElementById('p-id').value = ''; 
+      document.getElementById('p-name').value = '';
+      document.getElementById('p-color').value = ''; // 清空顏色
       document.getElementById('p-cat').value = '沙發'; document.getElementById('p-room').value = '客廳'; document.getElementById('p-style').value = '北歐風';
       document.getElementById('p-price').value = ''; document.getElementById('p-stock').value = '';
       
@@ -643,6 +649,7 @@ async saveProduct(e) {
   e.preventDefault();
   const id = document.getElementById('p-id').value; 
   const name = document.getElementById('p-name').value;
+  const color = document.getElementById('p-color').value; // 取得顏色值
   const imgUrl = document.getElementById('p-img').value; 
   const imgUrl2 = document.getElementById('p-img2').value;
   const imgUrl3 = document.getElementById('p-img3').value;
@@ -664,7 +671,7 @@ async saveProduct(e) {
   }
 
   let productObj = {
-    id: finalId, name: name, image: imgUrl, image2: imgUrl2, image3: imgUrl3,
+    id: finalId, name: name, color: color, image: imgUrl, image2: imgUrl2, image3: imgUrl3, // 存入顏色
     category: cat, room: room, style: style, price: price, stock: stock,
     length: pLength ? parseInt(pLength) : null, width: pWidth ? parseInt(pWidth) : null, height: pHeight ? parseInt(pHeight) : null,
     soldCount: id ? (this.products.find(x=>x.id===id)?.soldCount || 0) : 0 
