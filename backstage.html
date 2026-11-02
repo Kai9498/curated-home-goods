@@ -178,12 +178,40 @@
         </div>
       </div>
 
-      <!-- ABC 分析明細表 -->
+      <!-- AI 分析建議 (移至明細上方) -->
+      <h3 style="margin-bottom:10px; color:#333;">🤖 AI 商業分析智慧建議：ABC 經營策略與行銷企劃</h3>
+      <div style="background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 4px solid var(--info);">
+        <p style="font-size:14px; color:#333; margin-bottom:10px;"><strong>利用 AI 去分析後台營業數據或商品，ABC 分析如下：</strong></p>
+        <p style="font-size:13px; color:#555; line-height:1.6; margin-bottom:10px;">
+          商業銷售中的 <strong>ABC 分類（ABC Analysis）</strong>最早來自帕累托法則（80/20 法則），用於<strong>依銷售貢獻或價值的重要性</strong>將產品或客戶分成三類：A、B、C。<br>
+          此方法可用於：產品銷售分析、客戶價值分析、庫存管理與補貨策略。
+        </p>
+        <p style="font-size:13px; color:#555; line-height:1.6;">
+          <strong>📌 商業銷售 ABC 分類的目的：</strong><br>
+          ✅ 集中資源在高價值產品/客戶（A 類）<br>
+          ✅ 改善存貨周轉與補貨效率（減少缺貨與過量庫存）<br>
+          ✅ 降低管理成本，C 類以「低接觸、低成本」方式管理<br>
+          ✅ 提升整體獲利率與 CRM 效率
+        </p>
+        
+        <!-- 動態 AI 數據洞察區塊 -->
+        <hr style="border:0; border-top:1px dashed #ccc; margin:15px 0;">
+        <p style="font-size:14px; color:var(--info); margin-bottom:10px; display:flex; align-items:center; gap:5px;"><strong>📊 本站專屬 AI 數據洞察 (基於帕累托動態分析)：</strong></p>
+        <div id="ai-dynamic-insights" style="background:#f4f6f8; padding:12px 15px; border-radius:6px; margin-bottom: 15px;">
+          <span style="color:#777; font-size:13px;">🔄 正在運算最新營業數據...</span>
+        </div>
+      </div>
+
+      <!-- 動態 ABC 策略卡片容器 (由 JS 即時生成) -->
+      <div id="ai-strategy-cards" style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px;">
+        <span style="color:#777; font-size:13px; padding-left:10px;">🔄 正在生成動態策略...</span>
+      </div>
+
+      <!-- ABC 分析明細表 (刪除智慧建議欄位) -->
       <div class="table-wrapper" style="margin-bottom: 20px;">
         <h3 style="margin-bottom:5px; color:var(--info);">📘 ABC 分析明細 (帕累托排序)</h3>
         <p style="font-size:12px; color:#777; margin-bottom:15px; line-height:1.5;">
-          ABC 分類依據「期間累計營收」排序：累計佔比前 70% 為 A(核心)、70~90% 為 B(潛力)，其餘與零銷量為 C(長尾)。<br>
-          下方「智慧建議」由系統依銷售速度、庫存可售天數與 ABC 等級自動計算。
+          ABC 分類依據「期間累計營收」排序：累計佔比前 70% 為 A(核心)、70~90% 為 B(潛力)，其餘與零銷量為 C(長尾)。
         </p>
         <table>
           <thead>
@@ -196,75 +224,12 @@
               <th>累計</th>
               <th>分類</th>
               <th>庫存 (狀態)</th>
-              <th>智慧建議</th>
             </tr>
           </thead>
           <tbody id="report-abc-table"></tbody>
         </table>
       </div>
       
-      <!-- ABC 經營策略與行銷企劃卡片 -->
-      <h3 style="margin-bottom:15px; color:#333;">📑 ABC 經營策略與行銷企劃</h3>
-      <div style="display:flex; gap:20px; flex-wrap:wrap;">
-        
-        <!-- A 類 -->
-        <div class="strategy-card card-A">
-          <h4><span class="badge-abc badge-A">A</span> 核心商品：守住營收</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">營收佔比 70%，為品牌主要獲利來源。</p>
-          <strong style="font-size:13px; color:#333;">經營策略</strong>
-          <ul>
-            <li>庫存優先：安全庫存不低於 21 天，缺貨即補。</li>
-            <li>價格穩定：不輕易打折，守住毛利。</li>
-            <li>流量置頂：首頁主推，維持高曝光。</li>
-          </ul>
-          <strong style="font-size:13px; color:#333;">行銷企劃：明星商品會員回購計畫</strong>
-          <ul>
-            <li>目標：A類商品回購率提升 15%，缺貨天數為 0。</li>
-            <li>對象：曾購買 A 類商品的會員。</li>
-            <li>做法：依商品使用週期推播回購提醒。</li>
-          </ul>
-          <div class="budget-bar" style="background:#e8f8f5; color:#27ae60;">建議行銷預算佔比：50%</div>
-        </div>
-
-        <!-- B 類 -->
-        <div class="strategy-card card-B">
-          <h4><span class="badge-abc badge-B">B</span> 潛力商品：提升為 A</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">營收佔比 20%，具備成長與培養潛力。</p>
-          <strong style="font-size:13px; color:#333;">經營策略</strong>
-          <ul>
-            <li>提高曝光與轉換，目標 30 天內轉換率提升 30%。</li>
-            <li>與 A 類商品帶動，觀察加價購曲線。</li>
-            <li>庫存維持 14 天銷量，避免過多壓貨。</li>
-          </ul>
-          <strong style="font-size:13px; color:#333;">行銷企劃：潛力商品升級計畫</strong>
-          <ul>
-            <li>目標：挑選 3 項 B 類商品升級為 A 類。</li>
-            <li>做法：首頁設立「滿額加價購」專區增加曝光。</li>
-            <li>組合：與 A 類組合販售，組合價 9 折。</li>
-          </ul>
-          <div class="budget-bar" style="background:#fdf2e9; color:#e67e22;">建議行銷預算佔比：30%</div>
-        </div>
-
-        <!-- C 類 -->
-        <div class="strategy-card card-C">
-          <h4><span class="badge-abc badge-C">C</span> 長尾商品：控管與去化</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">營收佔比 10%，低效率或長尾商品。</p>
-          <strong style="font-size:13px; color:#333;">經營策略</strong>
-          <ul>
-            <li>零銷量商品停止進貨，降低存貨成本。</li>
-            <li>滯銷品優先去化，庫存可售天數過高者主動促銷。</li>
-            <li>保留少量長尾品維持多樣性，並作新品測試。</li>
-          </ul>
-          <strong style="font-size:13px; color:#333;">行銷企劃：長尾去化與新品測試</strong>
-          <ul>
-            <li>目標：60 天內去化 50% 滯銷庫存。</li>
-            <li>做法：福袋、滿額加購價，限時 7 折或第二件 5 折。</li>
-            <li>淘汰：連續單月無庫存者下架，避免佔用版位。</li>
-          </ul>
-          <div class="budget-bar" style="background:#f2f4f4; color:#7f8c8d;">建議行銷預算佔比：20%</div>
-        </div>
-
-      </div>
     </div>
 
   </div>
@@ -277,7 +242,6 @@
       <input type="hidden" id="p-id">
       <div class="form-row">
         <div class="form-group" style="flex:2;"><label>商品名稱</label><input type="text" id="p-name" required></div>
-        <!-- 新增了商品顏色欄位 -->
         <div class="form-group" style="flex:1;"><label>商品顏色</label><input type="text" id="p-color" placeholder="例如: 灰色"></div>
       </div>
       <div class="form-row">
@@ -363,7 +327,6 @@ const adminApp = {
 async loadData() {
   try {
     window.dbAPI.listenProducts((cloudProducts) => {
-      // 讀取真實資料庫的商品，不再強塞假商品
       this.products = cloudProducts || [];
       if (document.getElementById('sec-dashboard').style.display === 'block') this.renderDashboard();
       if (document.getElementById('sec-products').style.display === 'block') this.renderProducts();
@@ -379,7 +342,6 @@ async loadData() {
       this.fullState = { orders: [], usersDB: {} };
     }
 
-    // 生成一年份的隨機模擬訂單數據供圖表使用，但不影響商品真實銷量
     if (this.fullState.orders.length === 0) {
       const now = new Date();
       let generatedOrders = [];
@@ -465,7 +427,7 @@ async loadData() {
     document.getElementById('low-stock-table').innerHTML = lowStock.length ? 
       lowStock.map(p => `<tr><td>${p.id}</td><td>${p.name}</td><td style="color:red; font-weight:bold;">${p.stock}</td></tr>`).join('') : '<tr><td colspan="3" style="text-align:center; color:#888;">目前庫存皆充足</td></tr>';
 
-    this.renderChart(); // 繪製折線圖
+    this.renderChart();
   },
 
   renderChart() {
@@ -577,13 +539,7 @@ async loadData() {
 
   setPreview(imgId, src) {
     const el = document.getElementById(imgId);
-    if (src) {
-      el.src = src;
-      el.style.display = 'block';
-    } else {
-      el.src = '';
-      el.style.display = 'none';
-    }
+    if (src) { el.src = src; el.style.display = 'block'; } else { el.src = ''; el.style.display = 'none'; }
   },
 
   openProductModal(id = null) {
@@ -594,7 +550,7 @@ async loadData() {
       const p = this.products.find(x => x.id === id);
       document.getElementById('p-id').value = p.id; 
       document.getElementById('p-name').value = p.name;
-      document.getElementById('p-color').value = p.color || ''; // 載入顏色
+      document.getElementById('p-color').value = p.color || ''; 
       document.getElementById('p-cat').value = p.category;
       document.getElementById('p-room').value = p.room;
       document.getElementById('p-style').value = p.style || '北歐風';
@@ -615,7 +571,7 @@ async loadData() {
     } else {
       document.getElementById('p-id').value = ''; 
       document.getElementById('p-name').value = '';
-      document.getElementById('p-color').value = ''; // 清空顏色
+      document.getElementById('p-color').value = ''; 
       document.getElementById('p-cat').value = '沙發'; document.getElementById('p-room').value = '客廳'; document.getElementById('p-style').value = '北歐風';
       document.getElementById('p-price').value = ''; document.getElementById('p-stock').value = '';
       
@@ -649,7 +605,7 @@ async saveProduct(e) {
   e.preventDefault();
   const id = document.getElementById('p-id').value; 
   const name = document.getElementById('p-name').value;
-  const color = document.getElementById('p-color').value; // 取得顏色值
+  const color = document.getElementById('p-color').value; 
   const imgUrl = document.getElementById('p-img').value; 
   const imgUrl2 = document.getElementById('p-img2').value;
   const imgUrl3 = document.getElementById('p-img3').value;
@@ -671,7 +627,7 @@ async saveProduct(e) {
   }
 
   let productObj = {
-    id: finalId, name: name, color: color, image: imgUrl, image2: imgUrl2, image3: imgUrl3, // 存入顏色
+    id: finalId, name: name, color: color, image: imgUrl, image2: imgUrl2, image3: imgUrl3, 
     category: cat, room: room, style: style, price: price, stock: stock,
     length: pLength ? parseInt(pLength) : null, width: pWidth ? parseInt(pWidth) : null, height: pHeight ? parseInt(pHeight) : null,
     soldCount: id ? (this.products.find(x=>x.id===id)?.soldCount || 0) : 0 
@@ -756,42 +712,45 @@ async saveProduct(e) {
     if (!this.products || this.products.length === 0) {
       document.getElementById('report-sales-table').innerHTML = '<tr><td colspan="4" style="text-align:center;">尚無商品資料</td></tr>';
       document.getElementById('report-inventory-table').innerHTML = '<tr><td colspan="4" style="text-align:center;">尚無庫存資料</td></tr>';
-      document.getElementById('report-abc-table').innerHTML = '<tr><td colspan="9" style="text-align:center;">尚無商品資料</td></tr>';
+      document.getElementById('report-abc-table').innerHTML = '<tr><td colspan="8" style="text-align:center;">尚無商品資料</td></tr>';
+      
+      const aiInsightsEl = document.getElementById('ai-dynamic-insights');
+      const strategyCardsEl = document.getElementById('ai-strategy-cards');
+      if (aiInsightsEl) aiInsightsEl.innerHTML = '<p style="color:#e67e22; font-weight:bold; font-size:13px; margin:0;">目前尚無商品與銷售數據，請新增商品並開始運營。</p>';
+      if (strategyCardsEl) strategyCardsEl.innerHTML = '';
       return;
     }
 
-    // --- 注入模擬資料 (僅供報表預覽觀看效果，不污染原始資料庫) ---
-    // 建立一份報表專用的商品拷貝
     let reportProducts = JSON.parse(JSON.stringify(this.products));
     
-    // 檢查是否所有真實商品的銷量皆為 0 (或尚未建立)
     let totalRealSales = reportProducts.reduce((sum, p) => sum + (p.soldCount || 0), 0);
     if (totalRealSales === 0 && reportProducts.length > 0) {
-      // 若無真實銷量，則依序分配模擬銷量以展示報表分析效果
       const mockSales = [55, 38, 25, 18, 15, 8, 5, 3, 2, 1, 0, 0, 0];
       reportProducts.forEach((p, idx) => {
         p.soldCount = mockSales[idx % mockSales.length] || 0;
       });
     }
 
-    // 依「營收(銷量 × 單價)」由高至低進行排序
     const sortedSales = reportProducts.sort((a, b) => ((b.soldCount||0)*b.price) - ((a.soldCount||0)*a.price)); 
     
-    // 銷售排行榜顯示全部商品 (移除 .slice(0, 5) 限制)
     document.getElementById('report-sales-table').innerHTML = sortedSales.map((p, idx) => `
       <tr><td><strong>#${idx + 1}</strong></td><td>${p.name}</td>
       <td style="color:var(--info); font-weight:bold;">${p.soldCount || 0}</td>
       <td>$${((p.soldCount || 0) * p.price).toLocaleString()}</td></tr>`).join('');
 
-    // 庫存資產總表顯示全部商品
     document.getElementById('report-inventory-table').innerHTML = sortedSales.map(p => `
       <tr><td>${p.name}</td><td>$${p.price.toLocaleString()}</td>
       <td style="${p.stock < 3 ? 'color:red; font-weight:bold;' : ''}">${p.stock}</td>
       <td style="color:var(--success); font-weight:bold;">$${(p.price * p.stock).toLocaleString()}</td></tr>`).join('');
 
-    // --- 詳細 ABC 分析明細表 (顯示全部商品) ---
     let totalRev = sortedSales.reduce((sum, p) => sum + (p.price * (p.soldCount || 0)), 0);
     let cumRev = 0;
+    
+    // 動態 AI 數據分析變數
+    let aCount = 0, bCount = 0, cCount = 0;
+    let aRev = 0, bRev = 0, cRev = 0;
+    let urgentA = [], urgentB = [], urgentC = [];
+    let deadC = [];
     
     document.getElementById('report-abc-table').innerHTML = sortedSales.map((p, idx) => {
       let pRev = p.price * (p.soldCount || 0);
@@ -802,40 +761,32 @@ async saveProduct(e) {
       let cumStr = (cumRev * 100).toFixed(1) + '%';
       
       let level = 'C';
-      // 確保就算全部是 0 營收，也能依據正常邏輯顯示 (若總營收為0預設為C)
       if (totalRev > 0) {
         if (cumRev <= 0.701) level = 'A';
         else if (cumRev <= 0.901) level = 'B';
       }
       
-      // 計算可售天數與建議
-      let sellRatePerDay = (p.soldCount || 0) / 30; // 假設銷量為近30天數據
+      // 分類營收與數量統計
+      if (level === 'A') { aCount++; aRev += pRev; }
+      else if (level === 'B') { bCount++; bRev += pRev; }
+      else { cCount++; cRev += pRev; }
+
+      let sellRatePerDay = (p.soldCount || 0) / 30; 
       let estDays = sellRatePerDay > 0 ? Math.floor(p.stock / sellRatePerDay) : 0;
       
-      let suggestion = '';
-      let sugColor = '#555';
+      // 擷取缺貨與積壓清單，作為 AI 動態策略來源
       if (p.stock === 0) {
-        suggestion = '緊急補貨<br><span style="font-size:11px; color:#888;">可售約 0 天，建議立即補貨，避免主力缺貨</span>';
-        sugColor = 'var(--danger)';
+        if (level === 'A') urgentA.push(p.name);
+        else if (level === 'B') urgentB.push(p.name);
+        else urgentC.push(p.name);
       } else if (level === 'A' && estDays < 21 && pRev > 0) {
-        suggestion = '庫存告急<br><span style="font-size:11px; color:#888;">A類安全庫存不足 21 天，請備貨</span>';
-        sugColor = '#e67e22';
+        urgentA.push(p.name);
       } else if (level === 'C' && estDays > 90 && pRev > 0) {
-        suggestion = '庫存積壓<br><span style="font-size:11px; color:#888;">可售天數過高，建議降價促銷去化</span>';
-        sugColor = 'var(--info)';
-      } else {
-        suggestion = '庫存健康<br><span style="font-size:11px; color:#888;">維持安全庫存並持續主推</span>';
-        sugColor = 'var(--success)';
+        deadC.push(p.name);
       }
-
-      // 針對沒有銷量的商品，強制顯示庫存告急(若庫存低)
-      if(p.soldCount === 0 || p.soldCount === undefined) {
-         if (p.stock < 3) {
-            suggestion = '庫存告急<br><span style="font-size:11px; color:#888;">安全庫存不足，請備貨</span>';
-            sugColor = '#e67e22';
-         } else {
-            suggestion = '庫存健康<br><span style="font-size:11px; color:#888;">尚無銷量數據，庫存充足</span>';
-            sugColor = 'var(--success)';
+      if (p.soldCount === 0 || p.soldCount === undefined) {
+         if (p.stock < 3 && level !== 'A' && level !== 'B') {
+            urgentC.push(p.name);
          }
       }
 
@@ -852,10 +803,91 @@ async saveProduct(e) {
             <strong style="font-size:15px; color:${p.stock===0?'var(--danger)':'#333'};">${p.stock}</strong>
             <br><span style="font-size:11px; color:#888;">可售約 ${p.stock===0 ? 0 : (sellRatePerDay>0 ? estDays : '∞')} 天</span>
           </td>
-          <td style="color:${sugColor}; font-weight:bold;">${suggestion}</td>
         </tr>
       `;
     }).join('');
+
+    // --- 將數據注入 AI 分析與動態策略卡片 ---
+    const aiInsightsEl = document.getElementById('ai-dynamic-insights');
+    const strategyCardsEl = document.getElementById('ai-strategy-cards');
+    
+    if (aiInsightsEl && strategyCardsEl) {
+      if (totalRev === 0) {
+        aiInsightsEl.innerHTML = '<p style="color:#e67e22; font-weight:bold; font-size:13px; margin:0;">目前尚無足夠的銷售數據，建議先進行初期曝光與行銷測試，累積數據後 AI 即可進行 ABC 帕累托精準分析。</p>';
+        strategyCardsEl.innerHTML = '';
+      } else {
+        // 1. 動態洞察文字
+        let urgentItems = [...urgentA, ...urgentB];
+        let deadItems = deadC;
+        let aiInsightHtml = '<ul style="margin-bottom:0; padding-left:20px; font-size:13px; color:#444; line-height:1.8;">';
+        aiInsightHtml += `<li><strong>📈 帕累托分佈現況：</strong>您的 A 類核心商品共 <strong>${aCount}</strong> 項，貢獻了 <strong>${((aRev/totalRev)*100).toFixed(1)}%</strong> 的總營收；B 類潛力商品 <strong>${bCount}</strong> 項 (貢獻 <strong>${((bRev/totalRev)*100).toFixed(1)}%</strong>)；C 類長尾商品 <strong>${cCount}</strong> 項 (貢獻 <strong>${((cRev/totalRev)*100).toFixed(1)}%</strong>)。</li>`;
+
+        if (urgentItems.length > 0) {
+          aiInsightHtml += `<li style="color:var(--danger);"><strong>🚨 核心斷貨預警 (A 類優先)：</strong>【${urgentItems.slice(0,3).join('、')}${urgentItems.length>3?' 等':''}】庫存水位過低，存在嚴重斷貨危機，強烈建議<strong>立即聯絡供應商補貨</strong>，以免流失高達 ${((aRev/totalRev)*100).toFixed(0)}% 的核心營收來源！</li>`;
+        } else if (aCount > 0) {
+          aiInsightHtml += `<li style="color:#27ae60;"><strong>✅ 核心庫存穩定 (A 類)：</strong>目前 A 類主力商品庫存健康，建議繼續保持穩定曝光，並針對購買過的會員發送專屬回購優惠。</li>`;
+        }
+
+        if (deadItems.length > 0) {
+          aiInsightHtml += `<li style="color:#d35400;"><strong>⚠️ 長尾積壓去化建議 (C 類)：</strong>【${deadItems.slice(0,3).join('、')}${deadItems.length>3?' 等':''}】週轉率極低 (可售天數大於 90 天)，嚴重佔用資金與倉儲。AI 建議列入本月「限時清倉促銷」或「搭配 A 類滿額贈」，優先變現。</li>`;
+        }
+
+        if (bCount > 0) {
+           aiInsightHtml += `<li><strong>🚀 B 類潛力挖掘：</strong>目前有 ${bCount} 項 B 類商品具備成長空間，建議配合 A 類商品進行「組合搭售 (Bundle)」或增加首頁輪播圖曝光，將其培養為下一代 A 類明星商品。</li>`;
+        }
+        aiInsightHtml += '</ul>';
+        aiInsightsEl.innerHTML = aiInsightHtml;
+
+        // 2. 動態生成策略卡片內容 (根據真正的數據量與狀態顯示建議)
+        let aAction = urgentA.length > 0 ? `<li style="color:var(--danger);">🚨 <b>緊急：</b>【${urgentA.join('、')}】庫存告急，請優先處理補貨！</li>` : `<li>✅ 目前核心商品庫存健康，請繼續維持。</li>`;
+        let bAction = urgentB.length > 0 ? `<li style="color:#e67e22;">⚠️ <b>注意：</b>【${urgentB.join('、')}】庫存偏低，避免影響升級 A 類的潛力。</li>` : `<li>✅ 潛力商品庫存充足，可加大行銷力道。</li>`;
+        let cAction = deadC.length > 0 ? `<li style="color:var(--info);">⚠️ <b>積壓警告：</b>【${deadC.join('、')}】週轉極慢，建議盡速促銷去化。</li>` : `<li>✅ 目前長尾商品無嚴重積壓，維持常態淘汰機制。</li>`;
+
+        strategyCardsEl.innerHTML = `
+        <div class="strategy-card card-A">
+          <h4><span class="badge-abc badge-A">A</span> 核心商品策略</h4>
+          <p style="font-size:12px; color:#666; margin-bottom:15px;">共 <strong>${aCount}</strong> 項，創造 <strong>${((aRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
+          <ul>
+            ${aAction}
+            <li>庫存優先：安全庫存不低於 21 天，缺貨即補。</li>
+            <li>價格穩定：不輕易打折，守住毛利，維持高曝光。</li>
+          </ul>
+          <strong style="font-size:13px; color:#333;">行銷企劃：明星回購計畫</strong>
+          <ul><li>對買過此 ${aCount} 項商品的會員，推播專屬回購優惠。</li></ul>
+          <div class="budget-bar" style="background:#e8f8f5; color:#27ae60;">建議行銷預算佔比：50%</div>
+        </div>
+
+        <div class="strategy-card card-B">
+          <h4><span class="badge-abc badge-B">B</span> 潛力商品策略</h4>
+          <p style="font-size:12px; color:#666; margin-bottom:15px;">共 <strong>${bCount}</strong> 項，創造 <strong>${((bRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
+          <ul>
+            ${bAction}
+            <li>目標：提高曝光與轉換，將部分 B 類推升至 A 類。</li>
+            <li>與 A 類商品帶動，觀察加價購曲線。</li>
+          </ul>
+          <strong style="font-size:13px; color:#333;">行銷企劃：潛力升級計畫</strong>
+          <ul><li>設立滿額加價購增加曝光，或與 A 類組合販售。</li></ul>
+          <div class="budget-bar" style="background:#fdf2e9; color:#e67e22;">建議行銷預算佔比：30%</div>
+        </div>
+
+        <div class="strategy-card card-C">
+          <h4><span class="badge-abc badge-C">C</span> 長尾商品策略</h4>
+          <p style="font-size:12px; color:#666; margin-bottom:15px;">共 <strong>${cCount}</strong> 項，創造 <strong>${((cRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
+          <ul>
+            ${cAction}
+            <li>零銷量商品停止進貨，降低存貨成本。</li>
+            <li>保留少量長尾品維持多樣性，並作新品測試。</li>
+          </ul>
+          <strong style="font-size:13px; color:#333;">行銷企劃：長尾去化測試</strong>
+          <ul><li>限時福袋、滿額加購。連續單月無庫存者下架。</li></ul>
+          <div class="budget-bar" style="background:#f2f4f4; color:#7f8c8d;">建議行銷預算佔比：20%</div>
+        </div>
+        `;
+      }
+    }
   }
 };
 window.onload = () => adminApp.init();
