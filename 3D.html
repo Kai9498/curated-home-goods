@@ -109,15 +109,17 @@
         }
         .room-settings-flex {
             display: flex;
-            gap: 8px;
+            gap: 6px;
         }
         .room-settings input {
             flex: 1;
-            padding: 6px 10px;
+            min-width: 0;
+            padding: 8px 6px;
             border: 1px solid #ccc;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
+            text-align: center;
         }
         .room-settings button {
             background: #333;
@@ -133,6 +135,14 @@
             background: #c99339;
         }
         
+        .custom-furniture-btn {
+            width: 100%; 
+            padding: 10px 0 !important; 
+            margin-top: 6px; 
+            border-radius: 6px !important;
+            font-weight: bold;
+        }
+
         .category-select {
             width: 100%;
             padding: 8px;
@@ -143,7 +153,7 @@
             outline: none;
         }
         #product-list-container {
-            max-height: 35vh;
+            max-height: 25vh;
             overflow-y: auto;
             border: 1px solid #eee;
             padding: 8px;
@@ -157,6 +167,49 @@
         #product-list-container::-webkit-scrollbar-thumb {
             background: #ccc;
             border-radius: 3px;
+        }
+
+        /* 圖例標示樣式 */
+        #legend-panel {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 12px 18px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            pointer-events: none; 
+            z-index: 10;
+            font-size: 13px;
+            color: #444;
+            border: 1px solid #e0e0e0;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        .legend-color-grid {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 1px solid #bbb;
+            background-color: #f5f5f5;
+            background-image: linear-gradient(#ccc 1px, transparent 1px), linear-gradient(90deg, #ccc 1px, transparent 1px);
+            background-size: 4px 4px;
+            border-radius: 2px;
+        }
+        .legend-color-red {
+            display: inline-block;
+            width: 16px;
+            height: 4px;
+            background-color: #ff3333;
+            border-radius: 2px;
         }
     </style>
 </head>
@@ -172,9 +225,21 @@
         <div class="room-settings">
             <label>📐 空間大小 (坪數)</label>
             <div class="room-settings-flex">
-                <input type="number" id="room-ping-input" value="7.5" step="0.5" min="1">
+                <input type="number" id="room-ping-input" value="7.5" step="0.5" min="1" style="text-align: left;">
                 <button onclick="window.updateRoomSize()">設定</button>
             </div>
+        </div>
+
+        <!-- 自訂家具設定 -->
+        <div class="room-settings" style="background: #fffbdf; border-color: #fce89d;">
+            <label>🛠️ 新增自訂家具</label>
+            <input type="text" id="custom-name" placeholder="家具名稱 (例: 系統櫃)" style="width: 100%; box-sizing: border-box; margin-bottom: 8px; text-align: left; padding-left: 10px;">
+            <div class="room-settings-flex">
+                <input type="number" id="custom-l" placeholder="長(L)" min="1">
+                <input type="number" id="custom-w" placeholder="寬(W)" min="1">
+                <input type="number" id="custom-h" placeholder="高(H)" min="1">
+            </div>
+            <button class="custom-furniture-btn" onclick="window.addCustomFurniture()">➕ 加入自訂家具</button>
         </div>
         
         <!-- 空間分類下拉選單 -->
@@ -197,6 +262,18 @@
             ⌨️ <b>[R] 鍵：</b> <span class="highlight">拖曳時旋轉 90 度</span><br>
             🗑️ <b>[Del] 鍵：</b> <span class="highlight">刪除游標指著的商品</span><br>
             🔄 <b>空白處拖曳：</b> 旋轉視角
+        </div>
+    </div>
+
+    <!-- 畫面右下角圖例 -->
+    <div id="legend-panel">
+        <div class="legend-item">
+            <span class="legend-color-grid"></span>
+            <span>網格 1 格 = 10 公分</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color-red"></span>
+            <span>紅線 = 家具的「長」</span>
         </div>
     </div>
 
@@ -474,8 +551,33 @@
             if (activeDragObject) updateDragHelper(activeDragObject);
         };
 
-        // 動態生成文字材質的函數
-        function makeTextSprite(message) {
+        // 處理加入自訂家具的邏輯
+        window.addCustomFurniture = function() {
+            const nameInput = document.getElementById('custom-name').value.trim();
+            const productName = nameInput !== "" ? nameInput : '自訂家具';
+            
+            const l = parseFloat(document.getElementById('custom-l').value);
+            const w = parseFloat(document.getElementById('custom-w').value);
+            const h = parseFloat(document.getElementById('custom-h').value);
+
+            if (isNaN(l) || isNaN(w) || isNaN(h) || l <= 0 || w <= 0 || h <= 0) {
+                alert("請輸入有效的長(L)、寬(W)、高(H)數值！");
+                return;
+            }
+
+            const customHexColor = 0x607d8b; 
+            
+            // 傳遞 true 表示此為自訂家具
+            window.addBox(w, h, l, customHexColor, productName, true);
+
+            document.getElementById('custom-name').value = '';
+            document.getElementById('custom-l').value = '';
+            document.getElementById('custom-w').value = '';
+            document.getElementById('custom-h').value = '';
+        };
+
+        // 動態生成文字材質的函數，支援 isCustom 改變顏色
+        function makeTextSprite(message, isCustom = false) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             ctx.font = "bold 32px 'PingFang TC', sans-serif";
@@ -488,11 +590,13 @@
             ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            ctx.strokeStyle = "rgba(140, 122, 107, 1)";
+            // 將自訂家具改為紅色邊框，預設維持深灰
+            ctx.strokeStyle = isCustom ? "rgba(211, 47, 47, 1)" : "rgba(140, 122, 107, 1)";
             ctx.lineWidth = 4;
             ctx.strokeRect(0, 0, canvas.width, canvas.height);
             
-            ctx.fillStyle = "rgba(51, 51, 51, 1)";
+            // 將自訂家具改為紅色文字，預設維持深灰
+            ctx.fillStyle = isCustom ? "rgba(211, 47, 47, 1)" : "rgba(51, 51, 51, 1)";
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(message, canvas.width / 2, canvas.height / 2);
@@ -505,8 +609,8 @@
             return sprite;
         }
 
-        // 6. 生成家具函式 (加入長短邊判斷邏輯與取消子物件干擾)
-        window.addBox = function(width, height, depth, hexColor, productName) {
+        // 6. 生成家具函式
+        window.addBox = function(width, height, depth, hexColor, productName, isCustom = false) {
             const geometry = new THREE.BoxGeometry(width, height, depth);
             const material = new THREE.MeshStandardMaterial({ 
                 color: hexColor,
@@ -533,16 +637,13 @@
             const marker = new THREE.Mesh(markerGeo, markerMat);
             marker.position.set(markerX, height / 2 + 2, markerZ);
             
-            // ★ 關鍵修復：防止滑鼠選中紅線，造成放下時出現程式錯誤
             marker.raycast = function() {}; 
             box.add(marker); 
 
-            // --- 加上文字標籤 (Sprite) ---
             if(productName) {
-                const labelSprite = makeTextSprite(productName);
+                const labelSprite = makeTextSprite(productName, isCustom);
                 labelSprite.position.set(0, height / 2 + 25, 0); 
                 
-                // ★ 關鍵修復：防止滑鼠選中文字，造成放下時出現程式錯誤
                 labelSprite.raycast = function() {}; 
                 box.add(labelSprite); 
             }
@@ -679,11 +780,10 @@
                 const colorHash = Math.abs(p.id.split('').reduce((a,b)=>{a=((a<<5)-a)+b.charCodeAt(0);return a&a},0));
                 const hexColor = colors[colorHash % colors.length];
                 
-                // 把商品名稱的單引號去除，避免破壞 HTML onclick 屬性結構
                 const safeName = p.name.replace(/'/g, ""); 
 
                 return `<button class="item-btn" style="font-size: 13px;" onclick="window.addBox(${p.width}, ${p.height}, ${p.length}, ${hexColor}, '${safeName}')">
-                    📦 ${p.name}<br><span style="font-size: 11px; color: #777;">(W${p.width} x H${p.height} x D${p.length})</span>
+                    📦 ${p.name}<br><span style="font-size: 11px; color: #777;">(L${p.length} x W${p.width} x H${p.height})</span>
                 </button>`;
             }).join('');
         };
