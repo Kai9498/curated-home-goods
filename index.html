@@ -20,9 +20,10 @@
   header { position: fixed; top: 0; width: 100%; height: 70px; background: var(--white); box-shadow: var(--shadow); display: flex; align-items: center; justify-content: space-between; padding: 0 5%; z-index: 1000; }
   .logo { font-size: 35px; font-weight: bold; color: var(--primary); }
   .search-bar { flex: 1; max-width: 400px; margin: 0 20px; }
-  .search-bar input { width: 100%; padding: 10px 15px; border-radius: 20px; }
+  .search-bar input { width: 100%; padding: 10px 15px; border-radius: 20px; outline: none; border: 1px solid var(--border); }
   .header-actions { display: flex; gap: 10px; align-items: center; }
-  .icon-btn { position: relative; padding: 5px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size:14px; white-space:nowrap;}
+  .icon-btn { position: relative; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size:14px; white-space:nowrap; background:var(--white); color:var(--text-main); transition: 0.2s;}
+  .icon-btn:hover { background: #f1f1f1; }
   .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
 
   .nav-menu { background: var(--white); border-bottom: 1px solid var(--border); display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; padding: 0 5%; position: relative; z-index: 900;}
@@ -105,11 +106,27 @@
   .carousel-dot.active { background: white; transform: scale(1.3); }
   .banner-content { background: rgba(255,255,255,0.85); padding: 20px 40px; border-radius: var(--radius); text-align:center; animation: fadeIn 0.8s ease; }
 
-  .ai-fab { position: fixed; bottom: 25px; right: 25px; width: 65px; height: 65px; background: #fff5e6; color: #d35400; border: 2px solid #f39c12; border-radius: 50%; font-size: 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1001; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
-  .ai-fab:hover { transform: scale(1.1) rotate(10deg); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-
-  .history-fab { position: fixed; bottom: 105px; right: 25px; width: 65px; height: 65px; background: #e6f4ea; color: #1e8e3e; border: 2px solid #34a853; border-radius: 50%; font-size: 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1001; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
-  .history-fab:hover { transform: scale(1.1) rotate(-10deg); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+  /* 歷史紀錄按鈕修改為靠右垂直純文字樣式，簡單不突出 */
+  .history-fab { 
+    position: fixed; 
+    right: 0; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    writing-mode: vertical-rl; 
+    background: var(--white); 
+    color: var(--text-main); 
+    border: 1px solid var(--border); 
+    border-right: none; 
+    border-radius: 8px 0 0 8px; 
+    font-size: 13px; 
+    padding: 15px 6px; 
+    box-shadow: -2px 0 6px rgba(0,0,0,0.05); 
+    z-index: 1001; 
+    cursor: pointer; 
+    letter-spacing: 3px; 
+    transition: 0.2s; 
+  }
+  .history-fab:hover { background: #f1f1f1; }
 
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index:9999; }
   .modal-content { background: white; padding: 30px; border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 90vh; overflow-y:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
@@ -124,13 +141,18 @@
 
 <header>
   <div class="logo">
-  <a href="#" onclick="app.navigate('home')" style="display: flex; align-items: center;">
-    <img src="image/logo.png" alt="CHG 傢俱" style="height: 100px; width: auto; object-fit: contain;">
-  </a>
-</div>
-  <div class="search-bar"><input type="text" id="searchInput" placeholder="輸入家具類型或風格..." aria-label="搜尋家具"></div>
+    <a href="#" onclick="app.navigate('home')" style="display: flex; align-items: center;">
+      <img src="image/logo.png" alt="CHG 傢俱" style="height: 100px; width: auto; object-fit: contain;">
+    </a>
+  </div>
+  <!-- 搜尋列與智慧助理 (智慧助理樣式統一為 icon-btn 純文字) -->
+  <div class="search-bar" style="display:flex; gap:10px; align-items:center;">
+    <input type="text" id="searchInput" placeholder="輸入家具類型或風格..." aria-label="搜尋家具" style="flex:1;">
+    <button class="icon-btn" onclick="app.openAIModal()">智慧助理</button>
+  </div>
   <div class="header-actions">
-    <button class="icon-btn" style="background:#f1f1f1;" onclick="window.open('backstage.html', '_blank')">⚙️ 後台</button>
+    <!-- 原有按鈕 -->
+    <button class="icon-btn" onclick="window.open('backstage.html', '_blank')">⚙️ 後台</button>
     <button class="icon-btn" onclick="app.navigate('member')">👤 會員</button>
     <button class="icon-btn" onclick="app.navigate('compare')">⚖️ 比較 <span class="badge" id="compare-badge">0</span></button>
     <button class="icon-btn" onclick="app.navigate('cart')">🛒 購物車 <span class="badge" id="cart-badge">0</span></button>
@@ -502,9 +524,17 @@
           
           <div class="form-group" style="margin-top:15px;">
             <label>付款方式</label>
-            <div style="margin-bottom: 10px; font-size: 15px; font-weight: bold; color: #333;">信用卡付款</div>
             
-            <label style="display:inline-flex; align-items:center; cursor:pointer; font-weight:normal; font-size:14px; margin-bottom:10px;">
+            <div style="margin-bottom: 10px; display: flex; gap: 15px;">
+              <label style="cursor:pointer; font-size:15px; font-weight:bold; color:#333; display:flex; align-items:center;">
+                <input type="radio" name="payment-method" id="pay-cc" value="credit-card" checked onchange="app.togglePaymentMethod()" style="width:auto; margin-right:5px;"> 信用卡付款
+              </label>
+              <label style="cursor:pointer; font-size:15px; font-weight:bold; color:#333; display:flex; align-items:center;">
+                <input type="radio" name="payment-method" id="pay-bank" value="bank-transfer" onchange="app.togglePaymentMethod()" style="width:auto; margin-right:5px;"> 銀行轉帳
+              </label>
+            </div>
+            
+            <label id="installment-label" style="display:inline-flex; align-items:center; cursor:pointer; font-weight:normal; font-size:14px; margin-bottom:10px;">
               <input type="checkbox" id="chk-installment" onchange="app.toggleInstallment()" style="width:auto; margin-right:8px;"> 
               使用信用卡分期 (0 利率)
             </label>
@@ -536,6 +566,15 @@
                  <input type="text" id="cc-cvv" placeholder="123" required>
                </div>
             </div>
+          </div>
+
+          <!-- 新增銀行轉帳資訊欄 (預設隱藏) -->
+          <div id="bank-transfer-info" style="display:none; background:#f9f9f9; padding:20px; border-radius:8px; margin-bottom:15px; border:1px solid var(--border); border-top: 4px solid #2ecc71;">
+            <h4 style="color:#2ecc71; margin-bottom:15px; font-size:18px; display:flex; align-items:center; gap:8px;">🏦 官方匯款資訊</h4>
+            <p style="font-size:15px; color:#555; margin-bottom:10px;"><strong>銀行名稱：</strong> 808 (玉山銀行)</p>
+            <p style="font-size:15px; color:#555; margin-bottom:10px;"><strong>分行名稱：</strong> 營業部</p>
+            <p style="font-size:15px; color:#555; margin-bottom:10px;"><strong>匯款帳號：</strong> <strong style="font-size:18px; color:#333;">1234-567-890123</strong></p>
+            <p style="font-size:15px; color:#555; margin-bottom:0;"><strong>戶名：</strong> 好室選物股份有限公司</p>
           </div>
           
           <div class="form-group"><label>發票開立</label><select id="chk-invoice" onchange="app.toggleInvoiceInput()"><option value="會員載具">會員載具 (雲端發票)</option><option value="手機條碼載具">手機條碼載具</option><option value="公司三聯式發票">公司三聯式發票 (需填統編)</option></select></div>
@@ -613,28 +652,28 @@
   </div>
 </footer>
 
-<button class="history-fab" onclick="app.openHistoryModal()" title="歷史瀏覽紀錄">🕒</button>
+<!-- 修改為靠右垂直排列、極簡風格的歷史紀錄按鈕 -->
+<button class="history-fab" onclick="app.openHistoryModal()">歷史紀錄</button>
 <div id="history-modal" class="modal-overlay">
   <div class="modal-content" style="max-width: 400px; padding: 20px;">
-    <h3 style="margin-bottom: 15px; color:#1e8e3e; display:flex; align-items:center; justify-content:space-between;">
-      🕒 歷史瀏覽紀錄
+    <h3 style="margin-bottom: 15px; color:var(--primary); display:flex; align-items:center; justify-content:space-between;">
+      歷史瀏覽紀錄
       <button style="font-size:20px; color:#999;" onclick="document.getElementById('history-modal').style.display='none'">✖</button>
     </h3>
     <div id="history-list" style="max-height: 350px; overflow-y: auto; display:flex; flex-direction:column; gap:10px;"></div>
-    <button class="btn btn-outline" style="width:100%; margin-top:15px; border-color:#34a853; color:#1e8e3e;" onclick="app.clearHistory()">清除所有紀錄</button>
+    <button class="btn btn-outline" style="width:100%; margin-top:15px;" onclick="app.clearHistory()">清除所有紀錄</button>
   </div>
 </div>
 
-<button class="ai-fab" onclick="app.openAIModal()" title="AI 推薦助理">🤖</button>
 <div id="ai-modal" class="modal-overlay">
   <div class="modal-content" style="max-width: 500px; padding: 20px;">
     <h3 style="margin-bottom: 15px; color:var(--primary); display:flex; align-items:center; justify-content:space-between;">
-      🤖 智慧推薦助理
+      智慧推薦助理
       <button style="font-size:20px; color:#999;" onclick="document.getElementById('ai-modal').style.display='none'">✖</button>
     </h3>
     <div id="ai-chat-box" style="height: 320px; overflow-y: auto; background: #f4f6f8; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size:14px; line-height:1.6;">
       <div style="margin-bottom: 15px; display:flex; gap:10px;">
-        <div style="background:white; padding:12px 15px; border-radius:15px 15px 15px 0; box-shadow:var(--shadow);"><strong>AI 助理：</strong><br>您好！我是 CHG 智慧助理。請問今天想找什麼樣的家具呢？我可以根據您的預算、風格或空間為您精準推薦。</div>
+        <div style="background:white; padding:12px 15px; border-radius:15px 15px 15px 0; box-shadow:var(--shadow); border-left:3px solid var(--primary);"><strong>AI 助理：</strong><br>您好！我是 CHG 智慧助理。請問今天想找什麼樣的家具呢？我可以根據您的預算、風格或空間為您精準推薦。</div>
       </div>
     </div>
     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px;">
@@ -643,7 +682,7 @@
       <span class="chip" onclick="app.askAI('適合小坪數的收納')">小坪數收納</span>
     </div>
     <div style="display:flex; gap:10px;">
-      <input type="text" id="ai-input" placeholder="輸入您的需求 (如：想找木質茶几)..." onkeypress="if(event.key==='Enter') app.askAI()">
+      <input type="text" id="ai-input" placeholder="輸入您的需求 (如：想找預算5千的木質茶几)..." onkeypress="if(event.key==='Enter') app.askAI()">
       <button class="btn btn-primary" onclick="app.askAI()">送出</button>
     </div>
   </div>
@@ -873,13 +912,11 @@ const app = {
     this.navigate('list'); 
   },
 
-  // 替換原本的 getSpec
   getSpec(p) {
     const base = {
-      brand: 'CHG 好室選物', color: '原木色 / 百搭色', origin: '台灣', warranty: '1 年保固', assembly: '自行組裝', loadCapacity: '100 kg', delivery: '一般宅配', weight: '20 kg', material: '高質感複合材質', desc: '高品質質感家具，為您的居家空間增添獨特風格。採用環保材質製作，經久耐用，是您成家選物的最佳搭配。'
+      brand: 'CHG 好室選物', color: p.color || '原木色 / 百搭色', origin: '台灣', warranty: '1 年保固', assembly: '自行組裝', loadCapacity: '100 kg', delivery: '一般宅配', weight: '20 kg', material: '高質感複合材質', desc: '高品質質感家具，為您的居家空間增添獨特風格。採用環保材質製作，經久耐用，是您成家選物的最佳搭配。'
     };
 
-    // 【修改重點】：優先抓取後台填寫的長寬高，若無則顯示尚未提供
     let dimString = '尚未提供';
     if (p.length || p.width || p.height) {
         let lengthStr = p.length ? `長 ${p.length}` : '';
@@ -941,12 +978,11 @@ const app = {
         filtered = filtered.filter(p => p.style === selectedStyle);
     }
 
-    // 寬度篩選也改為讀取後台傳來的 p.width
     let selectedWidth = document.getElementById('filter-width-select')?.value;
     if(selectedWidth) {
         filtered = filtered.filter(p => {
             let w = parseInt(p.width);
-            if(isNaN(w)) return true; // 若無資料則預設顯示
+            if(isNaN(w)) return true;
             if(selectedWidth === '<100') return w < 100;
             if(selectedWidth === '100-160') return w >= 100 && w <= 160;
             if(selectedWidth === '>160') return w > 160;
@@ -1158,23 +1194,101 @@ const app = {
     if(!msg.trim()) return;
     const chatBox = document.getElementById('ai-chat-box');
     
+    // 顯示使用者對話
     chatBox.innerHTML += `<div style="margin-bottom: 15px; display:flex; justify-content:flex-end;"><div style="background:var(--primary); color:white; padding:10px 15px; border-radius:15px 15px 0 15px; box-shadow:var(--shadow); max-width:85%; word-break:break-all;">${msg}</div></div>`;
     input.value = '';
     chatBox.scrollTop = chatBox.scrollHeight;
     
+    // 顯示「思考中」動態
+    const loadingId = 'ai-loading-' + Date.now();
+    chatBox.innerHTML += `<div id="${loadingId}" style="margin-bottom: 15px; display:flex; gap:10px;"><div style="background:white; padding:12px 15px; border-radius:15px 15px 15px 0; box-shadow:var(--shadow); width:100%; color:#888; border-left:3px solid var(--primary);"><strong>AI 助理：</strong><br>思考您的需求中... 🔍</div></div>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+    
+    // 模擬 AI 處理邏輯
     setTimeout(() => {
-      let recs = [...DB.products].sort(() => 0.5 - Math.random()).slice(0, 2);
-      let reply = "根據您的需求，我為您挑選了以下最合適的商品：<br>";
-      recs.forEach(p => {
-        reply += `<div style="display:flex; align-items:center; gap:10px; margin-top:12px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid var(--border); cursor:pointer;" onclick="app.navigate('detail', {id:'${p.id}'}); document.getElementById('ai-modal').style.display='none';">
+      document.getElementById(loadingId).remove();
+      
+      const query = msg.toLowerCase();
+      let scoredProducts = DB.products.map(p => {
+        let score = 0;
+        let searchStr = (p.name + (p.category||'') + (p.style||'') + (p.room||'') + (p.material||'')).toLowerCase();
+        
+        // 關鍵字比對計分
+        if (query.includes(p.category)) score += 5;
+        if (p.style && query.includes(p.style)) score += 5;
+        if (query.includes('客廳') && ['沙發','電視櫃','茶几'].includes(p.category)) score += 3;
+        if (query.includes('臥室') && ['床墊','衣櫃','化妝台'].includes(p.category)) score += 3;
+        if (query.includes('木') && searchStr.includes('木')) score += 2;
+        if (query.includes('布') && searchStr.includes('布')) score += 2;
+        if (query.includes('皮') && searchStr.includes('皮')) score += 2;
+        if (query.includes('收納') && searchStr.includes('櫃')) score += 3;
+        
+        // 碎片字元比對
+        let words = query.replace(/[^\w\s\u4e00-\u9fa5]/g, '').split(/(?<=.)/);
+        words.forEach(w => {
+          if(w.length > 1 && searchStr.includes(w)) score += 1;
+        });
+
+        return { ...p, score };
+      });
+
+      // 判斷預算限制 (例如：10000內、一萬內)
+      let budget = null;
+      const numMatch = query.match(/(\d+)/);
+      if(query.includes('預算')) {
+          if(numMatch) budget = parseInt(numMatch[0]);
+          if(query.includes('萬') && budget < 100) budget *= 10000;
+          if(query.includes('千') && budget < 1000) budget *= 1000;
+      }
+      if(!budget) {
+         if(query.includes('一萬內') || query.includes('1萬內') || query.includes('10000內')) budget = 10000;
+         else if(query.includes('兩萬內') || query.includes('2萬內') || query.includes('20000內')) budget = 20000;
+         else if(query.includes('五千內') || query.includes('5千內') || query.includes('5000內')) budget = 5000;
+      }
+
+      if (budget) {
+          scoredProducts = scoredProducts.filter(p => p.price <= budget);
+          scoredProducts.forEach(p => p.score += 2); // 稍微提權有符合預算的
+      }
+
+      // 過濾與排序出最終結果
+      let recommended = scoredProducts.filter(p => p.score > 0).sort((a,b) => b.score - a.score);
+      let topRecs = recommended.slice(0, 3);
+      let aiResponseText = "";
+
+      // 根據搜尋結果產生應答文案
+      if (topRecs.length === 0) {
+          topRecs = [...DB.products].sort((a,b)=>(b.soldCount||0) - (a.soldCount||0)).slice(0, 2);
+          aiResponseText = "雖然不太確定您具體想找什麼，或者超出了現有庫存的預算範圍，但我為您推薦目前店內**最熱銷的優質商品**，說不定會符合您的品味：<br>";
+      } else {
+          let traits = [];
+          if(budget) traits.push(`預算 ${budget} 元以內`);
+          if(query.includes('北歐')) traits.push('北歐風');
+          if(query.includes('工業')) traits.push('工業風');
+          if(query.includes('沙發')) traits.push('沙發');
+          if(query.includes('床墊')) traits.push('床墊');
+          
+          if(traits.length > 0) {
+              aiResponseText = `為您找到符合「**${traits.join('、')}**」的絕佳選擇，這幾款在設計與實用性上都非常出色：<br>`;
+          } else {
+              aiResponseText = "根據您的需求，我經過分析後為您精選了以下最合適的商品：<br>";
+          }
+      }
+
+      // 組合結果 HTML
+      let replyHtml = aiResponseText;
+      topRecs.forEach(p => {
+        replyHtml += `<div style="display:flex; align-items:center; gap:10px; margin-top:12px; background:#f9f9f9; padding:10px; border-radius:8px; border:1px solid var(--border); cursor:pointer; transition:0.2s;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'" onclick="app.navigate('detail', {id:'${p.id}'}); document.getElementById('ai-modal').style.display='none';">
           <img src="${p.image}" style="width:60px; height:60px; object-fit:cover; border-radius:4px;">
           <div style="flex:1;"><strong>${p.name}</strong><br><span style="color:var(--danger); font-weight:bold;">$${p.price.toLocaleString()}</span></div>
-          <button class="btn btn-outline" style="padding:4px 8px; font-size:12px;">查看</button>
+          <button class="btn btn-outline" style="padding:4px 8px; font-size:12px;">查看細節</button>
         </div>`;
       });
-      chatBox.innerHTML += `<div style="margin-bottom: 15px; display:flex; gap:10px;"><div style="background:white; padding:12px 15px; border-radius:15px 15px 15px 0; box-shadow:var(--shadow); width:100%;"><strong>AI 助理：</strong><br>${reply}</div></div>`;
+      
+      chatBox.innerHTML += `<div style="margin-bottom: 15px; display:flex; gap:10px;"><div style="background:white; padding:12px 15px; border-radius:15px 15px 15px 0; box-shadow:var(--shadow); width:100%; border-left:3px solid var(--primary);"><strong>AI 助理：</strong><br>${replyHtml}</div></div>`;
       chatBox.scrollTop = chatBox.scrollHeight;
-    }, 1000);
+
+    }, 1200);
   },
 
   openHistoryModal() {
@@ -1323,7 +1437,6 @@ const app = {
     let subtotal = 0;
     list.innerHTML = this.state.cart.map((item, idx) => {
       subtotal += item.price * item.qty;
-      // 修改樣式：加入增減數量按鈕 (+ / -) 與自動計算小計
       return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px;">
         <img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover; border-radius:4px;">
         <div style="flex:1;"><strong>${item.name}</strong></div>
@@ -1341,12 +1454,10 @@ const app = {
     document.getElementById('cart-summary').innerHTML = `<h3 style="color:var(--danger)">總計: $${subtotal.toLocaleString()}</h3>`;
   },
 
-  // 處理購物車數量的增減與歸零自動刪除
   updateCartQty(id, delta) {
     const item = this.state.cart.find(x => x.id === id);
     if (item) {
       const p = DB.products.find(x => x.id === id);
-      // 如果按增加，確認是否超過庫存
       if (delta > 0 && p && item.qty >= p.stock) {
         this.showToast('已達該商品庫存上限');
         return;
@@ -1354,7 +1465,6 @@ const app = {
       
       item.qty += delta;
       
-      // 當數量等於或小於 0 時，自動刪除該商品
       if (item.qty <= 0) {
         this.state.cart = this.state.cart.filter(x => x.id !== id);
       }
@@ -1362,6 +1472,31 @@ const app = {
       this.saveState();
       this.renderCart();
     }
+  },
+  
+  // 新增：切換付款方式的邏輯
+  togglePaymentMethod() {
+    const isCreditCard = document.getElementById('pay-cc').checked;
+    
+    // 控制信用卡表單
+    const ccInfo = document.getElementById('credit-card-info');
+    ccInfo.style.display = isCreditCard ? 'block' : 'none';
+    document.getElementById('cc-number').required = isCreditCard;
+    document.getElementById('cc-exp').required = isCreditCard;
+    document.getElementById('cc-cvv').required = isCreditCard;
+
+    // 控制分期選項
+    const installmentLabel = document.getElementById('installment-label');
+    installmentLabel.style.display = isCreditCard ? 'inline-flex' : 'none';
+    if (!isCreditCard) {
+      document.getElementById('chk-installment').checked = false;
+      document.getElementById('installment-options').style.display = 'none';
+    }
+    
+    // 控制銀行轉帳資訊
+    document.getElementById('bank-transfer-info').style.display = isCreditCard ? 'none' : 'block';
+    
+    this.updateCheckoutSummary();
   },
 
   toggleInstallment() {
@@ -1391,10 +1526,15 @@ const app = {
     document.getElementById('chk-points').max = u.points || 0; 
     document.getElementById('chk-points').value = 0;
     
-    // 初始化分期勾選框狀態
     if (document.getElementById('chk-installment')) {
         document.getElementById('chk-installment').checked = false;
         document.getElementById('installment-options').style.display = 'none';
+    }
+    
+    // 初始化付款選項為信用卡
+    if (document.getElementById('pay-cc')) {
+        document.getElementById('pay-cc').checked = true;
+        this.togglePaymentMethod();
     }
     
     this.toggleInvoiceInput(); this.updateCheckoutSummary();
@@ -1419,12 +1559,15 @@ const app = {
     let finalTotal = subtotal + shippingFee - cDiscount - usePoints; 
     let earnPoints = Math.floor(finalTotal / 100);
 
-    // 計算分期金額資訊
     let isInstallment = document.getElementById('chk-installment') && document.getElementById('chk-installment').checked;
+    let isCreditCard = document.getElementById('pay-cc') ? document.getElementById('pay-cc').checked : true;
     let paymentText = '';
-    if (isInstallment) {
+    
+    if (isCreditCard && isInstallment) {
         let months = parseInt(document.getElementById('installment-select').value);
         paymentText = `分 ${months} 期：每月約 $${Math.floor(finalTotal / months).toLocaleString()}`;
+    } else if (!isCreditCard) {
+        paymentText = '請於訂單成立後3日內完成轉帳匯款';
     }
     
     if(document.getElementById('payment-info')) {
@@ -1482,7 +1625,6 @@ const app = {
       
       window.dbAPI.saveProduct(p);
     });
-    // localStorage.setItem('liviSpaceProducts', JSON.stringify(DB.products));
 
     let invVal = document.getElementById('chk-invoice').value; 
     let invDetail = document.getElementById('chk-invoice-detail') ? document.getElementById('chk-invoice-detail').value : '';
@@ -1491,9 +1633,15 @@ const app = {
     let regionSelect = document.getElementById('chk-region');
     let regionText = regionSelect.options[regionSelect.selectedIndex].text.split(' ')[0]; 
     
-    // 組合付款資訊文字
     let isInstallment = document.getElementById('chk-installment') && document.getElementById('chk-installment').checked;
-    let paymentModeStr = isInstallment ? `信用卡 ${document.getElementById('installment-select').value} 期 0 利率` : '信用卡一次付清';
+    let isCreditCard = document.getElementById('pay-cc') ? document.getElementById('pay-cc').checked : true;
+    
+    let paymentModeStr = '';
+    if (isCreditCard) {
+        paymentModeStr = isInstallment ? `信用卡 ${document.getElementById('installment-select').value} 期 0 利率` : '信用卡一次付清';
+    } else {
+        paymentModeStr = '銀行轉帳';
+    }
     
     let exInfo = `付款: ${paymentModeStr} | 發票: ${invString} | 運費: $${shippingFee}`;
     let fullAddress = `[${regionText}] ` + document.getElementById('chk-address').value;
