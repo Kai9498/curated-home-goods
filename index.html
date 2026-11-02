@@ -1736,6 +1736,34 @@ const app = {
     }
   },
 
+  // === 加入此函式以處理評價並發放點數 ===
+  submitReview(orderId) {
+    const score = document.getElementById(`review-score-${orderId}`).value;
+    const text = document.getElementById(`review-text-${orderId}`).value;
+    
+    if (!text.trim()) {
+      return this.showToast('⚠️ 請填寫評價內容！');
+    }
+
+    let order = this.state.orders.find(o => o.id === orderId);
+    if (order) {
+      order.isReviewed = true;
+      order.reviewScore = score;
+      order.reviewText = text;
+
+      // 只要有評價，就給予會員 20 點點數
+      let u = this.state.usersDB[this.state.user];
+      if (u) {
+        u.points = (u.points || 0) + 20; 
+      }
+
+      this.saveState();
+      this.renderMember();
+      this.showToast('✅ 感謝您的評價！已獲得 20 點購物金');
+    }
+  },
+  // ======================================
+
   renderMember() {
     if(this.state.user) {
       document.getElementById('member-login').style.display = 'none'; 
@@ -1783,8 +1811,42 @@ const app = {
           let diffDays = (new Date().getTime() - orderTimeObj.getTime()) / (1000 * 60 * 60 * 24);
           if(diffDays <= 7) returnBtnHtml = `<button class="btn btn-outline" style="margin-top:10px; padding:4px 8px; font-size:12px; color:var(--danger); border-color:var(--danger);" onclick="app.openReturnModal('${o.id}')">申請退換貨</button>`;
         }
+        
         let rtnTagHtml = '';
         if(o.returnInfo) rtnTagHtml = `<div style="margin-top:10px; padding:8px; background:#fdf2e9; border-radius:4px; font-size:12px; color:#d35400;">📦 已申請退貨 (原因: ${o.returnInfo.reason})</div>`;
+
+        // === 新增評價區塊邏輯 ===
+        let reviewHtml = '';
+        if(o.status === '已完成' && !o.isReviewed && !o.returnInfo) {
+          // 狀態為已完成且尚未評價，顯示評價輸入介面
+          reviewHtml = `
+          <div style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border);">
+            <div style="font-size:14px; font-weight:bold; color:var(--primary); margin-bottom:8px;">⭐ 評價此訂單 (完成評價即可獲得 20 點)</div>
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <select id="review-score-${o.id}" style="width:130px; padding:6px; font-size:14px; border:1px solid var(--border); border-radius:4px;">
+                <option value="5">⭐⭐⭐⭐⭐</option>
+                <option value="4">⭐⭐⭐⭐</option>
+                <option value="3">⭐⭐⭐</option>
+                <option value="2">⭐⭐</option>
+                <option value="1">⭐</option>
+              </select>
+              <input type="text" id="review-text-${o.id}" placeholder="寫下您的評價與心得..." style="flex:1; padding:6px; font-size:14px; border:1px solid var(--border); border-radius:4px; min-width: 150px;">
+              <button class="btn btn-primary" onclick="app.submitReview('${o.id}')" style="padding:6px 12px; white-space:nowrap;">送出評價</button>
+            </div>
+          </div>`;
+        } else if(o.status === '已完成' && o.isReviewed) {
+          // 若已評價過，則顯示評價紀錄
+          reviewHtml = `
+          <div style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border);">
+            <div style="font-size:13px; color:#555; background:#f9f9f9; padding:10px; border-radius:4px; border-left:4px solid var(--success);">
+              <div style="font-weight:bold; color:#333; margin-bottom:4px;">⭐ 您的評分：${o.reviewScore} 星</div>
+              <div>💬 您的留言：${o.reviewText}</div>
+              <div style="color:var(--success); margin-top:6px; font-size:12px;">✅ 已完成評價並領取點數</div>
+              ${o.adminReply ? `<div style="margin-top:8px; padding:8px; background:#e8f8f5; border-radius:4px; color:#27ae60; border-left:3px solid #27ae60;"><strong style="font-size:13px;">客服回覆：</strong><br>${o.adminReply}</div>` : ''}
+            </div>
+          </div>`;
+        }
+        // ==========================
 
         return `
         <div style="border:1px solid var(--border); padding:15px; margin-bottom:10px; border-radius:8px; background:white;">
@@ -1802,6 +1864,7 @@ const app = {
               <strong style="color:var(--danger); font-size:16px;">總計: $${o.total.toLocaleString()}</strong>
             </div>
           </div>
+          ${reviewHtml}
         </div>`
       }).join('') : '<p>尚無訂單紀錄</p>';
     } else {

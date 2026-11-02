@@ -72,13 +72,9 @@
             border-color: #c99339;
         }
         .instructions {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: #555;
-            margin-top: 15px;
             line-height: 1.6;
-            background: #f8f9fa;
-            padding: 12px;
-            border-radius: 6px;
         }
         .status-badge {
             display: inline-block;
@@ -159,7 +155,6 @@
             padding: 8px;
             border-radius: 6px;
             background: #fafafa;
-            margin-bottom: 10px;
         }
         #product-list-container::-webkit-scrollbar {
             width: 6px;
@@ -169,15 +164,15 @@
             border-radius: 3px;
         }
 
-        /* 圖例標示樣式 */
+        /* 圖例標示與操作說明樣式 */
         #legend-panel {
             position: absolute;
             bottom: 25px;
             right: 25px;
             background: rgba(255, 255, 255, 0.95);
-            padding: 12px 18px;
-            border-radius: 8px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            padding: 14px 18px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
             pointer-events: none; 
             z-index: 10;
             font-size: 13px;
@@ -210,6 +205,10 @@
             height: 4px;
             background-color: #ff3333;
             border-radius: 2px;
+        }
+        .legend-divider {
+            border-top: 1px dashed #ddd;
+            margin: 10px 0;
         }
     </style>
 </head>
@@ -256,16 +255,9 @@
         <div id="product-list-container">
             <div style="text-align:center; padding:10px; color:#999; font-size:14px;">資料載入中...</div>
         </div>
-        
-        <div class="instructions">
-            🖱️ <b>拖曳：</b> 移動商品與顯示對齊輔助線<br>
-            ⌨️ <b>[R] 鍵：</b> <span class="highlight">拖曳時旋轉 90 度</span><br>
-            🗑️ <b>[Del] 鍵：</b> <span class="highlight">刪除游標指著的商品</span><br>
-            🔄 <b>空白處拖曳：</b> 旋轉視角
-        </div>
     </div>
 
-    <!-- 畫面右下角圖例 -->
+    <!-- 畫面右下角圖例與操作說明整合區塊 -->
     <div id="legend-panel">
         <div class="legend-item">
             <span class="legend-color-grid"></span>
@@ -274,6 +266,13 @@
         <div class="legend-item">
             <span class="legend-color-red"></span>
             <span>紅線 = 家具的「長」</span>
+        </div>
+        <div class="legend-divider"></div>
+        <div class="instructions">
+            🖱️ <b>拖曳：</b> 移動商品與顯示對齊輔助線<br>
+            ⌨️ <b>[R] 鍵：</b> <span class="highlight">拖曳時旋轉 90 度</span><br>
+            🗑️ <b>[Del] 鍵：</b> <span class="highlight">刪除游標指著的商品</span><br>
+            🔄 <b>空白處拖曳：</b> 旋轉視角
         </div>
     </div>
 
