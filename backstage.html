@@ -147,7 +147,6 @@
       <h2 style="margin-bottom: 20px;">訂單管理</h2>
       <div class="table-wrapper">
         <table>
-          <!-- 更改表格標題，加入「買家評價 & 留言」 -->
           <thead><tr><th>訂單編號 / 買家</th><th>購買明細 & 備註資訊</th><th>實付總額</th><th>處理狀態</th><th>買家評價 & 留言區</th><th>操作</th></tr></thead>
           <tbody id="orders-table"></tbody>
         </table>
@@ -179,9 +178,10 @@
         </div>
       </div>
 
-      <!-- AI 分析建議 (移至明細上方) -->
+      <!-- AI 分析建議 -->
       <h3 style="margin-bottom:10px; color:#333;">🤖 AI 商業分析智慧建議：ABC 經營策略與行銷企劃</h3>
       <div style="background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 4px solid var(--info);">
+        
         <!-- 動態 AI 數據洞察區塊 -->
         <p style="font-size:14px; color:var(--info); margin-bottom:10px; display:flex; align-items:center; gap:5px;"><strong>📊 本站專屬 AI 數據洞察 (基於帕累托動態分析)：</strong></p>
         <div id="ai-dynamic-insights" style="background:#f4f6f8; padding:12px 15px; border-radius:6px; margin-bottom: 15px;">
@@ -189,16 +189,16 @@
         </div>
       </div>
 
-      <!-- 動態 ABC 策略卡片容器 (由 JS 即時生成) -->
+      <!-- 動態 ABC 策略卡片容器 -->
       <div id="ai-strategy-cards" style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px;">
         <span style="color:#777; font-size:13px; padding-left:10px;">🔄 正在生成動態策略...</span>
       </div>
 
-      <!-- ABC 分析明細表 (刪除智慧建議欄位) -->
+      <!-- ABC 分析明細表 -->
       <div class="table-wrapper" style="margin-bottom: 20px;">
         <h3 style="margin-bottom:5px; color:var(--info);">📘 ABC 分析明細 (帕累托排序)</h3>
         <p style="font-size:12px; color:#777; margin-bottom:15px; line-height:1.5;">
-          ABC 分類依據「期間累計營收」貢獻度排序：累計佔比前 80% 為 A 類 (最重要，高價值)、80%~95% 為 B 類 (中度重要)，其餘 95%~100% 與零銷量為 C 類 (低價值，長尾)。
+          ABC 分類依據「期間累計營收」排序：累計佔比前 70% 為 A(核心)、70~90% 為 B(潛力)，其餘與零銷量為 C(長尾)。
         </p>
         <table>
           <thead>
@@ -276,19 +276,6 @@
   </div>
 </div>
 
-<!-- 新增：檢視商品清單的彈跳視窗 -->
-<div id="ai-modal" class="modal-overlay">
-  <div class="modal-content" style="max-width: 500px;">
-    <h3 id="ai-modal-title" style="margin-bottom: 15px; color:var(--primary);">📦 相關商品清單</h3>
-    <div id="ai-modal-body" style="max-height: 350px; overflow-y: auto; margin-bottom: 20px; font-size: 14px; color: #444; line-height: 1.6;">
-      <!-- 動態載入商品明細 -->
-    </div>
-    <div style="text-align: right;">
-      <button type="button" class="btn btn-primary" onclick="document.getElementById('ai-modal').style.display='none'">關閉視窗</button>
-    </div>
-  </div>
-</div>
-
 <div id="member-modal" class="modal-overlay">
   <div class="modal-content" style="max-width: 400px;">
     <h3 style="margin-bottom: 20px;">修改會員資料</h3>
@@ -304,9 +291,20 @@
   </div>
 </div>
 
+<!-- 分類商品列表彈窗 -->
+<div id="category-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 400px;">
+    <h3 id="cat-modal-title" style="margin-bottom: 15px;">分類商品列表</h3>
+    <ul id="cat-modal-list" style="padding-left: 20px; font-size: 14px; color: #444; line-height: 1.8; max-height: 300px; overflow-y: auto;"></ul>
+    <div style="text-align:right; margin-top:20px;">
+      <button type="button" class="btn btn-primary" onclick="document.getElementById('category-modal').style.display='none'">確定關閉</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const adminApp = {
-  products: [], fullState: {}, isAuth: false, chartInstance: null,
+  products: [], fullState: {}, isAuth: false, chartInstance: null, categoryLists: {A:[], B:[], C:[], urgentA:[], urgentB:[], urgentC:[], deadC:[]},
 
   async init() {
     await this.loadData(); this.checkAuth();
@@ -326,8 +324,11 @@ const adminApp = {
   
 async loadData() {
   try {
-    window.dbAPI.listenProducts((cloudProducts) => {
-      this.products = cloudProducts || [];
+    const cloudProducts = await window.dbAPI.getProducts();
+    this.products = cloudProducts || [];
+
+    window.dbAPI.listenProducts((snapshotProducts) => {
+      this.products = snapshotProducts || [];
       if (document.getElementById('sec-dashboard').style.display === 'block') this.renderDashboard();
       if (document.getElementById('sec-products').style.display === 'block') this.renderProducts();
       if (document.getElementById('sec-reports').style.display === 'block') this.renderReports();
@@ -342,28 +343,44 @@ async loadData() {
       this.fullState = { orders: [], usersDB: {} };
     }
 
-    // 擴充虛擬訂單以豐富銷售趨勢，並與商品名稱完美對應連動
+    let needsMockUpdate = false;
     if (this.fullState.orders.length === 0) {
+      needsMockUpdate = true;
+    } else if (this.fullState.orders.length === 20 && this.products.length > 0) {
+      const firstMockItem = this.fullState.orders[0].items[0].name;
+      if (!this.products.some(p => p.name === firstMockItem)) needsMockUpdate = true;
+    }
+
+    if (needsMockUpdate) {
       const now = new Date();
-      let generatedOrders = [];
-      const sampleNames = ['北歐簡約布藝沙發', '輕奢實木茶几', '舒適雙人床墊', '多功能收納電視櫃', '工業風層架'];
-      for(let i=0; i<35; i++) {
-        let d = new Date();
-        d.setDate(now.getDate() - Math.floor(Math.random() * 30)); // 集中在近期30天內，讓圖表更豐富
-        let pName = sampleNames[i % sampleNames.length];
-        let pQty = Math.floor(Math.random() * 2) + 1;
-        let pPrice = (i % 2 === 0) ? 12000 : 4500;
-        generatedOrders.push({
-          id: 'ORD-2026-' + String(i + 1).padStart(3, '0'),
-          date: d.toISOString(),
-          user: `buyer${i%5}@gmail.com`,
-          total: pPrice * pQty,
-          status: '已完成',
-          items: [{name: pName, qty: pQty}]
-        });
-      }
-      this.fullState.orders = generatedOrders;
-      this.fullState.visitors = { date: now.toLocaleDateString(), count: 520 };
+      const d = (daysAgo) => new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000).toISOString();
+      
+      const getP = (idx) => this.products.length > 0 ? this.products[idx % this.products.length] : {name: '尚無商品', price: 0};
+      
+      this.fullState.orders = [
+        { id: 'ORD-2611001', date: d(1), user: 'alice@gmail.com', total: getP(0).price + getP(1).price, status: '備貨中', items: [{name: getP(0).name, qty: 1}, {name: getP(1).name, qty: 1}] },
+        { id: 'ORD-2611002', date: d(3), user: 'bob@gmail.com', total: getP(2).price * 2, status: '配送中', items: [{name: getP(2).name, qty: 2}] },
+        { id: 'ORD-2610001', date: d(5), user: 'carol@gmail.com', total: getP(3).price, status: '已完成', items: [{name: getP(3).name, qty: 1}], isReviewed: true, reviewScore: 5, reviewText: '質感很好，坐起來很舒服！', reviewImg: '' },
+        { id: 'ORD-2610002', date: d(9), user: 'dave@gmail.com', total: getP(4).price, status: '退換貨處理中', items: [{name: getP(4).name, qty: 1}], returnInfo: { reason: '商品瑕疵', detail: '邊角有些微刮痕', img: '' } },
+        { id: 'ORD-2610003', date: d(12), user: 'eve@gmail.com', total: getP(0).price, status: '已完成', items: [{name: getP(0).name, qty: 1}], isReviewed: true, reviewScore: 4, reviewText: '組裝算簡單，但物流稍微延遲。', adminReply: '您好，很抱歉讓您久候了，我們會再跟物流公司溝通改善！' },
+        { id: 'ORD-2610004', date: d(15), user: 'frank@gmail.com', total: getP(5).price, status: '已完成', items: [{name: getP(5).name, qty: 1}] },
+        { id: 'ORD-2610005', date: d(18), user: 'grace@gmail.com', total: getP(1).price + getP(2).price, status: '已完成', items: [{name: getP(1).name, qty: 1}, {name: getP(2).name, qty: 1}] },
+        { id: 'ORD-2610006', date: d(22), user: 'hank@gmail.com', total: getP(3).price + getP(4).price * 4, status: '已完成', items: [{name: getP(3).name, qty: 1}, {name: getP(4).name, qty: 4}] },
+        { id: 'ORD-2610007', date: d(25), user: 'ivy@gmail.com', total: getP(6).price, status: '退換貨完成', items: [{name: getP(6).name, qty: 1}], returnInfo: { reason: '尺寸不合', detail: '放不下家裡預留的空間', img: '' } },
+        { id: 'ORD-2610008', date: d(28), user: 'jack@gmail.com', total: getP(7).price + getP(8).price, status: '已完成', items: [{name: getP(7).name, qty: 1}, {name: getP(8).name, qty: 1}], isReviewed: true, reviewScore: 5, reviewText: '收納空間很大，沒有怪味！', adminReply: '謝謝您的好評，實木材質很適合居家環境喔！' },
+        { id: 'ORD-2609001', date: d(35), user: 'karen@gmail.com', total: getP(9).price, status: '已完成', items: [{name: getP(9).name, qty: 1}] },
+        { id: 'ORD-2609002', date: d(42), user: 'leo@gmail.com', total: getP(10).price, status: '已完成', items: [{name: getP(10).name, qty: 1}] },
+        { id: 'ORD-2609003', date: d(48), user: 'mia@gmail.com', total: getP(11).price, status: '已完成', items: [{name: getP(11).name, qty: 1}], isReviewed: true, reviewScore: 3, reviewText: '顏色比照片深一點。', adminReply: '您好，螢幕顯示多少會有色差，若不滿意7天內可聯絡客服退換喔！' },
+        { id: 'ORD-2609004', date: d(55), user: 'nina@gmail.com', total: getP(0).price + getP(3).price, status: '已完成', items: [{name: getP(0).name, qty: 1}, {name: getP(3).name, qty: 1}] },
+        { id: 'ORD-2609005', date: d(62), user: 'owen@gmail.com', total: getP(2).price, status: '已完成', items: [{name: getP(2).name, qty: 1}], isReviewed: true, reviewScore: 5, reviewText: '很實用，推薦給大家！' },
+        { id: 'ORD-2608001', date: d(70), user: 'paul@gmail.com', total: getP(4).price, status: '已完成', items: [{name: getP(4).name, qty: 1}] },
+        { id: 'ORD-2608002', date: d(78), user: 'quinn@gmail.com', total: getP(5).price, status: '已完成', items: [{name: getP(5).name, qty: 1}] },
+        { id: 'ORD-2608003', date: d(85), user: 'rose@gmail.com', total: getP(6).price + getP(7).price, status: '已完成', items: [{name: getP(6).name, qty: 1}, {name: getP(7).name, qty: 1}] },
+        { id: 'ORD-2608004', date: d(92), user: 'sam@gmail.com', total: getP(8).price * 2, status: '已完成', items: [{name: getP(8).name, qty: 2}] },
+        { id: 'ORD-2607001', date: d(105), user: 'tina@gmail.com', total: getP(9).price + getP(10).price, status: '已完成', items: [{name: getP(9).name, qty: 1}, {name: getP(10).name, qty: 1}] }
+      ];
+
+      this.fullState.visitors = { date: now.toLocaleDateString(), count: 412 };
       localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState));
     }
 
@@ -415,7 +432,10 @@ async loadData() {
   },
 
   renderDashboard() {
-    const rev = this.fullState.orders.reduce((sum, o) => sum + o.total, 0);
+    const rev = this.fullState.orders
+        .filter(o => o.status !== '退換貨完成' && o.status !== '退貨完成' && o.status !== '退換貨處理中')
+        .reduce((sum, o) => sum + o.total, 0);
+        
     document.getElementById('stat-rev').innerText = '$' + rev.toLocaleString();
     document.getElementById('stat-orders').innerText = this.fullState.orders.length;
     document.getElementById('stat-pending').innerText = this.fullState.orders.filter(o => o.status === '備貨中').length;
@@ -425,7 +445,7 @@ async loadData() {
     document.getElementById('stat-visitors').innerText = visitCount;
 
     const sortedOrders = [...this.fullState.orders].sort((a,b) => new Date(b.date) - new Date(a.date));
-    const recentOrders = sortedOrders.slice(0, 5);
+    const recentOrders = sortedOrders.slice(0, 10);
     document.getElementById('recent-orders-table').innerHTML = recentOrders.length ? 
       recentOrders.map(o => `<tr><td>${o.id}</td><td>$${o.total.toLocaleString()}</td><td><span style="color:${o.status==='備貨中'?'var(--danger)':(o.status.includes('退換貨')?'#f39c12':'var(--success)')}; font-weight:bold;">${o.status}</span></td></tr>`).join('') : '<tr><td colspan="3" style="text-align:center;">無訂單</td></tr>';
 
@@ -442,6 +462,8 @@ async loadData() {
     let labels = [];
     let dataPoints = [];
 
+    const validOrders = this.fullState.orders.filter(o => o.status !== '退換貨完成' && o.status !== '退貨完成' && o.status !== '退換貨處理中');
+
     if (range === 'month') {
       let dict = {};
       for(let i=29; i>=0; i--) {
@@ -450,7 +472,7 @@ async loadData() {
         dict[key] = 0;
         labels.push(key);
       }
-      this.fullState.orders.forEach(o => {
+      validOrders.forEach(o => {
         let oDate = new Date(o.date);
         let diffTime = Math.abs(now - oDate);
         let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
@@ -469,7 +491,7 @@ async loadData() {
         dict[key] = 0;
         labels.push(key);
       }
-      this.fullState.orders.forEach(o => {
+      validOrders.forEach(o => {
         let oDate = new Date(o.date);
         let diffTime = Math.abs(now - oDate);
         let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -486,7 +508,7 @@ async loadData() {
       labels = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
       let dict = new Array(12).fill(0);
       const currentYear = now.getFullYear();
-      this.fullState.orders.forEach(o => {
+      validOrders.forEach(o => {
         let oDate = new Date(o.date);
         if(oDate.getFullYear() === currentYear) {
           dict[oDate.getMonth()] += o.total;
@@ -658,7 +680,6 @@ async saveProduct(e) {
       
       let realIdx = this.fullState.orders.findIndex(x => x.id === o.id);
 
-      // === 新增退換貨資訊顯示 ===
       let returnHtml = '';
       if (o.returnInfo) {
         let rtnImgHtml = o.returnInfo.img ? `<div style="margin-top:5px;"><a href="${o.returnInfo.img}" target="_blank"><img src="${o.returnInfo.img}" style="max-width:80px; max-height:80px; border-radius:4px; border:1px solid var(--border); object-fit:cover;" title="點擊放大查看"></a></div>` : '';
@@ -669,9 +690,7 @@ async saveProduct(e) {
           ${rtnImgHtml}
         </div>`;
       }
-      // =========================
 
-      // === 新增買家評價與留言顯示區塊 ===
       let reviewHtml = '<span style="color:#aaa; font-size:12px;">尚未評價</span>';
       if (o.isReviewed) {
         let stars = '⭐'.repeat(parseInt(o.reviewScore) || 0);
@@ -693,7 +712,6 @@ async saveProduct(e) {
           </div>
         `;
       }
-      // =================================
 
       return `
       <tr>
@@ -718,7 +736,6 @@ async saveProduct(e) {
     `}).join('') : '<tr><td colspan="6" style="text-align:center;">尚無訂單</td></tr>';
   },
 
-  // === 新增客服回覆函式 ===
   replyReview(idx) {
     const text = document.getElementById(`reply-text-${idx}`).value;
     if(!text.trim()) { alert('⚠️ 請輸入回覆內容！'); return; }
@@ -728,10 +745,27 @@ async saveProduct(e) {
     this.renderOrders();
     alert('✅ 已成功回覆買家評價！');
   },
-  // ========================
 
-  updateOrder(idx, status) { this.fullState.orders[idx].status = status; localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState)); this.renderOrders(); },
-  deleteOrder(idx) { if(confirm('確定要刪除這筆訂單嗎？')) { this.fullState.orders.splice(idx, 1); localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState)); this.renderOrders(); }},
+  updateOrder(idx, status) { 
+    this.fullState.orders[idx].status = status; 
+    localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState)); 
+    this.renderOrders();
+    
+    if (status.includes('退')) {
+      if(document.getElementById('sec-dashboard').style.display === 'block') this.renderDashboard();
+      if(document.getElementById('sec-reports').style.display === 'block') this.renderReports();
+    }
+  },
+  
+  deleteOrder(idx) { 
+    if(confirm('確定要刪除這筆訂單嗎？')) { 
+      this.fullState.orders.splice(idx, 1); 
+      localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState)); 
+      this.renderOrders(); 
+      if(document.getElementById('sec-dashboard').style.display === 'block') this.renderDashboard();
+      if(document.getElementById('sec-reports').style.display === 'block') this.renderReports();
+    }
+  },
 
   renderMembers() {
     const users = Object.keys(this.fullState.usersDB);
@@ -767,35 +801,22 @@ async saveProduct(e) {
     }
   },
 
-  // 彈跳視窗：顯示指定分類的商品清單
-  showCategoryProducts(categoryName, productList) {
-    const modal = document.getElementById('ai-modal');
-    const title = document.getElementById('ai-modal-title');
-    const body = document.getElementById('ai-modal-body');
-    
-    title.innerText = `📦 ${categoryName} 清單與銷售明細`;
-    if (productList.length === 0) {
-      body.innerHTML = '<p style="color:#777; text-align:center;">目前此分類無對應商品</p>';
-    } else {
-      body.innerHTML = `
-        <table style="width:100%; border-collapse:collapse; font-size:13px;">
-          <thead>
-            <tr style="background:#f9fafb;"><th style="padding:8px;">商品名稱</th><th style="padding:8px;">銷量</th><th style="padding:8px;">營收</th><th style="padding:8px;">庫存</th></tr>
-          </thead>
-          <tbody>
-            ${productList.map(p => `
-              <tr>
-                <td style="padding:8px; border-bottom:1px solid #eee;"><strong>${p.name}</strong></td>
-                <td style="padding:8px; border-bottom:1px solid #eee; color:var(--info);">${p.soldCount}</td>
-                <td style="padding:8px; border-bottom:1px solid #eee; color:var(--primary);">$${(p.price * p.soldCount).toLocaleString()}</td>
-                <td style="padding:8px; border-bottom:1px solid #eee;">${p.stock} 件</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      `;
-    }
-    modal.style.display = 'flex';
+  showCategoryItems(cat) {
+    const titles = { 
+      A: 'A 類核心商品清單', 
+      B: 'B 類潛力商品清單', 
+      C: 'C 類長尾商品清單',
+      urgentA: '🚨 A 類核心缺貨預警清單',
+      urgentB: '⚠️ B 類潛力庫存偏低清單',
+      urgentC: '⚠️ C 類庫存偏低清單',
+      deadC: '⚠️ C 類長尾積壓警告清單'
+    };
+    document.getElementById('cat-modal-title').innerText = titles[cat];
+    const items = this.categoryLists[cat] || [];
+    document.getElementById('cat-modal-list').innerHTML = items.length 
+      ? items.map(n => `<li>${n}</li>`).join('') 
+      : '<li>目前尚無相關商品</li>';
+    document.getElementById('category-modal').style.display = 'flex';
   },
 
   renderReports() {
@@ -813,26 +834,15 @@ async saveProduct(e) {
 
     let reportProducts = JSON.parse(JSON.stringify(this.products));
     
-    // === 核心修改：精簡合理的虛擬基底銷量，與訂單管理數據連動同步 ===
-    const baseVirtualSales = [120, 85, 55, 35, 20, 12, 6, 3, 1, 0, 0, 0, 0];
-    
-    let realSalesMap = {};
-    (this.fullState.orders || []).forEach(o => {
-      if (!o.status.includes('退換貨') && o.status !== '退款') {
-        (o.items || []).forEach(item => {
-           if(item.name) {
-             realSalesMap[item.name] = (realSalesMap[item.name] || 0) + (parseInt(item.qty) || 1);
-           }
-        });
-      }
+    reportProducts.forEach(p => {
+      let count = 0;
+      this.fullState.orders.forEach(o => {
+        if (o.status !== '退換貨處理中' && o.status !== '退貨完成' && o.status !== '退換貨完成') {
+          o.items.forEach(i => { if (i.name === p.name) count += i.qty; });
+        }
+      });
+      p.soldCount = count;
     });
-
-    reportProducts.forEach((p, idx) => {
-      let vSales = baseVirtualSales[idx % baseVirtualSales.length] || 0;
-      let rSales = realSalesMap[p.name] || 0;
-      p.soldCount = vSales + rSales; 
-    });
-    // ==========================================================
 
     const sortedSales = reportProducts.sort((a, b) => ((b.soldCount||0)*b.price) - ((a.soldCount||0)*a.price)); 
     
@@ -851,12 +861,10 @@ async saveProduct(e) {
     
     let aCount = 0, bCount = 0, cCount = 0;
     let aRev = 0, bRev = 0, cRev = 0;
+    let listA = [], listB = [], listC = [];
     let urgentA = [], urgentB = [], urgentC = [];
     let deadC = [];
     
-    // 分類儲存商品物件供彈跳視窗使用
-    let listA = [], listB = [], listC = [];
-
     document.getElementById('report-abc-table').innerHTML = sortedSales.map((p, idx) => {
       let pRev = p.price * (p.soldCount || 0);
       let ratio = totalRev > 0 ? (pRev / totalRev) : 0;
@@ -867,15 +875,15 @@ async saveProduct(e) {
       
       let level = 'C';
       if (totalRev > 0) {
-        if (cumRev <= 0.801) level = 'A';
-        else if (cumRev <= 0.951) level = 'B';
+        if (cumRev <= 0.701) level = 'A';
+        else if (cumRev <= 0.901) level = 'B';
       }
       
-      if (level === 'A') { aCount++; aRev += pRev; listA.push(p); }
-      else if (level === 'B') { bCount++; bRev += pRev; listB.push(p); }
-      else { cCount++; cRev += pRev; listC.push(p); }
+      if (level === 'A') { aCount++; aRev += pRev; listA.push(p.name); }
+      else if (level === 'B') { bCount++; bRev += pRev; listB.push(p.name); }
+      else { cCount++; cRev += pRev; listC.push(p.name); }
 
-      let sellRatePerDay = (p.soldCount || 0) / 90; 
+      let sellRatePerDay = (p.soldCount || 0) / 30; 
       let estDays = sellRatePerDay > 0 ? Math.floor(p.stock / sellRatePerDay) : 0;
       
       if (p.stock === 0) {
@@ -910,47 +918,51 @@ async saveProduct(e) {
       `;
     }).join('');
 
-    // --- 將數據注入 AI 分析與動態策略卡片 ---
+    this.categoryLists = { A: listA, B: listB, C: listC, urgentA, urgentB, urgentC, deadC };
+
     const aiInsightsEl = document.getElementById('ai-dynamic-insights');
     const strategyCardsEl = document.getElementById('ai-strategy-cards');
     
     if (aiInsightsEl && strategyCardsEl) {
       if (totalRev === 0) {
-        aiInsightsEl.innerHTML = '<p style="color:#e67e22; font-weight:bold; font-size:13px; margin:0;">目前尚無足夠的銷售數據，建議先進行初期曝光與行銷測試，累積數據後 AI 即可進行 ABC 帕累托精準分析。</p>';
+        aiInsightsEl.innerHTML = '<p style="color:#e67e22; font-weight:bold; font-size:13px; margin:0;">目前尚無有效營收數據 (已排除退貨)，建議進行行銷測試以累積數據，讓 AI 進行 ABC 帕累托精準分析。</p>';
         strategyCardsEl.innerHTML = '';
       } else {
-        let urgentItems = [...urgentA, ...urgentB];
-        let deadItems = deadC;
-        let aiInsightHtml = '<ul style="margin-bottom:0; padding-left:20px; font-size:13px; color:#444; line-height:1.8;">';
-        aiInsightHtml += `<li><strong>📈 帕累托分佈現況：</strong>您的 A 類核心商品共 <a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('A 類核心商品', ${JSON.stringify(listA).replace(/"/g, '&quot;')})" style="color:var(--info); font-weight:bold; text-decoration:underline;">${aCount} 項 (點擊查看)</a>，貢獻了 <strong>${((aRev/totalRev)*100).toFixed(1)}%</strong> 的總營收；B 類潛力商品 <a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('B 類潛力商品', ${JSON.stringify(listB).replace(/"/g, '&quot;')})" style="color:var(--info); font-weight:bold; text-decoration:underline;">${bCount} 項 (點擊查看)</a> (貢獻 <strong>${((bRev/totalRev)*100).toFixed(1)}%</strong>)；C 類長尾商品 <a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('C 類長尾商品', ${JSON.stringify(listC).replace(/"/g, '&quot;')})" style="color:var(--info); font-weight:bold; text-decoration:underline;">${cCount} 項 (點擊查看)</a> (貢獻 <strong>${((cRev/totalRev)*100).toFixed(1)}%</strong>)。</li>`;
+        
+        const clickTag = (cat, count) => `<a href="javascript:void(0)" onclick="adminApp.showCategoryItems('${cat}')" style="color:var(--info); font-weight:bold; text-decoration:underline;" title="點擊查看商品清單">共 ${count} 項 🔍</a>`;
+        const clickTagWarn = (cat, text, color) => `<a href="javascript:void(0)" onclick="adminApp.showCategoryItems('${cat}')" style="color:${color}; font-weight:bold; text-decoration:underline;" title="點擊查看商品清單">${text} 🔍</a>`;
 
+        let aiInsightHtml = '<ul style="margin-bottom:0; padding-left:20px; font-size:13px; color:#444; line-height:1.8;">';
+        aiInsightHtml += `<li><strong>📈 帕累托分佈現況：</strong>您的 A 類核心商品 ${clickTag('A', aCount)}，貢獻了 <strong>${((aRev/totalRev)*100).toFixed(1)}%</strong> 的總營收；B 類潛力商品 ${clickTag('B', bCount)} (貢獻 <strong>${((bRev/totalRev)*100).toFixed(1)}%</strong>)；C 類長尾商品 ${clickTag('C', cCount)} (貢獻 <strong>${((cRev/totalRev)*100).toFixed(1)}%</strong>)。</li>`;
+
+        let urgentItems = [...urgentA, ...urgentB];
         if (urgentItems.length > 0) {
-          aiInsightHtml += `<li style="color:var(--danger);"><strong>🚨 核心斷貨預警 (A 類優先)：</strong>部分核心品項庫存偏低，強烈建議<strong>立即聯絡供應商補貨</strong>，以免流失高達 ${((aRev/totalRev)*100).toFixed(0)}% 的核心營收來源！</li>`;
+          let warnLink = urgentA.length > 0 ? clickTagWarn('urgentA', '部分核心商品', 'var(--danger)') : clickTagWarn('urgentB', '部分潛力商品', '#e67e22');
+          aiInsightHtml += `<li style="color:var(--danger);"><strong>🚨 核心斷貨預警：</strong>【${warnLink}】庫存水位過低，存在嚴重斷貨危機，強烈建議<strong>立即聯絡供應商補貨</strong>！</li>`;
         } else if (aCount > 0) {
           aiInsightHtml += `<li style="color:#27ae60;"><strong>✅ 核心庫存穩定 (A 類)：</strong>目前 A 類主力商品庫存健康，建議繼續保持穩定曝光，並針對購買過的會員發送專屬回購優惠。</li>`;
         }
 
-        if (deadItems.length > 0) {
-          aiInsightHtml += `<li style="color:#d35400;"><strong>⚠️ 長尾積壓去化建議 (C 類)：</strong>部分 C 類商品週轉率較低，建議列入本月「限時清倉促銷」或「搭配 A 類滿額贈」，優先變現。</li>`;
+        // 修改：C類的建議改為明確的「清空、清倉」策略
+        if (deadC.length > 0) {
+          aiInsightHtml += `<li style="color:#d35400;"><strong>⚠️ C 類積壓去化建議：</strong>【${clickTagWarn('deadC', '部分積壓商品', '#d35400')}】週轉率極低 (可售天數 > 90 天)，嚴重佔用倉儲。AI 建議列入本月「限時清倉專區」，或直接作為高單價商品的滿額贈品，以快速回收資金與釋放庫存空間。</li>`;
         }
 
+        // 修改：B類的建議改為明確的「加價購、升級」策略
         if (bCount > 0) {
-           aiInsightHtml += `<li><strong>🚀 B 類潛力挖掘：</strong>目前有 ${bCount} 項 B 類商品具備成長空間，建議配合 A 類商品進行「組合搭售 (Bundle)」將其培養為下一代明星商品。</li>`;
+           aiInsightHtml += `<li><strong>🚀 B 類潛力挖掘：</strong>您的 ${clickTag('B', bCount)} 具備顯著成長潛力。建議主打結帳時的「加價購 (Add-on)」，或投入廣告預算增加首頁曝光，測試並激發其市場潛力，目標推升為 A 類明星商品。</li>`;
         }
         aiInsightHtml += '</ul>';
         aiInsightsEl.innerHTML = aiInsightHtml;
 
-        // 2. 動態生成策略卡片內容 (將提示詞改為點擊跳出視窗)
-        let aAction = urgentA.length > 0 ? `<li style="color:var(--danger);">🚨 <b>庫存告急商品：</b><a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('A 類緊急補貨商品', ${JSON.stringify(listA.filter(p=>urgentA.includes(p.name))).replace(/"/g, '&quot;')})" style="color:var(--danger); font-weight:bold; text-decoration:underline;">點擊查看明細 (${urgentA.length}項)</a></li>` : `<li>✅ 目前核心商品庫存健康。</li>`;
-        
-        let bAction = urgentB.length > 0 ? `<li style="color:#e67e22;">⚠️ <b>庫存偏低商品：</b><a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('B 類注意事項商品', ${JSON.stringify(listB.filter(p=>urgentB.includes(p.name))).replace(/"/g, '&quot;')})" style="color:#e67e22; font-weight:bold; text-decoration:underline;">點擊查看明細 (${urgentB.length}項)</a></li>` : `<li>✅ 潛力商品庫存充足。</li>`;
-        
-        let cAction = deadC.length > 0 ? `<li style="color:var(--info);">⚠️ <b>積壓警告商品：</b><a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('C 類積壓去化商品', ${JSON.stringify(listC.filter(p=>deadC.includes(p.name))).replace(/"/g, '&quot;')})" style="color:var(--info); font-weight:bold; text-decoration:underline;">點擊查看明細 (${deadC.length}項)</a></li>` : `<li>✅ 長尾商品無嚴重積壓。</li>`;
+        let aAction = urgentA.length > 0 ? `<li style="color:var(--danger);">🚨 <b>緊急：</b>【${clickTagWarn('urgentA', '缺貨警告清單', 'var(--danger)')}】庫存告急，請優先處理補貨！</li>` : `<li>✅ 目前核心商品庫存健康，請繼續維持。</li>`;
+        let bAction = urgentB.length > 0 ? `<li style="color:#e67e22;">⚠️ <b>注意：</b>【${clickTagWarn('urgentB', '偏低庫存清單', '#e67e22')}】庫存偏低，避免影響升級 A 類的潛力。</li>` : `<li>✅ 潛力商品庫存充足，可加大行銷力道。</li>`;
+        let cAction = deadC.length > 0 ? `<li style="color:var(--info);">⚠️ <b>積壓警告：</b>【${clickTagWarn('deadC', '積壓警告清單', 'var(--info)')}】週轉極慢，建議盡速促銷去化。</li>` : `<li>✅ 目前長尾商品無嚴重積壓，維持常態淘汰機制。</li>`;
 
         strategyCardsEl.innerHTML = `
         <div class="strategy-card card-A">
           <h4><span class="badge-abc badge-A">A</span> 核心商品策略</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">共 <a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('A 類核心商品', ${JSON.stringify(listA).replace(/"/g, '&quot;')})" style="text-decoration:underline; font-weight:bold;">${aCount} 項</a>，創造 <strong>${((aRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <p style="font-size:12px; color:#666; margin-bottom:15px;">${clickTag('A', aCount)}，創造 <strong>${((aRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
           <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
           <ul>
             ${aAction}
@@ -958,35 +970,35 @@ async saveProduct(e) {
             <li>價格穩定：不輕易打折，守住毛利，維持高曝光。</li>
           </ul>
           <strong style="font-size:13px; color:#333;">行銷企劃：明星回購計畫</strong>
-          <ul><li>對買過此類商品的會員，推播專屬回購優惠。</li></ul>
+          <ul><li>對買過這些商品的會員，推播專屬回購優惠。</li></ul>
           <div class="budget-bar" style="background:#e8f8f5; color:#27ae60;">建議行銷預算佔比：50%</div>
         </div>
 
         <div class="strategy-card card-B">
           <h4><span class="badge-abc badge-B">B</span> 潛力商品策略</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">共 <a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('B 類潛力商品', ${JSON.stringify(listB).replace(/"/g, '&quot;')})" style="text-decoration:underline; font-weight:bold;">${bCount} 項</a>，創造 <strong>${((bRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <p style="font-size:12px; color:#666; margin-bottom:15px;">${clickTag('B', bCount)}，創造 <strong>${((bRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
           <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
           <ul>
             ${bAction}
-            <li>目標：提高曝光與轉換，將部分 B 類推升至 A 類。</li>
-            <li>與 A 類商品帶動，觀察加價購曲線。</li>
+            <li>目標：提高曝光與轉換，將優質 B 類推升至 A 類。</li>
+            <li>行銷：主打專屬加價購、KOL 曝光或社群強推。</li>
           </ul>
           <strong style="font-size:13px; color:#333;">行銷企劃：潛力升級計畫</strong>
-          <ul><li>設立滿額加價購增加曝光，或與 A 類組合販售。</li></ul>
+          <ul><li>設立專區促銷，或在購物車頁面設定為推薦加購品。</li></ul>
           <div class="budget-bar" style="background:#fdf2e9; color:#e67e22;">建議行銷預算佔比：30%</div>
         </div>
 
         <div class="strategy-card card-C">
           <h4><span class="badge-abc badge-C">C</span> 長尾商品策略</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">共 <a href="javascript:void(0)" onclick="adminApp.showCategoryProducts('C 類長尾商品', ${JSON.stringify(listC).replace(/"/g, '&quot;')})" style="text-decoration:underline; font-weight:bold;">${cCount} 項</a>，創造 <strong>${((cRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <p style="font-size:12px; color:#666; margin-bottom:15px;">${clickTag('C', cCount)}，創造 <strong>${((cRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
           <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
           <ul>
             ${cAction}
-            <li>零銷量商品停止進貨，降低存貨成本。</li>
-            <li>保留少量長尾品維持多樣性，並作新品測試。</li>
+            <li>零銷量商品停止進貨，避免死庫存。</li>
+            <li>庫存過多者直接作為滿額贈品或清倉拋售。</li>
           </ul>
           <strong style="font-size:13px; color:#333;">行銷企劃：長尾去化測試</strong>
-          <ul><li>限時福袋、滿額加購。連續單月無庫存者下架。</li></ul>
+          <ul><li>設置「限時出清區」。連續單月無庫存者下架。</li></ul>
           <div class="budget-bar" style="background:#f2f4f4; color:#7f8c8d;">建議行銷預算佔比：20%</div>
         </div>
         `;
