@@ -134,7 +134,31 @@
   .diff-highlight { background-color: #fff8e1; }
   .diff-text { font-weight: bold; color: var(--danger); }
 
-  @media (max-width: 768px) { .flex-layout { flex-direction: column; } .sidebar { width: 100% !important; } .search-bar { display: none; } }
+  /* 店友的家 Gallery 樣式 (隱藏滾動條，啟用平滑滾動) */
+  .review-gallery { display: flex; gap: 15px; overflow-x: auto; padding: 10px 0; scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; }
+  .review-gallery::-webkit-scrollbar { display: none; }
+  .review-item { flex: 0 0 220px; cursor: pointer; position: relative; border-radius: 0px; overflow: hidden; background: #fff; border: 1px solid var(--border); transition: transform 0.2s; }
+  .review-item:hover { transform: translateY(-3px); }
+  .review-img-wrap { width: 100%; height: 220px; background: #eee; }
+  .review-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+  .review-user-info { display: flex; align-items: center; gap: 10px; padding: 12px; background: #f9f9f9; }
+  .review-avatar { width: 30px; height: 30px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; color: white; font-size: 14px; font-weight: bold; overflow:hidden; }
+  .review-avatar img { width:100%; height:100%; object-fit:cover; }
+  .review-username { font-size: 13px; color: #555; }
+  
+  /* 店友的家 左右箭頭 */
+  .gallery-arrow { position: absolute; top: calc(50% - 10px); transform: translateY(-50%); background: rgba(0,0,0,0.3); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; transition: 0.3s; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+  .gallery-arrow:hover { background: rgba(0,0,0,0.6); }
+  .gallery-arrow.left { left: -10px; }
+  .gallery-arrow.right { right: -10px; }
+
+  @media (max-width: 768px) { 
+    .flex-layout { flex-direction: column; } 
+    .sidebar { width: 100% !important; } 
+    .search-bar { display: none; } 
+    #review-detail-modal .modal-content { flex-direction: column; max-height: 90vh; overflow-y:auto; }
+    #review-detail-modal .modal-content > div:first-child { min-height: 300px; flex:none; }
+  }
 </style>
 </head>
 <body>
@@ -341,6 +365,18 @@
       <h3 style="font-size: 24px; margin-bottom: 20px;">你可能會喜歡</h3>
     </div>
     <div class="grid-4" id="home-you-may-like" style="margin-top: 15px;"></div>
+
+    <!-- 新增：店友的家 (買家分享區塊) -->
+    <div style="text-align: center; margin-top: 50px;">
+      <h3 style="font-size: 24px; margin-bottom: 20px;">店友的家</h3>
+    </div>
+    <!-- 加上 position:relative 以便放置左右箭頭 -->
+    <div style="position: relative;">
+      <button class="gallery-arrow left" onclick="app.scrollGallery(-1)">&#10094;</button>
+      <div class="review-gallery" id="home-buyer-reviews"></div>
+      <button class="gallery-arrow right" onclick="app.scrollGallery(1)">&#10095;</button>
+    </div>
+    
   </div>
 
   <div id="view-list" class="view">
@@ -486,7 +522,7 @@
   </div>
 
   <div id="view-compare" class="view">
-    <h2>商品比較 (詳細規格表)</h2>
+    <h2>商品比較 (詳細規格比較)</h2>
     <div id="compare-content" style="margin-top: 20px; overflow-x: auto; background:white; border-radius:var(--radius); padding:15px; box-shadow:var(--shadow);"></div>
   </div>
 
@@ -709,6 +745,37 @@
   </div>
 </div>
 
+<!-- 新增：店友的家 (買家分享詳細) Modal -->
+<div id="review-detail-modal" class="modal-overlay">
+  <div class="modal-content" style="max-width: 850px; padding: 0; display: flex; overflow: hidden; background: #fff; border-radius:8px;">
+    <!-- 左側：圖片 -->
+    <div style="flex: 1.5; background: #000; display:flex; align-items:center; justify-content:center; position:relative;">
+       <img id="modal-review-img" src="" style="width:100%; height:100%; max-height: 600px; object-fit:cover;">
+    </div>
+    <!-- 右側：內容與商品 -->
+    <div style="flex: 1; padding: 30px; display: flex; flex-direction: column; background: #fff; position: relative;">
+      <button style="position:absolute; top:15px; right:15px; font-size:24px; color:#999; background:none; border:none; cursor:pointer;" onclick="document.getElementById('review-detail-modal').style.display='none'">✖</button>
+      
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+         <div id="modal-review-avatar" class="review-avatar"></div>
+         <span id="modal-review-username" class="review-username" style="font-weight:bold; font-size:15px; color:#333;"></span>
+      </div>
+      
+      <div id="modal-review-text" style="font-size: 15px; color: #444; line-height: 1.8; margin-bottom: 30px; flex:1;"></div>
+      
+      <div style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: auto;">
+         <div style="display:flex; gap:15px; align-items:center;" id="modal-review-product-link">
+            <img id="modal-review-product-img" src="" style="width:80px; height:80px; object-fit:cover; border-radius:4px; border:1px solid #eee;">
+            <div>
+               <div id="modal-review-product-name" style="font-size: 14px; color:#555; margin-bottom:5px;"></div>
+               <div id="modal-review-product-price" style="font-size: 16px; color:var(--text-main); font-weight:bold;"></div>
+            </div>
+         </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="compare-bar">
   <span>已選擇 <strong id="compare-count">0</strong>/4 件商品進行比較</span>
   <button class="btn btn-primary" style="margin-left: 15px;" onclick="app.navigate('compare')">查看比較</button>
@@ -740,6 +807,7 @@ const app = {
   lastNavView: 'home', 
   slideIdx: 0,
   slideInterval: null,
+  currentDisplayReviews: [], // 用於暫存當前顯示的評價資料
   
   async init() {
     await initializeProducts();
@@ -904,6 +972,167 @@ const app = {
 
     let youMayLike = [...DB.products].sort(() => 0.5 - Math.random()).slice(0, 4);
     document.getElementById('home-you-may-like').innerHTML = youMayLike.map(p => this.createProductCard(p)).join('');
+    
+    // 渲染店友的家(買家分享區)
+    this.renderBuyerReviews();
+  },
+
+  // 新增：渲染買家分享的方法
+  renderBuyerReviews() {
+    const container = document.getElementById('home-buyer-reviews');
+    if (!container) return;
+
+    // 準備展示的評價陣列（包含虛擬範例）
+    let displayReviews = [
+      {
+        id: 'mock1',
+        username: 'kuohsingchun_official',
+        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
+        img: 'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=800&q=80',
+        text: '床架很穩，整體房間的北歐風格感提升很多！大推他們家的實木家具。',
+        productName: '北歐風實木雙人床架',
+        productPrice: 28500,
+        productImg: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=300&q=80',
+        productId: null
+      },
+      {
+        id: 'mock2',
+        username: 'cin***',
+        avatar: '',
+        img: 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=800&q=80',
+        text: '這個雙人床墊睡起來真的超舒服，支撐力好，而且表布很透氣。',
+        productName: '雙人偏硬床墊',
+        productPrice: 15800,
+        productImg: 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=300&q=80',
+        productId: null
+      },
+      {
+        id: 'mock3',
+        username: 'meo***',
+        avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=100&q=80',
+        img: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=800&q=80',
+        text: '開箱就被貓咪佔領的涼感枕頭...在這炎熱的夏天不只我們需要，毛小孩也很懂享受！',
+        productName: '涼感減壓記憶枕',
+        productPrice: 1990,
+        productImg: 'https://images.unsplash.com/photo-1505693314120-0d443867891c?auto=format&fit=crop&w=300&q=80',
+        productId: null
+      },
+      {
+        id: 'mock4',
+        username: 'lis***',
+        avatar: '',
+        img: 'image/評價圖.webp',
+        text: '沙發很軟很好躺，全家人都很喜歡！布料防潑水很好清理。',
+        productName: '三人布沙發',
+        productPrice: 24500,
+        productImg: 'image/沙發/Three-seater cat sofa1.png',
+        productId: null
+      },
+      {
+        id: 'mock5',
+        username: 'factoryxii',
+        avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=100&q=80',
+        text: '原本擔心實品會有落差，結果送來質感出乎意料的好，非常滿意！',
+        img: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+        productName: '客廳質感茶几',
+        productPrice: 8900,
+        productImg: 'https://images.unsplash.com/photo-1532372320572-cda25653a26d?auto=format&fit=crop&w=300&q=80',
+        productId: null
+      }
+    ];
+
+    // 從真實訂單中找出有圖片的評價加入 (條件：有評價且有上傳圖片)
+    if(this.state.orders) {
+      this.state.orders.forEach(o => {
+        if (o.isReviewed && o.reviewImg) {
+          const item = o.items[0]; 
+          let productImg = item ? item.image : '';
+          let productName = item ? item.name : '購買商品';
+          let productPrice = item ? item.price : 0;
+          let productId = item ? item.id : null;
+
+          let usernameMasked = o.user.split('@')[0];
+          if(usernameMasked.length > 3) usernameMasked = usernameMasked.substring(0,3) + '***';
+
+          displayReviews.unshift({
+            id: o.id,
+            username: usernameMasked,
+            avatar: '',
+            img: o.reviewImg,
+            text: o.reviewText,
+            productName: productName,
+            productPrice: productPrice,
+            productImg: productImg,
+            productId: productId
+          });
+        }
+      });
+    }
+
+    container.innerHTML = displayReviews.map(r => {
+       const avatarHtml = r.avatar ? `<img src="${r.avatar}">` : (r.username.charAt(0).toUpperCase() || 'U');
+       return `
+        <div class="review-item" onclick="app.openReviewModal('${r.id}')">
+          <div class="review-img-wrap"><img src="${r.img}"></div>
+          <div class="review-user-info">
+             <div class="review-avatar" style="${!r.avatar?'background:var(--primary);':''}">${avatarHtml}</div>
+             <span class="review-username">${r.username}</span>
+          </div>
+        </div>
+       `;
+    }).join('');
+
+    this.currentDisplayReviews = displayReviews;
+  },
+
+  // 新增：處理左右平滑滾動的函式
+  scrollGallery(direction) {
+    const gallery = document.getElementById('home-buyer-reviews');
+    if (gallery) {
+      const scrollAmount = 235; // 卡片寬度 220 + gap 15
+      gallery.scrollBy({ left: direction * scrollAmount * 2, behavior: 'smooth' }); // 每次捲動兩張卡片的距離
+    }
+  },
+
+  openReviewModal(id) {
+    const review = this.currentDisplayReviews.find(r => r.id === id);
+    if(!review) return;
+    
+    document.getElementById('modal-review-img').src = review.img;
+    const avatarContainer = document.getElementById('modal-review-avatar');
+    if(review.avatar) {
+       avatarContainer.innerHTML = `<img src="${review.avatar}">`;
+       avatarContainer.style.background = 'transparent';
+    } else {
+       avatarContainer.innerHTML = review.username.charAt(0).toUpperCase();
+       avatarContainer.style.background = 'var(--primary)';
+    }
+    
+    document.getElementById('modal-review-username').innerText = review.username;
+    document.getElementById('modal-review-text').innerText = review.text;
+    
+    document.getElementById('modal-review-product-img').src = review.productImg;
+    document.getElementById('modal-review-product-name').innerText = review.productName;
+    document.getElementById('modal-review-product-price').innerText = '$' + review.productPrice.toLocaleString();
+    
+    const productLink = document.getElementById('modal-review-product-link');
+    if (review.productId) {
+      productLink.onclick = () => {
+         document.getElementById('review-detail-modal').style.display='none';
+         app.navigate('detail', {id: review.productId});
+      };
+      productLink.onmouseover = () => productLink.style.opacity = '0.7';
+      productLink.onmouseout = () => productLink.style.opacity = '1';
+      productLink.style.cursor = 'pointer';
+      productLink.style.transition = '0.2s';
+    } else {
+      productLink.onclick = null;
+      productLink.style.cursor = 'default';
+      productLink.onmouseover = null;
+      productLink.onmouseout = null;
+    }
+
+    document.getElementById('review-detail-modal').style.display = 'flex';
   },
   
   search(q) { 
@@ -1735,7 +1964,6 @@ const app = {
     }
   },
 
-  // === 加入此函式以處理評價並發放點數 ===
   submitReview(orderId) {
     const score = document.getElementById(`review-score-${orderId}`).value;
     const text = document.getElementById(`review-text-${orderId}`).value;
@@ -1761,6 +1989,7 @@ const app = {
 
         this.saveState();
         this.renderMember();
+        this.renderHome(); // 重新渲染首頁，將新評價加入店友的家
         this.showToast('✅ 感謝您的評價！已獲得 20 點購物金');
       }
     };
@@ -1776,7 +2005,6 @@ const app = {
       processSave('');
     }
   },
-  // ======================================
 
   renderMember() {
     if(this.state.user) {
@@ -1829,10 +2057,8 @@ const app = {
         let rtnTagHtml = '';
         if(o.returnInfo) rtnTagHtml = `<div style="margin-top:10px; padding:8px; background:#fdf2e9; border-radius:4px; font-size:12px; color:#d35400;">📦 已申請退貨 (原因: ${o.returnInfo.reason})</div>`;
 
-        // === 新增評價區塊邏輯 ===
         let reviewHtml = '';
         if(o.status === '已完成' && !o.isReviewed && !o.returnInfo) {
-          // 狀態為已完成且尚未評價，顯示評價輸入介面
           reviewHtml = `
           <div style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border);">
             <div style="font-size:14px; font-weight:bold; color:var(--primary); margin-bottom:8px;">⭐ 評價此訂單 (完成評價即可獲得 20 點)</div>
@@ -1850,7 +2076,6 @@ const app = {
             </div>
           </div>`;
         } else if(o.status === '已完成' && o.isReviewed) {
-          // 若已評價過，則顯示評價紀錄
           reviewHtml = `
           <div style="margin-top:15px; padding-top:15px; border-top:1px dashed var(--border);">
             <div style="font-size:13px; color:#555; background:#f9f9f9; padding:10px; border-radius:4px; border-left:4px solid var(--success);">
@@ -1862,7 +2087,6 @@ const app = {
             </div>
           </div>`;
         }
-        // ==========================
 
         return `
         <div style="border:1px solid var(--border); padding:15px; margin-bottom:10px; border-radius:8px; background:white;">
