@@ -438,7 +438,7 @@ async loadData() {
         
     document.getElementById('stat-rev').innerText = '$' + rev.toLocaleString();
     document.getElementById('stat-orders').innerText = this.fullState.orders.length;
-    document.getElementById('stat-pending').innerText = this.fullState.orders.filter(o => o.status === '備貨中').length;
+    document.getElementById('stat-pending').innerText = this.fullState.orders.filter(o => o.status === '備貨中' || o.status === '匯款確認中').length;
     
     let today = new Date().toLocaleDateString();
     let visitCount = (this.fullState.visitors && this.fullState.visitors.date === today) ? this.fullState.visitors.count : 0;
@@ -447,7 +447,10 @@ async loadData() {
     const sortedOrders = [...this.fullState.orders].sort((a,b) => new Date(b.date) - new Date(a.date));
     const recentOrders = sortedOrders.slice(0, 10);
     document.getElementById('recent-orders-table').innerHTML = recentOrders.length ? 
-      recentOrders.map(o => `<tr><td>${o.id}</td><td>$${o.total.toLocaleString()}</td><td><span style="color:${o.status==='備貨中'?'var(--danger)':(o.status.includes('退換貨')?'#f39c12':'var(--success)')}; font-weight:bold;">${o.status}</span></td></tr>`).join('') : '<tr><td colspan="3" style="text-align:center;">無訂單</td></tr>';
+      recentOrders.map(o => {
+        let sc = o.status==='備貨中' ? 'var(--danger)' : (o.status==='匯款確認中' ? 'var(--info)' : (o.status.includes('退換貨') ? '#f39c12' : 'var(--success)'));
+        return `<tr><td>${o.id}</td><td>$${o.total.toLocaleString()}</td><td><span style="color:${sc}; font-weight:bold;">${o.status}</span></td></tr>`;
+      }).join('') : '<tr><td colspan="3" style="text-align:center;">無訂單</td></tr>';
 
     const lowStock = this.products.filter(p => p.stock < 3);
     document.getElementById('low-stock-table').innerHTML = lowStock.length ? 
@@ -676,9 +679,23 @@ async saveProduct(e) {
     const sortedOrders = [...this.fullState.orders].sort((a,b) => new Date(b.date) - new Date(a.date));
     document.getElementById('orders-table').innerHTML = sortedOrders.length ? sortedOrders.map((o, idx) => {
       const itemsHtml = o.items.map(i => `<div>- ${i.name} (x${i.qty})</div>`).join('');
-      let sColor = o.status==='備貨中' ? 'var(--danger)' : (o.status.includes('退換貨') ? '#f39c12' : 'var(--success)');
+      
+      let sColor = 'var(--success)';
+      if (o.status === '匯款確認中') sColor = 'var(--info)';
+      else if (o.status === '備貨中') sColor = 'var(--danger)';
+      else if (o.status.includes('退換貨')) sColor = '#f39c12';
       
       let realIdx = this.fullState.orders.findIndex(x => x.id === o.id);
+
+      // 銀行匯款資訊區塊
+      let bankTransferHtml = '';
+      if (o.paymentMethod === 'bank-transfer') {
+        let last5 = o.bankTransferLast5 ? o.bankTransferLast5 : '尚未提供';
+        bankTransferHtml = `<div style="margin-top:10px; padding:8px; background:#e8f4f8; border-radius:4px; font-size:12px; color:#3498db; border-left:3px solid #3498db;">
+          <strong>🏦 銀行匯款資訊</strong><br>
+          買家匯款後五碼：<strong style="font-size:14px; color:#2980b9;">${last5}</strong>
+        </div>`;
+      }
 
       let returnHtml = '';
       if (o.returnInfo) {
@@ -718,11 +735,13 @@ async saveProduct(e) {
         <td><strong>${o.id}</strong><br><span style="font-size:12px; color:#777;">${o.date.split('T')[0]}<br>${o.user}</span></td>
         <td style="font-size:13px; min-width:200px;">
            ${itemsHtml}
+           ${bankTransferHtml}
            ${returnHtml}
         </td>
         <td><strong style="color:var(--danger);">$${o.total.toLocaleString()}</strong></td>
         <td>
           <select onchange="adminApp.updateOrder(${realIdx}, this.value)" style="padding:4px; font-weight:bold; color:${sColor};">
+            ${o.paymentMethod === 'bank-transfer' ? `<option ${o.status==='匯款確認中'?'selected':''}>匯款確認中</option>` : ''}
             <option ${o.status==='備貨中'?'selected':''}>備貨中</option>
             <option ${o.status==='配送中'?'selected':''}>配送中</option>
             <option ${o.status==='已完成'?'selected':''}>已完成</option>
@@ -751,7 +770,7 @@ async saveProduct(e) {
     localStorage.setItem('liviSpaceState', JSON.stringify(this.fullState)); 
     this.renderOrders();
     
-    if (status.includes('退')) {
+    if (status.includes('退') || status === '備貨中' || status === '匯款確認中') {
       if(document.getElementById('sec-dashboard').style.display === 'block') this.renderDashboard();
       if(document.getElementById('sec-reports').style.display === 'block') this.renderReports();
     }

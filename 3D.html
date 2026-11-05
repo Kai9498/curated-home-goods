@@ -53,6 +53,62 @@
             background: #f1f3f5;
         }
 
+        /* --- 新增：右側商品資訊面板樣式 --- */
+        #right-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            pointer-events: auto;
+            z-index: 10;
+            width: 250px;
+            max-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        #right-panel.collapsed {
+            transform: translateX(calc(100% + 20px));
+        }
+        .toggle-btn-right {
+            position: absolute;
+            top: 20px;
+            left: -30px;
+            width: 30px;
+            height: 40px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: -4px 0 8px rgba(0,0,0,0.1);
+            z-index: 11;
+            font-weight: bold;
+            color: #333;
+        }
+        .toggle-btn-right:hover {
+            background: #f1f3f5;
+        }
+        #product-info-content {
+            flex: 1;
+            overflow-y: auto;
+            margin-right: -10px;
+            padding-right: 10px;
+        }
+        #product-info-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        #product-info-content::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 3px;
+        }
+
         .item-btn {
             display: block;
             width: 100%;
@@ -254,6 +310,18 @@
         <!-- 動態商品列表容器 -->
         <div id="product-list-container">
             <div style="text-align:center; padding:10px; color:#999; font-size:14px;">資料載入中...</div>
+        </div>
+    </div>
+
+    <!-- 新增：右側商品資訊面板 -->
+    <div id="right-panel">
+        <div class="toggle-btn-right" id="right-panel-toggle" onclick="window.toggleRightPanel()">❯</div>
+        <h3 style="margin:0 0 10px 0;">已放置商品清單</h3>
+        <div id="product-info-content">
+            <div style="color:#888; font-size:14px;">尚未選擇商品</div>
+        </div>
+        <div id="total-price-container" style="margin-top: 10px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px; display: none;">
+            總計: <span style="color: #d32f2f;">$<span id="total-price">0</span></span>
         </div>
     </div>
 
@@ -490,6 +558,9 @@
                         orbitControls.enabled = true;
                         document.body.style.cursor = 'auto';
                     }
+                    
+                    // --- 刪除後更新右側商品清單面板 ---
+                    window.updateProductInfoPanel();
                     return; 
                 }
             }
@@ -566,8 +637,8 @@
 
             const customHexColor = 0x607d8b; 
             
-            // 傳遞 true 表示此為自訂家具
-            window.addBox(w, h, l, customHexColor, productName, true);
+            // 傳遞 true 表示此為自訂家具 (預設價格設定為0)
+            window.addBox(w, h, l, customHexColor, productName, true, 0);
 
             document.getElementById('custom-name').value = '';
             document.getElementById('custom-l').value = '';
@@ -608,8 +679,8 @@
             return sprite;
         }
 
-        // 6. 生成家具函式
-        window.addBox = function(width, height, depth, hexColor, productName, isCustom = false) {
+        // 6. 生成家具函式 (新增 price 參數以利右上方面板顯示金額)
+        window.addBox = function(width, height, depth, hexColor, productName, isCustom = false, price = 0) {
             const geometry = new THREE.BoxGeometry(width, height, depth);
             const material = new THREE.MeshStandardMaterial({ 
                 color: hexColor,
@@ -619,6 +690,9 @@
             const box = new THREE.Mesh(geometry, material);
             box.castShadow = true;
             box.receiveShadow = true;
+            
+            // --- 將商品資訊存入 Mesh 供右上角面板使用 ---
+            box.userData = { name: productName, price: price, isCustom: isCustom };
             
             // --- 判斷長邊，決定紅線的方向與位置 ---
             let markerGeo, markerX, markerZ;
@@ -652,6 +726,9 @@
             objects.push(box);
             
             dropObject(box);
+
+            // --- 新增商品後更新右側面板 ---
+            window.updateProductInfoPanel();
         };
 
         function dropObject(obj) {
@@ -668,7 +745,7 @@
             }
         }
 
-        // 7. 面板縮放控制
+        // 7. 面板縮放控制 (左與右)
         window.togglePanel = function() {
             const panel = document.getElementById('ui-panel');
             const btn = document.getElementById('panel-toggle');
@@ -677,6 +754,50 @@
                 btn.innerHTML = '❯';
             } else {
                 btn.innerHTML = '❮';
+            }
+        };
+
+        window.toggleRightPanel = function() {
+            const panel = document.getElementById('right-panel');
+            const btn = document.getElementById('right-panel-toggle');
+            panel.classList.toggle('collapsed');
+            if (panel.classList.contains('collapsed')) {
+                btn.innerHTML = '❮';
+            } else {
+                btn.innerHTML = '❯';
+            }
+        };
+
+        // --- 新增：動態更新右側商品資訊面板邏輯 ---
+        window.updateProductInfoPanel = function() {
+            const content = document.getElementById('product-info-content');
+            const totalContainer = document.getElementById('total-price-container');
+            const totalPriceSpan = document.getElementById('total-price');
+            
+            let html = '';
+            let total = 0;
+            let hasProduct = false;
+
+            // 掃描當前存在的所有物件，排除自訂商品
+            objects.forEach(obj => {
+                if (obj.userData && !obj.userData.isCustom && obj.userData.name) {
+                    hasProduct = true;
+                    const pPrice = Number(obj.userData.price) || 0;
+                    total += pPrice;
+                    html += `<div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; border-bottom: 1px dashed #eee; padding-bottom: 4px;">
+                                <span>${obj.userData.name}</span>
+                                <span style="color: #d32f2f; font-weight: bold;">$${pPrice.toLocaleString()}</span>
+                             </div>`;
+                }
+            });
+
+            if (hasProduct) {
+                content.innerHTML = html;
+                totalContainer.style.display = 'block';
+                totalPriceSpan.innerText = total.toLocaleString();
+            } else {
+                content.innerHTML = '<div style="color:#888; font-size:14px;">尚未選擇商品</div>';
+                totalContainer.style.display = 'none';
             }
         };
 
@@ -780,8 +901,10 @@
                 const hexColor = colors[colorHash % colors.length];
                 
                 const safeName = p.name.replace(/'/g, ""); 
+                const price = p.price || 0; // 取得金額 (無則為0)
 
-                return `<button class="item-btn" style="font-size: 13px;" onclick="window.addBox(${p.width}, ${p.height}, ${p.length}, ${hexColor}, '${safeName}')">
+                // 將 price 作為第 7 個參數傳給 addBox
+                return `<button class="item-btn" style="font-size: 13px;" onclick="window.addBox(${p.width}, ${p.height}, ${p.length}, ${hexColor}, '${safeName}', false, ${price})">
                     📦 ${p.name}<br><span style="font-size: 11px; color: #777;">(L${p.length} x W${p.width} x H${p.height})</span>
                 </button>`;
             }).join('');
