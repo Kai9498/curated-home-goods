@@ -245,6 +245,13 @@
         <div class="form-group"><label>寬度 (cm)</label><input type="number" id="p-width"></div>
         <div class="form-group"><label>高度 (cm)</label><input type="number" id="p-height"></div>
       </div>
+
+      <!-- 新增欄位：重量、承重、組裝需求 -->
+      <div class="form-row">
+        <div class="form-group"><label>商品重量</label><input type="text" id="p-weight" placeholder="例如: 20kg"></div>
+        <div class="form-group"><label>最大承重</label><input type="text" id="p-load" placeholder="例如: 100kg"></div>
+        <div class="form-group"><label>組裝需求</label><select id="p-assembly"><option value="自行組裝">自行組裝</option><option value="專人組裝定位">專人組裝定位</option><option value="免組裝">免組裝</option></select></div>
+      </div>
       
       <div class="form-group" style="background:#f4f6f8; padding:15px; border-radius:8px; margin-bottom:15px;">
         <label>🖼️ 主圖上傳</label>
@@ -591,6 +598,11 @@ async loadData() {
       document.getElementById('p-length').value = p.length || '';
       document.getElementById('p-width').value = p.width || '';
       document.getElementById('p-height').value = p.height || '';
+
+      // 載入新增的三個欄位
+      document.getElementById('p-weight').value = p.weight || '';
+      document.getElementById('p-load').value = p.loadCapacity || '';
+      document.getElementById('p-assembly').value = p.assembly || '自行組裝';
       
       document.getElementById('p-img').value = p.image || '';
       document.getElementById('p-img2').value = p.image2 || '';
@@ -609,6 +621,11 @@ async loadData() {
       document.getElementById('p-length').value = '';
       document.getElementById('p-width').value = '';
       document.getElementById('p-height').value = '';
+
+      // 清空新增的三個欄位
+      document.getElementById('p-weight').value = '';
+      document.getElementById('p-load').value = '';
+      document.getElementById('p-assembly').value = '自行組裝';
       
       document.getElementById('p-img').value = ''; 
       document.getElementById('p-img2').value = ''; 
@@ -649,6 +666,11 @@ async saveProduct(e) {
   const pWidth = document.getElementById('p-width').value;
   const pHeight = document.getElementById('p-height').value;
 
+  // 取得新增的三個欄位數值
+  const pWeight = document.getElementById('p-weight').value;
+  const pLoadCapacity = document.getElementById('p-load').value;
+  const pAssembly = document.getElementById('p-assembly').value;
+
   let finalId = id;
   if (!finalId) { 
     if (this.products && this.products.length > 0) {
@@ -661,6 +683,7 @@ async saveProduct(e) {
     id: finalId, name: name, color: color, image: imgUrl, image2: imgUrl2, image3: imgUrl3, 
     category: cat, room: room, style: style, price: price, stock: stock,
     length: pLength ? parseInt(pLength) : null, width: pWidth ? parseInt(pWidth) : null, height: pHeight ? parseInt(pHeight) : null,
+    weight: pWeight, loadCapacity: pLoadCapacity, assembly: pAssembly, // 寫入資料庫
     soldCount: id ? (this.products.find(x=>x.id===id)?.soldCount || 0) : 0 
   };
 

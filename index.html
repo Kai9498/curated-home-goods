@@ -320,7 +320,7 @@
   <div class="nav-item">顧客服務
     <div class="dropdown">
       <span class="dropdown-item" onclick="app.navigate('faq')">常見問答 (Q&A)</span>
-      <span class="dropdown-item" onclick="app.navigate('policy')">選購指南</span>
+      <span class="dropdown-item" onclick="app.navigate('policy')">購物須知</span>
     </div>
   </div>
 </div>
@@ -519,6 +519,8 @@
       <aside class="sidebar">
         <h3>訂單摘要</h3>
         <div id="cart-summary" style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"></div>
+        <!-- 💡 新增：滿額免運提示 -->
+        <div style="margin-top: 10px; font-size: 14px; color: var(--success); font-weight: bold; text-align: center;">💡 滿 $15,000 享有免運</div>
         <button class="btn btn-primary" style="width: 100%; margin-top: 20px;" onclick="app.navigate('checkout')">前往結帳</button>
       </aside>
     </div>
@@ -583,6 +585,8 @@
               <select id="installment-select" onchange="app.updateCheckoutSummary()">
                 <option value="3">3 期 0 利率</option>
                 <option value="6">6 期 0 利率</option>
+                <!-- 💡 新增：12期分期選項 -->
+                <option value="12">12 期 0 利率</option>
               </select>
             </div>
             
@@ -1148,7 +1152,13 @@ const app = {
 
   getSpec(p) {
     const base = {
-      brand: 'CHG 好室選物', color: p.color || '原木色 / 百搭色', origin: '台灣', warranty: '1 年保固', assembly: '自行組裝', loadCapacity: '100 kg', delivery: '一般宅配', weight: '20 kg', material: '高質感複合材質', desc: '高品質質感家具，為您的居家空間增添獨特風格。採用環保材質製作，經久耐用，是您成家選物的最佳搭配。'
+      brand: 'CHG 好室選物', color: p.color || '原木色 / 百搭色', origin: '台灣', warranty: '1 年保固', 
+      // 💡 修改：將預設值改為優先讀取資料庫的值，若無資料才給預設值
+      assembly: p.assembly || '自行組裝', 
+      loadCapacity: p.loadCapacity || '100 kg', 
+      delivery: '一般宅配', 
+      weight: p.weight || '20 kg', 
+      material: '高質感複合材質', desc: '高品質質感家具，為您的居家空間增添獨特風格。採用環保材質製作，經久耐用，是您成家選物的最佳搭配。'
     };
 
     let dimString = '尚未提供';
@@ -1309,13 +1319,16 @@ const app = {
       </div>
     `;
 
+    // 💡 修改：在商品介紹的產品規格中，加入了對應的同步屬性
     const descHtml = `
       ${itemSpec.brand} ${p.name} | 質感設計 | 機能型家具<br>
       ${itemSpec.desc}<br><br>
       <strong>📐 產品規格</strong><br>
       尺寸：${itemSpec.dim}<br>
       材質：${itemSpec.material}<br>
-      重量：${itemSpec.weight}<br><br>
+      重量：${itemSpec.weight}<br>
+      最大承重：${itemSpec.loadCapacity}<br>
+      組裝需求：${itemSpec.assembly}<br><br>
       適合族群：<br>
       √ 注重居家生活質感<br>
       √ 需要穩固與安心材質<br>
@@ -1661,9 +1674,10 @@ const app = {
     let subtotal = 0;
     list.innerHTML = this.state.cart.map((item, idx) => {
       subtotal += item.price * item.qty;
+      // 💡 新增：為購物車商品圖片與名稱加入點擊事件與指標游標 (cursor:pointer)
       return `<div style="display:flex; align-items:center; background:white; padding:15px; margin-bottom:10px; border:1px solid var(--border); border-radius:8px;">
-        <img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover; border-radius:4px;">
-        <div style="flex:1;"><strong>${item.name}</strong></div>
+        <img src="${item.image}" style="width:60px; height:60px; margin-right:15px; object-fit:cover; border-radius:4px; cursor:pointer;" onclick="app.navigate('detail', {id:'${item.id}'})">
+        <div style="flex:1; cursor:pointer;" onclick="app.navigate('detail', {id:'${item.id}'})"><strong>${item.name}</strong></div>
         
         <div style="display:flex; align-items:center; gap:10px; margin-right:20px;">
           <button class="btn btn-outline" style="padding:2px 8px;" onclick="app.updateCartQty('${item.id}', -1)">-</button>
@@ -1766,6 +1780,17 @@ const app = {
     let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
     let shippingFee = parseInt(document.getElementById('chk-region').value) || 0;
     
+    // 💡 新增：結帳明細滿額 $15,000 免運判斷與 UI 呈現
+    let shippingDisplay = `$${shippingFee.toLocaleString()}`;
+    if (subtotal >= 15000) {
+        if (shippingFee > 0) {
+            shippingDisplay = `<del style="color:#999; font-size:12px; margin-right:4px;">$${shippingFee.toLocaleString()}</del> <span style="color:var(--success);">免運</span>`;
+        } else {
+            shippingDisplay = `<span style="color:var(--success);">免運</span>`;
+        }
+        shippingFee = 0; 
+    }
+
     let cSelect = document.getElementById('chk-coupon'); 
     let cDiscount = cSelect && cSelect.value ? parseInt(cSelect.options[cSelect.selectedIndex].dataset.discount) : 0;
     
@@ -1805,7 +1830,7 @@ const app = {
         ${itemsHtml}
       </div>
       <div style="display:flex; justify-content:space-between;"><span>商品小計:</span> <span>$${subtotal.toLocaleString()}</span></div>
-      <div style="display:flex; justify-content:space-between;"><span>運費:</span> <span>$${shippingFee.toLocaleString()}</span></div>
+      <div style="display:flex; justify-content:space-between;"><span>運費:</span> <span>${shippingDisplay}</span></div>
       <div style="display:flex; justify-content:space-between; color:var(--success);"><span>優惠折抵:</span> <span>-$${(cDiscount+usePoints).toLocaleString()}</span></div>
       <hr style="margin:10px 0; border-top:1px solid var(--border);">
       <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px; color:var(--danger);"><span>應付總額:</span> <span>$${finalTotal.toLocaleString()}</span></div>
@@ -1829,6 +1854,12 @@ const app = {
     if(!canProceed) return this.showToast(`部分商品庫存不足，請調整購物車！`);
 
     let shippingFee = parseInt(document.getElementById('chk-region').value) || 0;
+    
+    // 💡 新增：送出訂單時，確保滿 $15,000 的運費以 0 元計算寫入資料庫
+    if (subtotal >= 15000) {
+        shippingFee = 0;
+    }
+
     let cSelect = document.getElementById('chk-coupon'); 
     let cDiscount = cSelect.value ? parseInt(cSelect.options[cSelect.selectedIndex].dataset.discount) : 0;
     let usePoints = parseInt(document.getElementById('chk-points').value) || 0;
