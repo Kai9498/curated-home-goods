@@ -180,15 +180,7 @@
 
       <!-- AI 分析建議 -->
       <h3 style="margin-bottom:10px; color:#333;">🤖 AI 商業分析智慧建議：ABC 經營策略與行銷企劃</h3>
-      <div style="background: #fff; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; border-left: 4px solid var(--info);">
-        
-        <!-- 動態 AI 數據洞察區塊 -->
-        <p style="font-size:14px; color:var(--info); margin-bottom:10px; display:flex; align-items:center; gap:5px;"><strong>📊 本站專屬 AI 數據洞察 (基於帕累托動態分析)：</strong></p>
-        <div id="ai-dynamic-insights" style="background:#f4f6f8; padding:12px 15px; border-radius:6px; margin-bottom: 15px;">
-          <span style="color:#777; font-size:13px;">🔄 正在運算最新營業數據...</span>
-        </div>
-      </div>
-
+      
       <!-- 動態 ABC 策略卡片容器 -->
       <div id="ai-strategy-cards" style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:30px;">
         <span style="color:#777; font-size:13px; padding-left:10px;">🔄 正在生成動態策略...</span>
@@ -843,7 +835,7 @@ async saveProduct(e) {
     }
   },
 
-  showCategoryItems(cat) {
+  showCategoryItems(cat, customTitle = null) {
     const titles = { 
       A: 'A 類核心商品清單', 
       B: 'B 類潛力商品清單', 
@@ -853,12 +845,84 @@ async saveProduct(e) {
       urgentC: '⚠️ C 類庫存偏低清單',
       deadC: '⚠️ C 類長尾積壓警告清單'
     };
-    document.getElementById('cat-modal-title').innerText = titles[cat];
+    document.getElementById('cat-modal-title').innerText = customTitle || titles[cat] || '商品清單';
     const items = this.categoryLists[cat] || [];
     document.getElementById('cat-modal-list').innerHTML = items.length 
       ? items.map(n => `<li>${n}</li>`).join('') 
       : '<li>目前尚無相關商品</li>';
     document.getElementById('category-modal').style.display = 'flex';
+  },
+
+  generateDynamicMarketingPlan(productList, category) {
+    if (!productList || productList.length === 0) return '<li>目前無此類商品，暫無具體企劃建議。</li>';
+    
+    // 將商品進行語意歸類，避免同一類型的行銷計畫重複出現
+    let buckets = {
+      sofa: { name: '🛋️ 沙發與椅類', items: [], keywords: ['沙發', '椅', '凳'] },
+      bed: { name: '🛏️ 床與床墊類', items: [], keywords: ['床', '墊'] },
+      cabinet: { name: '🗄️ 櫃與層架類', items: [], keywords: ['櫃', '架'] },
+      table: { name: '🪑 桌與茶几類', items: [], keywords: ['桌', '几'] },
+      other: { name: '📦 其他居家擺飾/配件', items: [], keywords: [] }
+    };
+
+    productList.forEach(itemName => {
+      let placed = false;
+      for (let key in buckets) {
+        if (key === 'other') continue;
+        if (buckets[key].keywords.some(kw => itemName.includes(kw))) {
+          buckets[key].items.push(itemName);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) buckets.other.items.push(itemName);
+    });
+
+    let plans = [];
+
+    for (let key in buckets) {
+      if (buckets[key].items.length > 0) {
+        let catKey = `${category}_${key}`;
+        this.categoryLists[catKey] = buckets[key].items; // 將歸類好的清單存入系統，供點擊查看
+        
+        let planText = '';
+        if (key === 'sofa') {
+           if(category === 'A') planText = `推出專屬升級配件（如高質感抱枕、防潑水保潔墊）加價購，並針對已購買滿一年的舊客發送『居家煥新』專屬回購優惠與免費沙發清潔教學，透過售後服務提升品牌忠誠度與再次下單率。`;
+           else if(category === 'B') planText = `此類別具備爆款潛力，建議與熱銷茶几綁定為『客廳成家方案』進行組合販售，或洽詢居家風格 KOL 進行 IG 情境開箱短影音，主打坐感舒適度與空間百搭特性。`;
+           else planText = `針對滯銷或長尾款式，建議作為購買大型主力家具的滿額贈品，或於換季時舉辦『絕版品/展示品限時出清特賣』，主打極高 CP 值，加速收回資金與釋放倉儲空間。`;
+        } else if (key === 'bed') {
+           if(category === 'A') planText = `主打『安心試睡 100 天』與延長保固方案，利用高滿意度口碑進行轉介紹行銷（Referral Program），並在結帳頁面推薦加購頂級天絲床包組，拉高客單價與毛利。`;
+           else if(category === 'B') planText = `設計『好眠臥室情境套組』，搭配床頭櫃或暖色系夜燈進行視覺搭售。建議投放 Facebook 或 Google 睡眠困擾相關關鍵字廣告，精準觸及潛在買家。`;
+           else planText = `推出『租屋族首選』或福利品出清價，甚至可考慮針對長期無銷量的特殊尺寸床墊聯絡供應商退換，或以極低價格作為新客首購破盤引流款。`;
+        } else if (key === 'cabinet') {
+           if(category === 'A') planText = `主打『無腦收納』，提供到府專人組裝升級服務。並針對過往買家，透過 Email 推播同系列擴充收納件（如層板、收納抽屜、分類盒）的專屬 9 折折扣碼。`;
+           else if(category === 'B') planText = `拍攝短影音（Reels / TikTok）展示『收納前後對比』與空間極致利用的巧思，投放社群廣告測試受眾轉換率，強調五金耐用度與甲醛合格證明。`;
+           else planText = `庫存若過高，建議搭贈小型收納盒增加購買誘因，或設立【微瑕疵 / 絕版品】專區加速出清。長期無銷量款式建議停止進貨，以優化產品線與減少倉儲成本。`;
+        } else if (key === 'table') {
+           if(category === 'A') planText = `推出餐桌搭配餐椅，或書桌搭配辦公椅的專屬『1+4 搭售優惠』，打造一站式購足體驗，守住主體高毛利。亦可針對企業客提供大宗採購專案報價。`;
+           else if(category === 'B') planText = `策劃『居家辦公 (WFH) 升級』或『溫馨餐廳改造』提案，增加網頁情境圖的帶入感，刺激猶豫客下單；並可舉辦社群曬圖抽獎活動增加曝光度。`;
+           else planText = `可考慮將設計拆解促銷（如桌面與桌腳分開作為 DIY 配件販售），或直接以成本價於實體特賣會出清換取現金流；針對不符市場主流規格者盡速淘汰。`;
+        } else {
+           if(category === 'A') planText = `維持穩定價格與利潤空間，並為 VVIP 會員提供專屬優先預購權或隱藏版顏色。建議將其設置為購物車結帳頁面的『常態熱銷推薦』區塊。`;
+           else if(category === 'B') planText = `可於相關大型家具頁面設置為『完美搭配』的推薦加購品，或進行 A/B 測試優化商品主圖與情境描述，尋找提高點擊率的突破口。`;
+           else planText = `建議減少或停止備貨，現有庫存可作為全館『滿千送百』或特定節慶活動的滿額抽獎贈品，將死庫存轉化為促銷活動的籌碼。`;
+        }
+
+        plans.push(`
+          <li style="margin-bottom:12px; padding-bottom:8px; border-bottom:1px dashed #e0e0e0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <strong style="color:#2c3e50; font-size:13px;">${buckets[key].name}</strong>
+              <button type="button" onclick="adminApp.showCategoryItems('${catKey}', '${buckets[key].name} (${category}類)')" style="font-size:12px; color:var(--info); background:none; border:none; text-decoration:underline; cursor:pointer;">
+                查看此類商品 (${buckets[key].items.length}) 🔍
+              </button>
+            </div>
+            <div style="color:#555; line-height:1.6; font-size:13px;">${planText}</div>
+          </li>
+        `);
+      }
+    }
+
+    return plans.join('');
   },
 
   renderReports() {
@@ -867,10 +931,8 @@ async saveProduct(e) {
       document.getElementById('report-inventory-table').innerHTML = '<tr><td colspan="4" style="text-align:center;">尚無庫存資料</td></tr>';
       document.getElementById('report-abc-table').innerHTML = '<tr><td colspan="8" style="text-align:center;">尚無商品資料</td></tr>';
       
-      const aiInsightsEl = document.getElementById('ai-dynamic-insights');
       const strategyCardsEl = document.getElementById('ai-strategy-cards');
-      if (aiInsightsEl) aiInsightsEl.innerHTML = '<p style="color:#e67e22; font-weight:bold; font-size:13px; margin:0;">目前尚無商品與銷售數據，請新增商品並開始運營。</p>';
-      if (strategyCardsEl) strategyCardsEl.innerHTML = '';
+      if (strategyCardsEl) strategyCardsEl.innerHTML = '<p style="color:#e67e22; font-weight:bold; font-size:13px; margin:0;">目前尚無商品與銷售數據，請新增商品並開始運營。</p>';
       return;
     }
 
@@ -960,42 +1022,15 @@ async saveProduct(e) {
       `;
     }).join('');
 
-    this.categoryLists = { A: listA, B: listB, C: listC, urgentA, urgentB, urgentC, deadC };
+    this.categoryLists = { ...this.categoryLists, A: listA, B: listB, C: listC, urgentA, urgentB, urgentC, deadC };
 
-    const aiInsightsEl = document.getElementById('ai-dynamic-insights');
     const strategyCardsEl = document.getElementById('ai-strategy-cards');
     
-    if (aiInsightsEl && strategyCardsEl) {
+    if (strategyCardsEl) {
       if (totalRev === 0) {
-        aiInsightsEl.innerHTML = '<p style="color:#e67e22; font-weight:bold; font-size:13px; margin:0;">目前尚無有效營收數據 (已排除退貨)，建議進行行銷測試以累積數據，讓 AI 進行 ABC 帕累托精準分析。</p>';
-        strategyCardsEl.innerHTML = '';
+        strategyCardsEl.innerHTML = '<p style="color:#e67e22; font-weight:bold; font-size:13px; margin:0;">目前尚無有效營收數據 (已排除退貨)，建議進行行銷測試以累積數據，讓 AI 進行 ABC 帕累托精準分析。</p>';
       } else {
-        
-        const clickTag = (cat, count) => `<a href="javascript:void(0)" onclick="adminApp.showCategoryItems('${cat}')" style="color:var(--info); font-weight:bold; text-decoration:underline;" title="點擊查看商品清單">共 ${count} 項 🔍</a>`;
         const clickTagWarn = (cat, text, color) => `<a href="javascript:void(0)" onclick="adminApp.showCategoryItems('${cat}')" style="color:${color}; font-weight:bold; text-decoration:underline;" title="點擊查看商品清單">${text} 🔍</a>`;
-
-        let aiInsightHtml = '<ul style="margin-bottom:0; padding-left:20px; font-size:13px; color:#444; line-height:1.8;">';
-        aiInsightHtml += `<li><strong>📈 帕累托分佈現況：</strong>您的 A 類核心商品 ${clickTag('A', aCount)}，貢獻了 <strong>${((aRev/totalRev)*100).toFixed(1)}%</strong> 的總營收；B 類潛力商品 ${clickTag('B', bCount)} (貢獻 <strong>${((bRev/totalRev)*100).toFixed(1)}%</strong>)；C 類長尾商品 ${clickTag('C', cCount)} (貢獻 <strong>${((cRev/totalRev)*100).toFixed(1)}%</strong>)。</li>`;
-
-        let urgentItems = [...urgentA, ...urgentB];
-        if (urgentItems.length > 0) {
-          let warnLink = urgentA.length > 0 ? clickTagWarn('urgentA', '部分核心商品', 'var(--danger)') : clickTagWarn('urgentB', '部分潛力商品', '#e67e22');
-          aiInsightHtml += `<li style="color:var(--danger);"><strong>🚨 核心斷貨預警：</strong>【${warnLink}】庫存水位過低，存在嚴重斷貨危機，強烈建議<strong>立即聯絡供應商補貨</strong>！</li>`;
-        } else if (aCount > 0) {
-          aiInsightHtml += `<li style="color:#27ae60;"><strong>✅ 核心庫存穩定 (A 類)：</strong>目前 A 類主力商品庫存健康，建議繼續保持穩定曝光，並針對購買過的會員發送專屬回購優惠。</li>`;
-        }
-
-        // 修改：C類的建議改為明確的「清空、清倉」策略
-        if (deadC.length > 0) {
-          aiInsightHtml += `<li style="color:#d35400;"><strong>⚠️ C 類積壓去化建議：</strong>【${clickTagWarn('deadC', '部分積壓商品', '#d35400')}】週轉率極低 (可售天數 > 90 天)，嚴重佔用倉儲。AI 建議列入本月「限時清倉專區」，或直接作為高單價商品的滿額贈品，以快速回收資金與釋放庫存空間。</li>`;
-        }
-
-        // 修改：B類的建議改為明確的「加價購、升級」策略
-        if (bCount > 0) {
-           aiInsightHtml += `<li><strong>🚀 B 類潛力挖掘：</strong>您的 ${clickTag('B', bCount)} 具備顯著成長潛力。建議主打結帳時的「加價購 (Add-on)」，或投入廣告預算增加首頁曝光，測試並激發其市場潛力，目標推升為 A 類明星商品。</li>`;
-        }
-        aiInsightHtml += '</ul>';
-        aiInsightsEl.innerHTML = aiInsightHtml;
 
         let aAction = urgentA.length > 0 ? `<li style="color:var(--danger);">🚨 <b>緊急：</b>【${clickTagWarn('urgentA', '缺貨警告清單', 'var(--danger)')}】庫存告急，請優先處理補貨！</li>` : `<li>✅ 目前核心商品庫存健康，請繼續維持。</li>`;
         let bAction = urgentB.length > 0 ? `<li style="color:#e67e22;">⚠️ <b>注意：</b>【${clickTagWarn('urgentB', '偏低庫存清單', '#e67e22')}】庫存偏低，避免影響升級 A 類的潛力。</li>` : `<li>✅ 潛力商品庫存充足，可加大行銷力道。</li>`;
@@ -1003,45 +1038,57 @@ async saveProduct(e) {
 
         strategyCardsEl.innerHTML = `
         <div class="strategy-card card-A">
-          <h4><span class="badge-abc badge-A">A</span> 核心商品策略</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">${clickTag('A', aCount)}，創造 <strong>${((aRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h4 style="margin:0;"><span class="badge-abc badge-A">A</span> 核心商品策略</h4>
+            <span style="font-size:12px; font-weight:bold; color:#27ae60;">共 ${aCount} 項 (佔營收 ${((aRev/totalRev)*100).toFixed(1)}%)</span>
+          </div>
           <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
-          <ul>
+          <ul style="margin-bottom:20px;">
             ${aAction}
             <li>庫存優先：安全庫存不低於 21 天，缺貨即補。</li>
             <li>價格穩定：不輕易打折，守住毛利，維持高曝光。</li>
           </ul>
           <strong style="font-size:13px; color:#333;">行銷企劃：明星回購計畫</strong>
-          <ul><li>對買過這些商品的會員，推播專屬回購優惠。</li></ul>
-          <div class="budget-bar" style="background:#e8f8f5; color:#27ae60;">建議行銷預算佔比：50%</div>
+          <ul style="padding-left:0; list-style-type:none; margin-top:10px;">
+            ${this.generateDynamicMarketingPlan(listA, 'A')}
+          </ul>
+          <div class="budget-bar" style="background:#e8f8f5; color:#27ae60; margin-top:10px;">建議本區行銷預算佔比：50%</div>
         </div>
 
         <div class="strategy-card card-B">
-          <h4><span class="badge-abc badge-B">B</span> 潛力商品策略</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">${clickTag('B', bCount)}，創造 <strong>${((bRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h4 style="margin:0;"><span class="badge-abc badge-B">B</span> 潛力商品策略</h4>
+            <span style="font-size:12px; font-weight:bold; color:#e67e22;">共 ${bCount} 項 (佔營收 ${((bRev/totalRev)*100).toFixed(1)}%)</span>
+          </div>
           <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
-          <ul>
+          <ul style="margin-bottom:20px;">
             ${bAction}
             <li>目標：提高曝光與轉換，將優質 B 類推升至 A 類。</li>
             <li>行銷：主打專屬加價購、KOL 曝光或社群強推。</li>
           </ul>
           <strong style="font-size:13px; color:#333;">行銷企劃：潛力升級計畫</strong>
-          <ul><li>設立專區促銷，或在購物車頁面設定為推薦加購品。</li></ul>
-          <div class="budget-bar" style="background:#fdf2e9; color:#e67e22;">建議行銷預算佔比：30%</div>
+          <ul style="padding-left:0; list-style-type:none; margin-top:10px;">
+            ${this.generateDynamicMarketingPlan(listB, 'B')}
+          </ul>
+          <div class="budget-bar" style="background:#fdf2e9; color:#e67e22; margin-top:10px;">建議本區行銷預算佔比：30%</div>
         </div>
 
         <div class="strategy-card card-C">
-          <h4><span class="badge-abc badge-C">C</span> 長尾商品策略</h4>
-          <p style="font-size:12px; color:#666; margin-bottom:15px;">${clickTag('C', cCount)}，創造 <strong>${((cRev/totalRev)*100).toFixed(1)}%</strong> 營收</p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h4 style="margin:0;"><span class="badge-abc badge-C">C</span> 長尾商品策略</h4>
+            <span style="font-size:12px; font-weight:bold; color:#7f8c8d;">共 ${cCount} 項 (佔營收 ${((cRev/totalRev)*100).toFixed(1)}%)</span>
+          </div>
           <strong style="font-size:13px; color:#333;">AI 動態建議：</strong>
-          <ul>
+          <ul style="margin-bottom:20px;">
             ${cAction}
             <li>零銷量商品停止進貨，避免死庫存。</li>
             <li>庫存過多者直接作為滿額贈品或清倉拋售。</li>
           </ul>
           <strong style="font-size:13px; color:#333;">行銷企劃：長尾去化測試</strong>
-          <ul><li>設置「限時出清區」。連續單月無庫存者下架。</li></ul>
-          <div class="budget-bar" style="background:#f2f4f4; color:#7f8c8d;">建議行銷預算佔比：20%</div>
+          <ul style="padding-left:0; list-style-type:none; margin-top:10px;">
+            ${this.generateDynamicMarketingPlan(listC, 'C')}
+          </ul>
+          <div class="budget-bar" style="background:#f2f4f4; color:#7f8c8d; margin-top:10px;">建議本區行銷預算佔比：20%</div>
         </div>
         `;
       }

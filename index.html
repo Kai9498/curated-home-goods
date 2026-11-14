@@ -87,6 +87,7 @@
   .row-scroll { display: flex; gap: 20px; overflow-x: auto; flex-wrap: nowrap; padding-bottom: 15px; scrollbar-width: none; -ms-overflow-style: none; scroll-behavior: smooth; }
   .row-scroll::-webkit-scrollbar { display: none; }
   .row-scroll .card { flex: 0 0 calc(25% - 15px); min-width: 250px; }
+  #home-bestsellers .card { flex: 0 0 calc(20% - 16px); min-width: 200px; }
 
   .flex-layout { display: flex; gap: 20px; }
   .main-content { flex: 1; overflow-x: auto; }
@@ -355,23 +356,29 @@
        </div>
     </div>
 
-    <h3 style="text-align: center;">🏆 熱銷單品榜 (TOP 5)</h3>
+    <div style="position: relative; text-align: center; margin-top: 30px;">
+      <h3 style="font-size: 24px; margin-bottom: 20px;">🏆 熱銷單品榜 (TOP 5)</h3>
+      <a id="bestsellers-more-btn" style="display:none; position: absolute; right: 0; bottom: 25px; font-size: 14px; color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline;">查看更多商品 &gt;</a>
+    </div>
     <div class="row-scroll" id="home-bestsellers" style="margin-top: 15px;"></div>
     
-    <div style="text-align: center; margin-top: 50px;">
+    <div style="position: relative; text-align: center; margin-top: 50px;">
+      <h3 style="font-size: 24px; margin-bottom: 20px;">你可能會喜歡</h3>
+      <a id="yml-more-btn" style="display:none; position: absolute; right: 0; bottom: 25px; font-size: 14px; color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline;">查看更多商品 &gt;</a>
+    </div>
+    <div class="row-scroll" id="home-you-may-like" style="margin-top: 15px;"></div>
+
+    <div style="position: relative; text-align: center; margin-top: 50px;">
       <h3 style="font-size: 24px; margin-bottom: 20px;">物超所值</h3>
+      <a id="value-more-btn" style="display:none; position: absolute; right: 0; top: 10px; font-size: 14px; color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline;">查看更多商品 &gt;</a>
       <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;" id="value-tabs">
-        <span class="value-tab" onclick="app.switchValueTab('新品推薦')" style="cursor:pointer; padding-bottom: 5px; color: #999; border-bottom: 2px solid transparent;">新品推薦</span>
-        <span class="value-tab" onclick="app.switchValueTab('沙發推薦')" style="cursor:pointer; padding-bottom: 5px; color: #999; border-bottom: 2px solid transparent;">沙發推薦</span>
-        <span class="value-tab" onclick="app.switchValueTab('床墊推薦')" style="cursor:pointer; padding-bottom: 5px; color: #999; border-bottom: 2px solid transparent;">床墊推薦</span>
+        <span class="value-tab" onclick="app.switchValueTab('客廳推薦')" style="cursor:pointer; padding-bottom: 5px; color: #999; border-bottom: 2px solid transparent;">客廳推薦</span>
+        <span class="value-tab" onclick="app.switchValueTab('臥室推薦')" style="cursor:pointer; padding-bottom: 5px; color: #999; border-bottom: 2px solid transparent;">臥室推薦</span>
+        <span class="value-tab" onclick="app.switchValueTab('書房推薦')" style="cursor:pointer; padding-bottom: 5px; color: #999; border-bottom: 2px solid transparent;">書房推薦</span>
+        <span class="value-tab" onclick="app.switchValueTab('餐廳推薦')" style="cursor:pointer; padding-bottom: 5px; color: #999; border-bottom: 2px solid transparent;">餐廳推薦</span>
       </div>
     </div>
     <div class="row-scroll" id="home-value-recommend" style="margin-top: 15px;"></div>
-    
-    <div style="text-align: center; margin-top: 50px;">
-      <h3 style="font-size: 24px; margin-bottom: 20px;">你可能會喜歡</h3>
-    </div>
-    <div class="row-scroll" id="home-you-may-like" style="margin-top: 15px;"></div>
 
     <div style="text-align: center; margin-top: 50px;">
       <h3 style="font-size: 24px; margin-bottom: 20px;">店友的家</h3>
@@ -804,11 +811,12 @@ async function initializeProducts() {
 }
 
 const app = {
-  state: { view: 'home', valueTab: '新品推薦', cart: [], orders: [], compare: [], history: [], user: null, usersDB: {}, currentProductId: null, searchQuery: '' },
+  state: { view: 'home', valueTab: '客廳推薦', cart: [], orders: [], compare: [], history: [], user: null, usersDB: {}, currentProductId: null, searchQuery: '', currentAbcFilter: null, customListTitle: '' },
   lastNavView: 'home', 
   slideIdx: 0,
   slideInterval: null,
   currentDisplayReviews: [], 
+  abcLists: null,
   
   async init() {
     await initializeProducts();
@@ -862,7 +870,7 @@ const app = {
         this.state.usersDB = parsed.usersDB || {};
       }
     } catch(e) {
-      this.state = { view: 'home', valueTab: '新品推薦', cart: [], orders: [], compare: [], history: [], user: null, usersDB: {}, currentProductId: null, searchQuery: '' };
+      this.state = { view: 'home', valueTab: '客廳推薦', cart: [], orders: [], compare: [], history: [], user: null, usersDB: {}, currentProductId: null, searchQuery: '', currentAbcFilter: null, customListTitle: '' };
     }
   },
 
@@ -947,6 +955,59 @@ const app = {
         <label style="font-size:12px; cursor:pointer;"><input type="checkbox" ${isComp?'checked':''} onchange="app.toggleCompare('${p.id}', this.checked)"> 加入比較</label>${btnHtml}
       </div></div></div>`;
   },
+  
+  // 計算前端 ABC 帕累托分類
+  calculateABC() {
+    let reportProducts = JSON.parse(JSON.stringify(DB.products));
+    reportProducts.forEach(p => {
+      let count = 0;
+      this.state.orders.forEach(o => {
+        if (o.status !== '退換貨處理中' && o.status !== '退貨完成' && o.status !== '退換貨完成') {
+          o.items.forEach(i => { if (i.name === p.name) count += i.qty; });
+        }
+      });
+      p.soldCount = count;
+    });
+
+    const sortedSales = reportProducts.sort((a, b) => ((b.soldCount||0)*b.price) - ((a.soldCount||0)*a.price));
+    let totalRev = sortedSales.reduce((sum, p) => sum + (p.price * (p.soldCount || 0)), 0);
+    let cumRev = 0;
+
+    let listA = [], listB = [], listC = [];
+
+    sortedSales.forEach(p => {
+      let pRev = p.price * (p.soldCount || 0);
+      let ratio = totalRev > 0 ? (pRev / totalRev) : 0;
+      cumRev += ratio;
+
+      let level = 'C';
+      if (totalRev > 0) {
+        if (cumRev <= 0.701) level = 'A';
+        else if (cumRev <= 0.901) level = 'B';
+      }
+      
+      if (level === 'A') listA.push(p);
+      else if (level === 'B') listB.push(p);
+      else listC.push(p);
+    });
+    
+    this.abcLists = { A: listA, B: listB, C: listC, allSorted: sortedSales };
+  },
+
+  search(q) {
+    this.state.searchQuery = q; 
+    this.state.currentAbcFilter = null; // 清除 ABC 篩選
+    document.getElementById('searchInput').value = q; 
+    this.navigate('list'); 
+  },
+
+  viewMoreAbc(filterType, title) {
+    this.state.searchQuery = '';
+    this.state.currentAbcFilter = filterType;
+    this.state.customListTitle = title;
+    document.getElementById('searchInput').value = '';
+    this.navigate('list');
+  },
 
   switchValueTab(tab) {
     this.state.valueTab = tab;
@@ -963,26 +1024,74 @@ const app = {
       targetEl.style.fontWeight = 'bold';
     }
     
-    let recs = [];
-    if (tab === '新品推薦') {
-      recs = [...DB.products].sort((a, b) => b.id.localeCompare(a.id)).slice(0, 4);
-    } else if (tab === '沙發推薦') {
-      recs = [...DB.products].filter(p => p.category === '沙發').slice(0, 4);
-    } else if (tab === '床墊推薦') {
-      recs = [...DB.products].filter(p => p.category === '床墊').slice(0, 4);
+    if (!this.abcLists) this.calculateABC();
+    
+    let baseList = this.abcLists.C; 
+    let recsFull = [];
+    if (tab === '客廳推薦') {
+      recsFull = [...baseList].filter(p => p.room === '客廳');
+    } else if (tab === '臥室推薦') {
+      recsFull = [...baseList].filter(p => p.room === '臥室');
+    } else if (tab === '書房推薦') {
+      recsFull = [...baseList].filter(p => p.room === '書房');
+    } else if (tab === '餐廳推薦') {
+      recsFull = [...baseList].filter(p => p.room === '餐廳');
     }
-    document.getElementById('home-value-recommend').innerHTML = recs.map(p => this.createProductCard(p)).join('');
+    
+    let recs = recsFull.slice(0, 4);
+    
+    let valMoreBtn = document.getElementById('value-more-btn');
+    if (valMoreBtn) {
+        valMoreBtn.style.display = recsFull.length > 4 ? 'block' : 'none';
+        valMoreBtn.onclick = () => {
+            app.viewMoreAbc('C_' + tab, '物超所值 - ' + tab);
+        };
+    }
+
+    document.getElementById('home-value-recommend').innerHTML = recs.length 
+      ? recs.map(p => this.createProductCard(p)).join('') 
+      : '<p style="text-align:center; width:100%; color:#999; padding: 20px;">本分類目前尚無 C 類商品</p>';
   },
 
   renderHome() { 
-    let bestsellers = [...DB.products].sort((a,b)=>(b.soldCount||0) - (a.soldCount||0)).slice(0, 5);
-    document.getElementById('home-bestsellers').innerHTML = bestsellers.map(p => this.createProductCard(p)).join(''); 
+    this.calculateABC(); 
     
-    this.switchValueTab(this.state.valueTab || '新品推薦');
+    // 熱銷單品榜 (TOP 5) 顯示 A 類商品，若不足 5 項則顯示全站熱銷前 5
+    let bestsellersFull = this.abcLists.A;
+    if (bestsellersFull.length < 5) {
+        bestsellersFull = this.abcLists.allSorted;
+    }
+    
+    let bestsellers = bestsellersFull.slice(0, 5);
 
-    let youMayLike = [...DB.products].sort(() => 0.5 - Math.random()).slice(0, 4);
-    document.getElementById('home-you-may-like').innerHTML = youMayLike.map(p => this.createProductCard(p)).join('');
+    let bsMoreBtn = document.getElementById('bestsellers-more-btn');
+    if (bsMoreBtn) {
+        bsMoreBtn.style.display = bestsellersFull.length > 5 ? 'block' : 'none';
+        bsMoreBtn.onclick = () => app.viewMoreAbc('A', '🏆 熱銷單品榜');
+    }
+
+    document.getElementById('home-bestsellers').innerHTML = bestsellers.length 
+      ? bestsellers.map(p => this.createProductCard(p)).join('') 
+      : '<p style="text-align:center; width:100%; color:#999; padding: 20px;">目前尚無熱銷商品，數據累積中...</p>'; 
     
+    // 你可能會喜歡 顯示 B 類商品
+    let youMayLikeFull = this.abcLists.B.sort(() => 0.5 - Math.random());
+    let youMayLike = youMayLikeFull.slice(0, 4);
+    
+    let ymlMoreBtn = document.getElementById('yml-more-btn');
+    if (ymlMoreBtn) {
+        ymlMoreBtn.style.display = youMayLikeFull.length > 4 ? 'block' : 'none';
+        ymlMoreBtn.onclick = () => app.viewMoreAbc('B', '你可能會喜歡');
+    }
+
+    document.getElementById('home-you-may-like').innerHTML = youMayLike.length 
+      ? youMayLike.map(p => this.createProductCard(p)).join('') 
+      : '<p style="text-align:center; width:100%; color:#999; padding: 20px;">目前尚無 B 類推薦商品，數據累積中...</p>';
+    
+    // 物超所值 顯示 C 類商品
+    let validTabs = ['客廳推薦', '臥室推薦', '書房推薦', '餐廳推薦'];
+    this.switchValueTab(validTabs.includes(this.state.valueTab) ? this.state.valueTab : '客廳推薦');
+
     this.renderBuyerReviews();
   },
 
@@ -1143,12 +1252,6 @@ const app = {
 
     document.getElementById('review-detail-modal').style.display = 'flex';
   },
-  
-  search(q) { 
-    this.state.searchQuery = q; 
-    document.getElementById('searchInput').value = q; 
-    this.navigate('list'); 
-  },
 
   getSpec(p) {
     const base = {
@@ -1204,7 +1307,23 @@ const app = {
   renderList() {
     let filtered = [...DB.products]; 
     
-    if (this.state.searchQuery) {
+    // 判斷是否為「查看更多」的特定過濾名單
+    if (this.state.currentAbcFilter) {
+        if (!this.abcLists) this.calculateABC();
+
+        if (this.state.currentAbcFilter === 'A') {
+            filtered = this.abcLists.A;
+            if (filtered.length < 5) filtered = this.abcLists.allSorted;
+        } else if (this.state.currentAbcFilter === 'B') {
+            filtered = this.abcLists.B;
+        } else if (this.state.currentAbcFilter.startsWith('C_')) {
+            let room = this.state.currentAbcFilter.replace('C_', '').replace('推薦', '');
+            filtered = this.abcLists.C.filter(p => p.room === room);
+        }
+        document.getElementById('list-title').innerText = this.state.customListTitle || `全部商品列表`;
+    } 
+    // 若無特殊過濾，則走一般的搜尋邏輯
+    else if (this.state.searchQuery) {
         let q = this.state.searchQuery.toLowerCase();
         filtered = filtered.filter(p => 
             p.name.toLowerCase().includes(q) || 
