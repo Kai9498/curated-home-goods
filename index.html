@@ -369,7 +369,7 @@
     <div class="row-scroll" id="home-you-may-like" style="margin-top: 15px;"></div>
 
     <div style="position: relative; text-align: center; margin-top: 50px;">
-      <h3 style="font-size: 24px; margin-bottom: 20px;">物超所值</h3>
+      <h3 style="font-size: 24px; margin-bottom: 20px;">限時出清特價</h3>
       <a id="value-more-btn" style="display:none; position: absolute; right: 0; top: 10px; font-size: 14px; color: var(--primary); font-weight: bold; cursor: pointer; text-decoration: underline;">查看更多商品 &gt;</a>
       <div style="display: flex; justify-content: center; gap: 30px; margin-bottom: 20px;" id="value-tabs">
         <span class="value-tab" onclick="app.switchValueTab('客廳推薦')" style="cursor:pointer; padding-bottom: 5px; color: #999; border-bottom: 2px solid transparent;">客廳推薦</span>
@@ -659,7 +659,7 @@
 
         <div class="main-content">
           <h3 style="margin-bottom:15px;">🎟️ 領券專區</h3>
-          <div id="mem-claim-coupons"></div>
+          <div id="mem-claim-coupons" style="display:flex; flex-wrap:wrap; gap:15px;"></div>
           
           <h3 style="margin:25px 0 15px 0;">我的折價券</h3>
           <div id="mem-coupons" style="display:flex; flex-wrap:wrap; gap:10px;"></div>
@@ -1044,7 +1044,7 @@ const app = {
     if (valMoreBtn) {
         valMoreBtn.style.display = recsFull.length > 4 ? 'block' : 'none';
         valMoreBtn.onclick = () => {
-            app.viewMoreAbc('C_' + tab, '物超所值 - ' + tab);
+            app.viewMoreAbc('C_' + tab, '限時出清特價 - ' + tab);
         };
     }
 
@@ -1871,10 +1871,45 @@ const app = {
     
     let u = this.state.usersDB[this.state.user] || { points: 0, coupons: [] }; 
     let subtotal = this.state.cart.reduce((s,i) => s + i.price * i.qty, 0);
-    let availableCoupons = (u.coupons || []).filter(c => !c.used && subtotal >= c.min);
+
+    // 💡 判斷：計算限時出清 (C類) 商品的小計
+    if (!this.abcLists) this.calculateABC();
+    let clearanceItemIds = this.abcLists.C.map(p => p.id);
+    let clearanceSubtotal = this.state.cart.reduce((s, i) => s + (clearanceItemIds.includes(i.id) ? i.price * i.qty : 0), 0);
+    let hasClearanceItem = clearanceSubtotal > 0;
+    
+    // 💡 整理可用折價券：區分為一般券與出清券
+    let generalCoupons = (u.coupons || []).filter(c => !c.used && !c.id.startsWith('CLEAR') && subtotal >= c.min);
+    let clearanceCoupons = (u.coupons || []).filter(c => !c.used && c.id.startsWith('CLEAR') && clearanceSubtotal >= c.min);
+    
+    let optionsHtml = `<option value="">不使用折價券</option>`;
+    
+    // 1. 一般商品與全部商品皆可用的券 (如：滿萬折千)
+    generalCoupons.forEach(c => {
+        optionsHtml += `<option value="${c.id}" data-discount="${c.discount}">${c.name} (折 $${c.discount})</option>`;
+    });
+
+    // 2. 當購物車「有包含」限時出清商品時，才顯示出清專用券以及「雙重組合」
+    if (hasClearanceItem) {
+        // 單用出清券
+        clearanceCoupons.forEach(c => {
+            optionsHtml += `<option value="${c.id}" data-discount="${c.discount}">${c.name} (折 $${c.discount})</option>`;
+        });
+
+        // 🔥 雙重折抵：將「滿萬折千」與「限時出清券」合併成一個選項
+        generalCoupons.forEach(gc => {
+            clearanceCoupons.forEach(cc => {
+                let combinedId = gc.id + '+' + cc.id;
+                let combinedName = gc.name + ' + ' + cc.name;
+                let combinedDiscount = gc.discount + cc.discount;
+                optionsHtml += `<option value="${combinedId}" data-discount="${combinedDiscount}">🔥 雙重折抵：${combinedName} (共折 $${combinedDiscount})</option>`;
+            });
+        });
+    }
     
     let cSelect = document.getElementById('chk-coupon');
-    cSelect.innerHTML = `<option value="">不使用折價券</option>` + availableCoupons.map(c => `<option value="${c.id}" data-discount="${c.discount}">${c.name} (折 $${c.discount})</option>`).join('');
+    cSelect.innerHTML = optionsHtml;
+    
     document.getElementById('chk-max-points').innerText = u.points || 0; 
     document.getElementById('chk-points').max = u.points || 0; 
     document.getElementById('chk-points').value = 0;
@@ -1974,7 +2009,6 @@ const app = {
 
     let shippingFee = parseInt(document.getElementById('chk-region').value) || 0;
     
-    // 💡 新增：送出訂單時，確保滿 $15,000 的運費以 0 元計算寫入資料庫
     if (subtotal >= 15000) {
         shippingFee = 0;
     }
@@ -1985,7 +2019,15 @@ const app = {
     let finalTotal = subtotal + shippingFee - cDiscount - usePoints; 
     let earnPoints = Math.floor(finalTotal / 100);
 
-    if(cSelect.value) u.coupons.find(x => x.id === cSelect.value).used = true;
+    // 💡 修改：如果是複合折價券 (ID 中包含 '+')，就拆解並標記所有券為已使用
+    if(cSelect.value) {
+        let usedIds = cSelect.value.split('+');
+        usedIds.forEach(id => {
+            let c = u.coupons.find(x => x.id === id);
+            if (c) c.used = true;
+        });
+    }
+
     u.points = (u.points || 0) - usePoints + earnPoints;
     
     this.state.cart.forEach(item => { 
@@ -2180,12 +2222,26 @@ const app = {
          document.getElementById('mem-checkin-btn-area').innerHTML = `<button class="btn btn-primary" style="width:100%; margin-top:15px;" onclick="app.claimDailyPoint()">🎁 每日簽到領 10 點</button>`;
       }
 
-      let hasClaimed = (u.coupons || []).find(c => c.id === 'CP1000');
-      document.getElementById('mem-claim-coupons').innerHTML = hasClaimed ? '<p style="color:#777; font-size:14px;">目前暫無其他可領取的折價券</p>' : `
-        <div class="ticket">
-          <div><strong style="font-size:18px; color:#d35400;">新居落成 滿萬折千</strong><br><span style="font-size:14px; color:#777;">單筆訂單滿 $10,000 折抵 $1,000</span></div>
-          <button class="btn btn-primary" onclick="app.claimCoupon('CP1000', '滿萬折千', 10000, 1000)">立即領取</button>
-        </div>`;
+      // 領券專區
+      let availableCouponsData = [
+        { id: 'CP1000', title: '新居落成 滿萬折千', desc: '單筆訂單滿 $10,000 折抵 $1,000', min: 10000, discount: 1000 },
+        { id: 'CLEAR500', title: '限時出清 滿五千折五百', desc: '單筆訂單滿 $5,000 折抵 $500', min: 5000, discount: 500 },
+        { id: 'CLEAR1200', title: '限時出清 滿萬折一千二', desc: '單筆訂單滿 $10,000 折抵 $1,200', min: 10000, discount: 1200 },
+        { id: 'CLEAR2500', title: '限時出清 滿兩萬折兩千五', desc: '單筆訂單滿 $20,000 折抵 $2,500', min: 20000, discount: 2500 }
+      ];
+
+      let claimCouponsHtml = availableCouponsData.map(c => {
+        let hasClaimed = (u.coupons || []).find(uc => uc.id === c.id);
+        if (hasClaimed) return ''; 
+        return `
+          <div class="ticket" style="flex: 1 1 calc(50% - 15px); min-width: 300px;">
+            <div><strong style="font-size:18px; color:#d35400;">${c.title}</strong><br><span style="font-size:14px; color:#777;">${c.desc}</span></div>
+            <button class="btn btn-primary" onclick="app.claimCoupon('${c.id}', '${c.title}', ${c.min}, ${c.discount})">立即領取</button>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('mem-claim-coupons').innerHTML = claimCouponsHtml || '<p style="color:#777; font-size:14px; width:100%;">目前暫無其他可領取的折價券</p>';
 
       let unusedCoupons = (u.coupons || []).filter(c => !c.used);
       document.getElementById('mem-coupons').innerHTML = unusedCoupons.length ? unusedCoupons.map(c => `

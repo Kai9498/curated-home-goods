@@ -131,6 +131,14 @@
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
         <h2>商品管理</h2>
         <div style="display:flex; gap:10px;">
+          <!-- 空間篩選下拉選單 -->
+          <select id="search-room" onchange="adminApp.renderProducts()" style="width:120px;">
+            <option value="">全部空間</option>
+            <option value="客廳">客廳</option>
+            <option value="臥室">臥室</option>
+            <option value="餐廳">餐廳</option>
+            <option value="書房">書房</option>
+          </select>
           <input type="text" id="search-product" placeholder="搜尋商品名稱..." oninput="adminApp.renderProducts()" style="width:250px;">
           <button class="btn btn-primary" onclick="adminApp.openProductModal()">＋ 新增商品</button>
         </div>
@@ -345,9 +353,10 @@ async loadData() {
     let needsMockUpdate = false;
     if (this.fullState.orders.length === 0) {
       needsMockUpdate = true;
-    } else if (this.fullState.orders.length === 20 && this.products.length > 0) {
+    } else if (this.fullState.orders.length <= 32 && this.products.length > 0) {
+      // 若原先只有 32 筆以下的訂單，為了補齊新增的 10 筆強制更新
       const firstMockItem = this.fullState.orders[0].items[0].name;
-      if (!this.products.some(p => p.name === firstMockItem)) needsMockUpdate = true;
+      if (!this.products.some(p => p.name === firstMockItem) || this.fullState.orders.length <= 32) needsMockUpdate = true;
     }
 
     if (needsMockUpdate) {
@@ -357,6 +366,7 @@ async loadData() {
       const getP = (idx) => this.products.length > 0 ? this.products[idx % this.products.length] : {name: '尚無商品', price: 0};
       
       this.fullState.orders = [
+        // 原始預設的 22 筆
         { id: 'ORD-2611001', date: d(1), user: 'alice@gmail.com', total: getP(0).price + getP(1).price, status: '備貨中', items: [{name: getP(0).name, qty: 1}, {name: getP(1).name, qty: 1}] },
         { id: 'ORD-2611002', date: d(3), user: 'bob@gmail.com', total: getP(2).price * 2, status: '配送中', items: [{name: getP(2).name, qty: 2}] },
         { id: 'ORD-2610001', date: d(5), user: 'carol@gmail.com', total: getP(3).price, status: '已完成', items: [{name: getP(3).name, qty: 1}], isReviewed: true, reviewScore: 5, reviewText: '質感很好，坐起來很舒服！', reviewImg: '' },
@@ -376,7 +386,33 @@ async loadData() {
         { id: 'ORD-2608002', date: d(78), user: 'quinn@gmail.com', total: getP(5).price, status: '已完成', items: [{name: getP(5).name, qty: 1}] },
         { id: 'ORD-2608003', date: d(85), user: 'rose@gmail.com', total: getP(6).price + getP(7).price, status: '已完成', items: [{name: getP(6).name, qty: 1}, {name: getP(7).name, qty: 1}] },
         { id: 'ORD-2608004', date: d(92), user: 'sam@gmail.com', total: getP(8).price * 2, status: '已完成', items: [{name: getP(8).name, qty: 2}] },
-        { id: 'ORD-2607001', date: d(105), user: 'tina@gmail.com', total: getP(9).price + getP(10).price, status: '已完成', items: [{name: getP(9).name, qty: 1}, {name: getP(10).name, qty: 1}] }
+        { id: 'ORD-2607001', date: d(105), user: 'tina@gmail.com', total: getP(9).price + getP(10).price, status: '已完成', items: [{name: getP(9).name, qty: 1}, {name: getP(10).name, qty: 1}] },
+        { id: 'ORD-2607009', date: d(95), user: 'tina@gmail.com', total: getP(5).price + getP(11).price, status: '已完成', items: [{name: getP(5).name, qty: 2}, {name: getP(11).name, qty: 4}] },
+        { id: 'ORD-2607012', date: d(88), user: 'tina@gmail.com', total: getP(20).price + getP(21).price, status: '已完成', items: [{name: getP(20).name, qty: 5}, {name: getP(21).name, qty: 5}] },
+        
+        // 第一次新增的 10 筆 (採用未曾被交易過的商品 索引 12~19)
+        { id: 'ORD-2606001', date: d(110), user: 'new01@gmail.com', total: getP(12).price, status: '已完成', items: [{name: getP(12).name, qty: 1}] },
+        { id: 'ORD-2606002', date: d(115), user: 'new02@gmail.com', total: getP(13).price * 2, status: '備貨中', items: [{name: getP(13).name, qty: 2}] },
+        { id: 'ORD-2606003', date: d(120), user: 'new03@gmail.com', total: getP(14).price, status: '已完成', items: [{name: getP(14).name, qty: 1}] },
+        { id: 'ORD-2606004', date: d(122), user: 'new04@gmail.com', total: getP(15).price, status: '配送中', items: [{name: getP(15).name, qty: 1}] },
+        { id: 'ORD-2606005', date: d(125), user: 'new05@gmail.com', total: getP(16).price, status: '已完成', items: [{name: getP(16).name, qty: 1}] },
+        { id: 'ORD-2606006', date: d(128), user: 'new06@gmail.com', total: getP(17).price, status: '退換貨處理中', items: [{name: getP(17).name, qty: 1}], returnInfo: { reason: '商品瑕疵', detail: '運送過程嚴重碰撞', img: '' } },
+        { id: 'ORD-2606007', date: d(130), user: 'new07@gmail.com', total: getP(18).price + getP(19).price, status: '已完成', items: [{name: getP(18).name, qty: 1}, {name: getP(19).name, qty: 1}] },
+        { id: 'ORD-2606008', date: d(135), user: 'new08@gmail.com', total: getP(12).price + getP(13).price, status: '已完成', items: [{name: getP(12).name, qty: 1}, {name: getP(13).name, qty: 1}], isReviewed: true, reviewScore: 4, reviewText: '整體來說符合預期！' },
+        { id: 'ORD-2605001', date: d(140), user: 'new09@gmail.com', total: getP(14).price, status: '已完成', items: [{name: getP(14).name, qty: 1}] },
+        { id: 'ORD-2605002', date: d(145), user: 'new10@gmail.com', total: getP(15).price, status: '已完成', items: [{name: getP(15).name, qty: 1}] },
+
+        // 本次再新增的 10 筆：分散至更後面的長尾商品與不同類型組合，並拉高部分購買數量，讓 ABC 分析更平均
+        { id: 'ORD-2604001', date: d(150), user: 'bal01@gmail.com', total: getP(22).price + getP(23).price, status: '已完成', items: [{name: getP(22).name, qty: 1}, {name: getP(23).name, qty: 1}] },
+        { id: 'ORD-2604002', date: d(152), user: 'bal02@gmail.com', total: getP(24).price * 4, status: '已完成', items: [{name: getP(24).name, qty: 4}] },
+        { id: 'ORD-2604003', date: d(155), user: 'bal03@gmail.com', total: getP(25).price + getP(26).price, status: '配送中', items: [{name: getP(25).name, qty: 1}, {name: getP(26).name, qty: 1}] },
+        { id: 'ORD-2604004', date: d(158), user: 'bal04@gmail.com', total: getP(27).price, status: '已完成', items: [{name: getP(27).name, qty: 1}] },
+        { id: 'ORD-2604005', date: d(160), user: 'bal05@gmail.com', total: getP(28).price * 2, status: '已完成', items: [{name: getP(28).name, qty: 2}], isReviewed: true, reviewScore: 5, reviewText: '收納功能很棒！' },
+        { id: 'ORD-2604006', date: d(162), user: 'bal06@gmail.com', total: getP(29).price, status: '備貨中', items: [{name: getP(29).name, qty: 1}] },
+        { id: 'ORD-2604007', date: d(165), user: 'bal07@gmail.com', total: getP(30).price + getP(31).price, status: '已完成', items: [{name: getP(30).name, qty: 1}, {name: getP(31).name, qty: 1}] },
+        { id: 'ORD-2604008', date: d(168), user: 'bal08@gmail.com', total: getP(8).price * 2 + getP(9).price, status: '已完成', items: [{name: getP(8).name, qty: 2}, {name: getP(9).name, qty: 1}] },
+        { id: 'ORD-2604009', date: d(170), user: 'bal09@gmail.com', total: getP(10).price + getP(22).price, status: '退換貨處理中', items: [{name: getP(10).name, qty: 1}, {name: getP(22).name, qty: 1}], returnInfo: { reason: '與想像不符', detail: '實體顏色偏暗', img: '' } },
+        { id: 'ORD-2604010', date: d(175), user: 'bal10@gmail.com', total: getP(23).price * 6, status: '已完成', items: [{name: getP(23).name, qty: 6}], isReviewed: true, reviewScore: 4, reviewText: '買來當餐椅，CP值很高。' }
       ];
 
       this.fullState.visitors = { date: now.toLocaleDateString(), count: 412 };
@@ -549,7 +585,18 @@ async loadData() {
 
   renderProducts() {
     const kw = document.getElementById('search-product').value.toLowerCase();
-    let d = kw ? this.products.filter(p => p.name.toLowerCase().includes(kw) || p.id.toLowerCase().includes(kw)) : this.products;
+    const room = document.getElementById('search-room').value;
+    
+    let d = this.products;
+
+    if (kw) {
+      d = d.filter(p => p.name.toLowerCase().includes(kw) || p.id.toLowerCase().includes(kw));
+    }
+    
+    if (room) {
+      d = d.filter(p => p.room === room);
+    }
+
     document.getElementById('products-table').innerHTML = d.map(p => {
       let imgCount = 1;
       if (p.image2) imgCount++;
@@ -591,7 +638,6 @@ async loadData() {
       document.getElementById('p-width').value = p.width || '';
       document.getElementById('p-height').value = p.height || '';
 
-      // 載入新增的三個欄位
       document.getElementById('p-weight').value = p.weight || '';
       document.getElementById('p-load').value = p.loadCapacity || '';
       document.getElementById('p-assembly').value = p.assembly || '自行組裝';
@@ -614,7 +660,6 @@ async loadData() {
       document.getElementById('p-width').value = '';
       document.getElementById('p-height').value = '';
 
-      // 清空新增的三個欄位
       document.getElementById('p-weight').value = '';
       document.getElementById('p-load').value = '';
       document.getElementById('p-assembly').value = '自行組裝';
@@ -658,7 +703,6 @@ async saveProduct(e) {
   const pWidth = document.getElementById('p-width').value;
   const pHeight = document.getElementById('p-height').value;
 
-  // 取得新增的三個欄位數值
   const pWeight = document.getElementById('p-weight').value;
   const pLoadCapacity = document.getElementById('p-load').value;
   const pAssembly = document.getElementById('p-assembly').value;
@@ -675,7 +719,7 @@ async saveProduct(e) {
     id: finalId, name: name, color: color, image: imgUrl, image2: imgUrl2, image3: imgUrl3, 
     category: cat, room: room, style: style, price: price, stock: stock,
     length: pLength ? parseInt(pLength) : null, width: pWidth ? parseInt(pWidth) : null, height: pHeight ? parseInt(pHeight) : null,
-    weight: pWeight, loadCapacity: pLoadCapacity, assembly: pAssembly, // 寫入資料庫
+    weight: pWeight, loadCapacity: pLoadCapacity, assembly: pAssembly, 
     soldCount: id ? (this.products.find(x=>x.id===id)?.soldCount || 0) : 0 
   };
 
@@ -702,7 +746,6 @@ async saveProduct(e) {
       
       let realIdx = this.fullState.orders.findIndex(x => x.id === o.id);
 
-      // 銀行匯款資訊區塊
       let bankTransferHtml = '';
       if (o.paymentMethod === 'bank-transfer') {
         let last5 = o.bankTransferLast5 ? o.bankTransferLast5 : '尚未提供';
@@ -856,7 +899,6 @@ async saveProduct(e) {
   generateDynamicMarketingPlan(productList, category) {
     if (!productList || productList.length === 0) return '<li>目前無此類商品，暫無具體企劃建議。</li>';
     
-    // 將商品進行語意歸類，避免同一類型的行銷計畫重複出現
     let buckets = {
       sofa: { name: '🛋️ 沙發與椅類', items: [], keywords: ['沙發', '椅', '凳'] },
       bed: { name: '🛏️ 床與床墊類', items: [], keywords: ['床', '墊'] },
@@ -883,7 +925,7 @@ async saveProduct(e) {
     for (let key in buckets) {
       if (buckets[key].items.length > 0) {
         let catKey = `${category}_${key}`;
-        this.categoryLists[catKey] = buckets[key].items; // 將歸類好的清單存入系統，供點擊查看
+        this.categoryLists[catKey] = buckets[key].items; 
         
         let planText = '';
         if (key === 'sofa') {
